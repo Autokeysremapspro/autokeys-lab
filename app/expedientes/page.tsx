@@ -41,7 +41,7 @@ export default function Expedientes(){
         <h2 className="text-2xl font-black">Expedientes / OT</h2>
         <p className="text-zinc-500 text-sm">Gestión de trabajos, estados y ficha técnica.</p>
       </div>
-      <button onClick={()=>setOpen(true)} className="btn btn-red">Nueva OT</button>
+      <Link href="/expedientes/nueva" className="btn btn-red">Nueva OT</Link>
     </div>
 
     <DataTable columns={['OT','Cliente','Vehículo','Trabajo','Estado','Prioridad','Importe','Acción']} rows={items.map(i=>[

@@ -22,3 +22,10 @@ th { text-align:left; color:#9ca3af; font-size:12px; text-transform:uppercase; l
 th, td { padding:15px; border-bottom:1px solid rgba(255,255,255,.08); vertical-align:middle; }
 tr:hover td { background:rgba(255,255,255,.03); }
 a { transition:.2s; }
+.selection-card { border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.025); border-radius:20px; padding:16px; transition:.2s; }
+.selection-card:hover { border-color:rgba(220,38,38,.45); background:rgba(220,38,38,.07); transform:translateY(-1px); }
+.selection-card-active { border-color:rgba(220,38,38,.85); background:rgba(220,38,38,.14); box-shadow:0 14px 35px rgba(220,38,38,.12); }
+.work-card { border:1px solid rgba(255,255,255,.10); background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015)); border-radius:24px; padding:18px; transition:.2s; min-height:150px; }
+.work-card:hover { border-color:rgba(220,38,38,.45); background:rgba(220,38,38,.07); transform:translateY(-1px); }
+.work-card-active { border-color:rgba(220,38,38,.85); background:linear-gradient(180deg,rgba(220,38,38,.18),rgba(220,38,38,.08)); box-shadow:0 16px 45px rgba(220,38,38,.14); }
+button:disabled { cursor:not-allowed; }

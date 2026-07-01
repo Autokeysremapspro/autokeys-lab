@@ -134,7 +134,7 @@ export default function Dashboard() {
             <h2 className="text-xl font-black">Acciones rápidas</h2>
             <p className="text-sm text-zinc-500 mb-4">Crear trabajo, cliente o material</p>
             <div className="space-y-3">
-              <QuickAction href="/expedientes" icon={<PlusCircle size={19} />} title="Nueva OT" description="Crear expediente de trabajo" />
+              <QuickAction href="/expedientes/nueva" icon={<PlusCircle size={19} />} title="Nueva OT" description="Crear expediente de trabajo" />
               <QuickAction href="/clientes" icon={<Users size={19} />} title="Nuevo cliente" description="Alta rápida de cliente" />
               <QuickAction href="/stock" icon={<Package size={19} />} title="Nueva referencia" description="Añadir ECU, llave o módulo" />
             </div>

@@ -52,7 +52,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <div className="text-xs text-zinc-500 mt-1">ERP interno · ECU · IMMO · Llaves</div>
         </div>
 
-        <Link href="/expedientes" className="btn btn-red mb-5 flex items-center justify-center gap-2">
+        <Link href="/expedientes/nueva" className="btn btn-red mb-5 flex items-center justify-center gap-2">
           <PlusCircle size={18} /> Nueva OT
         </Link>
 
