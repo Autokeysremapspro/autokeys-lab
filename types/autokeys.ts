@@ -173,3 +173,18 @@ export type TiempoTrabajo = {
   notas?: string | null
   created_at?: string
 }
+
+export type LineaFactura = {
+  id: string
+  factura_id: string
+  concepto: string
+  descripcion?: string | null
+  cantidad?: number | null
+  precio_unitario?: number | null
+  total?: number | null
+  created_at?: string
+}
+
+export type DocumentoFacturacion = Factura & {
+  lineas?: LineaFactura[]
+}
