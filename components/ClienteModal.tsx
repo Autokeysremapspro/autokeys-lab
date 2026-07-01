@@ -1,128 +1,86 @@
 'use client'
 
-import { FormEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import type { Cliente } from '@/types/autokeys'
 
-type ClienteForm = {
-  nombre: string
-  telefono: string
-  email: string
-  nif: string
-  direccion: string
-  codigo_postal: string
-  poblacion: string
-  provincia: string
-  notas: string
-}
-
-const emptyForm: ClienteForm = {
-  nombre: '',
-  telefono: '',
-  email: '',
-  nif: '',
-  direccion: '',
-  codigo_postal: '',
-  poblacion: '',
-  provincia: '',
-  notas: ''
-}
-
-export default function ClienteModal({
-  open,
-  title,
-  initialData,
-  loading,
-  onClose,
-  onSubmit
-}: {
+type Props = {
   open: boolean
-  title: string
-  initialData?: Partial<ClienteForm>
-  loading?: boolean
+  cliente?: Cliente | null
   onClose: () => void
-  onSubmit: (payload: ClienteForm) => Promise<void> | void
-}) {
-  const [form, setForm] = useState<ClienteForm>(emptyForm)
+  onSave: (payload: Partial<Cliente>) => Promise<void>
+}
+
+export default function ClienteModal({ open, cliente, onClose, onSave }: Props) {
+  const [form, setForm] = useState<Partial<Cliente>>({})
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (open) setForm({ ...emptyForm, ...(initialData || {}) })
-  }, [open, initialData])
+    if (open) setForm(cliente || { nombre: '', telefono: '', email: '', nif: '', direccion: '', codigo_postal: '', poblacion: '', provincia: '', notas: '' })
+  }, [open, cliente])
 
   if (!open) return null
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
-    await onSubmit(form)
-  }
+  const set = (key: keyof Cliente, value: string) => setForm(prev => ({ ...prev, [key]: value }))
 
-  function update(key: keyof ClienteForm, value: string) {
-    setForm(prev => ({ ...prev, [key]: value }))
+  async function submit() {
+    if (!form.nombre?.trim()) {
+      alert('El nombre es obligatorio')
+      return
+    }
+    setLoading(true)
+    try {
+      await onSave(form)
+      onClose()
+    } catch (e: any) {
+      alert(e?.message || 'No se pudo guardar el cliente')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-      <div className="card w-full max-w-4xl p-6">
-        <div className="mb-6 flex items-start justify-between gap-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm">
+      <div className="w-full max-w-4xl rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+        <div className="mb-6 flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-black">{title}</h2>
-            <p className="mt-1 text-sm text-zinc-500">Datos administrativos del cliente.</p>
+            <h2 className="text-2xl font-black text-white">{cliente ? 'Editar cliente' : 'Nuevo cliente'}</h2>
+            <p className="text-sm text-slate-400">Datos administrativos del cliente.</p>
           </div>
-          <button type="button" onClick={onClose} className="btn btn-dark">Cerrar</button>
+          <button onClick={onClose} className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800">Cerrar</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-2">
-            <span className="text-sm font-bold text-zinc-300">Nombre *</span>
-            <input required value={form.nombre} onChange={e => update('nombre', e.target.value)} placeholder="Nombre o razón social" className="w-full" />
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-bold text-zinc-300">Teléfono</span>
-            <input value={form.telefono} onChange={e => update('telefono', e.target.value)} placeholder="600 000 000" className="w-full" />
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-bold text-zinc-300">Email</span>
-            <input type="email" value={form.email} onChange={e => update('email', e.target.value)} placeholder="cliente@email.com" className="w-full" />
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-bold text-zinc-300">NIF / CIF</span>
-            <input value={form.nif} onChange={e => update('nif', e.target.value)} placeholder="00000000A" className="w-full" />
-          </label>
-
-          <label className="space-y-2 md:col-span-2">
-            <span className="text-sm font-bold text-zinc-300">Dirección</span>
-            <input value={form.direccion} onChange={e => update('direccion', e.target.value)} placeholder="Calle, número, local..." className="w-full" />
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-bold text-zinc-300">Código postal</span>
-            <input value={form.codigo_postal} onChange={e => update('codigo_postal', e.target.value)} placeholder="23350" className="w-full" />
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-bold text-zinc-300">Población</span>
-            <input value={form.poblacion} onChange={e => update('poblacion', e.target.value)} placeholder="Puente de Génave" className="w-full" />
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-bold text-zinc-300">Provincia</span>
-            <input value={form.provincia} onChange={e => update('provincia', e.target.value)} placeholder="Jaén" className="w-full" />
-          </label>
-
-          <label className="space-y-2 md:col-span-2">
-            <span className="text-sm font-bold text-zinc-300">Observaciones</span>
-            <textarea value={form.notas} onChange={e => update('notas', e.target.value)} placeholder="Notas internas, preferencias, avisos..." className="min-h-[110px] w-full" />
-          </label>
-
-          <div className="flex justify-end gap-3 md:col-span-2">
-            <button type="button" onClick={onClose} className="btn btn-dark">Cancelar</button>
-            <button disabled={loading} className="btn btn-red disabled:opacity-50">
-              {loading ? 'Guardando...' : 'Guardar cliente'}
-            </button>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Nombre *" value={form.nombre || ''} onChange={v => set('nombre', v)} />
+          <Field label="Teléfono" value={form.telefono || ''} onChange={v => set('telefono', v)} />
+          <Field label="Email" value={form.email || ''} onChange={v => set('email', v)} />
+          <Field label="NIF / CIF" value={form.nif || ''} onChange={v => set('nif', v)} />
+          <div className="md:col-span-2"><Field label="Dirección" value={form.direccion || ''} onChange={v => set('direccion', v)} /></div>
+          <Field label="Código postal" value={form.codigo_postal || ''} onChange={v => set('codigo_postal', v)} />
+          <Field label="Población" value={form.poblacion || ''} onChange={v => set('poblacion', v)} />
+          <Field label="Provincia" value={form.provincia || ''} onChange={v => set('provincia', v)} />
+          <div />
+          <div className="md:col-span-2">
+            <label className="mb-2 block text-sm font-bold text-slate-300">Observaciones</label>
+            <textarea value={form.notas || ''} onChange={e => set('notas', e.target.value)} className="h-28 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-500" />
           </div>
-        </form>
+        </div>
+
+        <div className="mt-6 flex justify-end gap-3">
+          <button onClick={onClose} className="rounded-xl border border-slate-700 px-5 py-3 font-bold text-white hover:bg-slate-800">Cancelar</button>
+          <button onClick={submit} disabled={loading} className="rounded-xl bg-red-600 px-5 py-3 font-black text-white shadow-lg shadow-red-950/40 hover:bg-red-500 disabled:opacity-60">
+            {loading ? 'Guardando...' : 'Guardar cliente'}
+          </button>
+        </div>
       </div>
     </div>
+  )
+}
+
+function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-sm font-bold text-slate-300">{label}</span>
+      <input value={value} onChange={e => onChange(e.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-500" />
+    </label>
   )
 }

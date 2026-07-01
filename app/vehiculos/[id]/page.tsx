@@ -1,224 +1,107 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import toast from 'react-hot-toast'
-import { ArrowLeft, Calendar, Car, ClipboardList, Cpu, Edit3, FileText, Gauge, Hash, User } from 'lucide-react'
 import AppShell from '@/components/AppShell'
 import VehiculoModal from '@/components/VehiculoModal'
-import { supabase } from '@/lib/supabase'
+import { VehiculoService } from '@/lib/services/vehiculos'
+import type { Expediente, Factura, VehiculoConCliente } from '@/types/autokeys'
+import { ArrowLeft, Cpu, FileText, Gauge, Pencil, ReceiptText, UserRound } from 'lucide-react'
 
-type Cliente = {
-  id: string
-  nombre: string
-  telefono: string | null
-}
-
-type Vehiculo = {
-  id: string
-  cliente_id: string | null
-  marca: string | null
-  modelo: string | null
-  motor: string | null
-  anio: number | null
-  matricula: string | null
-  bastidor: string | null
-  ecu: string | null
-  hardware: string | null
-  software: string | null
-  notas: string | null
-  created_at: string
-  clientes?: Cliente | null
-}
-
-export default function VehiculoDetallePage() {
+export default function VehiculoFichaPage() {
   const params = useParams()
   const router = useRouter()
-  const id = params.id as string
-
-  const [vehiculo, setVehiculo] = useState<Vehiculo | null>(null)
-  const [clientes, setClientes] = useState<Cliente[]>([])
-  const [expedientes, setExpedientes] = useState<any[]>([])
+  const id = String(params.id)
+  const [vehiculo, setVehiculo] = useState<VehiculoConCliente | null>(null)
+  const [expedientes, setExpedientes] = useState<Expediente[]>([])
+  const [facturas, setFacturas] = useState<Factura[]>([])
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
+  const [error, setError] = useState('')
 
-  useEffect(() => {
-    if (id) loadData()
-  }, [id])
-
-  async function loadData() {
+  async function load() {
     setLoading(true)
-    const [vehiculoRes, clientesRes, expedientesRes] = await Promise.all([
-      supabase.from('vehiculos').select(`
-          *,
-          clientes:cliente_id (
-            id,
-            nombre,
-            telefono
-          )
-        `).eq('id', id).single(),
-      supabase.from('clientes').select('id,nombre,telefono').order('nombre', { ascending: true }),
-      supabase.from('expedientes').select(`
-          *,
-          clientes:cliente_id (
-            nombre,
-            telefono
-          )
-        `).eq('vehiculo_id', id).order('created_at', { ascending: false }).limit(20)
-    ])
-
-    if (vehiculoRes.error) toast.error(vehiculoRes.error.message)
-    if (clientesRes.error) toast.error(clientesRes.error.message)
-
-    setVehiculo((vehiculoRes.data || null) as Vehiculo | null)
-    setClientes((clientesRes.data || []) as Cliente[])
-    setExpedientes(expedientesRes.data || [])
-    setLoading(false)
-  }
-
-  async function saveVehiculo(payload: any) {
-    setSaving(true)
-    const { error } = await supabase.from('vehiculos').update({
-      cliente_id: payload.cliente_id || null,
-      marca: payload.marca.trim() || null,
-      modelo: payload.modelo.trim() || null,
-      motor: payload.motor || null,
-      anio: payload.anio ? Number(payload.anio) : null,
-      matricula: payload.matricula || null,
-      bastidor: payload.bastidor || null,
-      ecu: payload.ecu || null,
-      hardware: payload.hardware || null,
-      software: payload.software || null,
-      notas: payload.notas || null
-    }).eq('id', id)
-
-    setSaving(false)
-
-    if (error) {
-      toast.error(error.message)
-      return
+    setError('')
+    try {
+      const v = await VehiculoService.getById(id)
+      if (!v) {
+        router.push('/vehiculos')
+        return
+      }
+      setVehiculo(v)
+      const related = await VehiculoService.getRelated(id)
+      setExpedientes(related.expedientes as Expediente[])
+      setFacturas((related.facturas as Factura[]).filter(f => expedientes.some(e => e.id === f.expediente_id)))
+    } catch (e: any) {
+      setError(e?.message || 'No se pudo cargar la ficha')
+    } finally {
+      setLoading(false)
     }
-
-    toast.success('Vehículo actualizado')
-    setModalOpen(false)
-    loadData()
   }
 
-  if (loading) return <AppShell><div className="card p-8 text-zinc-500">Cargando ficha del vehículo...</div></AppShell>
-  if (!vehiculo) return <AppShell><div className="card p-8">Vehículo no encontrado.</div></AppShell>
+  useEffect(() => { load() }, [id])
 
-  const title = [vehiculo.marca, vehiculo.modelo].filter(Boolean).join(' ') || 'Vehículo sin modelo'
-  const fichaTecnica = [
-    ['Matrícula', vehiculo.matricula || '—', Gauge],
-    ['VIN / Bastidor', vehiculo.bastidor || '—', Hash],
-    ['Motor', vehiculo.motor || '—', Cpu],
-    ['Año', vehiculo.anio || '—', Calendar],
-    ['ECU', vehiculo.ecu || '—', Cpu],
-    ['Hardware', vehiculo.hardware || '—', FileText],
-    ['Software', vehiculo.software || '—', FileText]
-  ]
+  if (loading) return <AppShell><div className="text-white">Cargando ficha...</div></AppShell>
+  if (!vehiculo) return null
 
   return (
     <AppShell>
-      <div className="mb-6 flex flex-col justify-between gap-4 xl:flex-row xl:items-center">
-        <div>
-          <button onClick={() => router.push('/vehiculos')} className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-white">
-            <ArrowLeft size={16} /> Volver a vehículos
-          </button>
-          <div className="flex items-center gap-3">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-600 text-white">
-              <Car size={28} />
-            </div>
+      <div className="space-y-8">
+        <Link href="/vehiculos" className="inline-flex items-center gap-2 text-sm font-bold text-slate-300 hover:text-white"><ArrowLeft size={16} /> Volver a vehículos</Link>
+        {error && <div className="rounded-2xl border border-red-500/40 bg-red-950/40 p-4 font-bold text-red-200">{error}</div>}
+
+        <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-7 shadow-2xl shadow-black/20">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
             <div>
-              <h2 className="text-3xl font-black tracking-tight">{title}</h2>
-              <p className="text-zinc-500">{vehiculo.matricula || 'Sin matrícula'} · {vehiculo.bastidor || 'Sin VIN'}</p>
-            </div>
-          </div>
-        </div>
-        <button onClick={() => setModalOpen(true)} className="btn btn-red inline-flex items-center justify-center gap-2">
-          <Edit3 size={18} /> Editar vehículo
-        </button>
-      </div>
-
-      <div className="mb-6 grid gap-4 md:grid-cols-3">
-        <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Expedientes</p><p className="mt-2 text-3xl font-black">{expedientes.length}</p></div>
-        <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">ECU</p><p className="mt-2 truncate text-2xl font-black">{vehiculo.ecu || '—'}</p></div>
-        <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Cliente</p><p className="mt-2 truncate text-2xl font-black">{vehiculo.clientes?.nombre || '—'}</p></div>
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-[420px_1fr]">
-        <div className="space-y-6">
-          <section className="card p-6">
-            <h3 className="mb-4 text-xl font-black">Cliente asociado</h3>
-            {vehiculo.clientes ? (
-              <Link href={`/clientes/${vehiculo.clientes.id}`} className="block rounded-2xl border border-white/10 bg-black/20 p-4 hover:border-red-500/40">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-600/15 text-red-400"><User size={22} /></div>
-                  <div>
-                    <div className="font-black text-white">{vehiculo.clientes.nombre}</div>
-                    <div className="text-sm text-zinc-500">{vehiculo.clientes.telefono || 'Sin teléfono'}</div>
-                  </div>
-                </div>
-              </Link>
-            ) : (
-              <p className="text-sm text-zinc-500">Este vehículo todavía no tiene cliente asignado.</p>
-            )}
-          </section>
-
-          <section className="card p-6">
-            <h3 className="mb-3 text-xl font-black">Observaciones</h3>
-            <p className="whitespace-pre-wrap text-sm leading-6 text-zinc-400">{vehiculo.notas || 'Sin observaciones internas.'}</p>
-          </section>
-        </div>
-
-        <div className="space-y-6">
-          <section className="card p-6">
-            <h3 className="mb-5 text-xl font-black">Ficha técnica</h3>
-            <div className="grid gap-3 md:grid-cols-2">
-              {fichaTecnica.map(([label, value, Icon]: any) => (
-                <div key={label} className="rounded-2xl bg-black/20 p-4">
-                  <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-zinc-500"><Icon size={15} /> {label}</div>
-                  <div className="mt-2 break-words font-bold text-zinc-200">{value}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="card overflow-hidden">
-            <div className="flex items-center justify-between border-b border-zinc-800 px-5 py-4">
-              <h3 className="flex items-center gap-2 font-black"><ClipboardList size={18} /> Historial de expedientes</h3>
-              <Link href="/expedientes/nueva" className="text-sm font-bold text-red-400 hover:text-red-300">Nueva OT</Link>
-            </div>
-            {expedientes.length === 0 ? <div className="p-6 text-zinc-500">Todavía no hay expedientes para este vehículo.</div> : (
-              <div className="divide-y divide-zinc-800">
-                {expedientes.map(ot => (
-                  <Link key={ot.id} href={`/expedientes/${ot.id}`} className="block p-5 hover:bg-zinc-900/60">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <div className="font-black">{ot.numero_ot || 'OT sin número'} · {ot.tipo_trabajo}</div>
-                        <div className="mt-1 text-sm text-zinc-500">Cliente: {ot.clientes?.nombre || vehiculo.clientes?.nombre || '—'} · {new Date(ot.created_at).toLocaleDateString('es-ES')}</div>
-                      </div>
-                      <span className="badge bg-zinc-900 text-zinc-300">{ot.estado || 'recibido'}</span>
-                    </div>
-                  </Link>
-                ))}
+              <p className="mb-3 text-sm font-black uppercase tracking-[0.45em] text-red-400">Ficha vehículo</p>
+              <h1 className="text-5xl font-black text-white">{vehiculo.marca || 'Vehículo'} {vehiculo.modelo || ''}</h1>
+              <div className="mt-4 flex flex-wrap gap-4 text-slate-400">
+                {vehiculo.matricula && <span className="font-black text-white">{vehiculo.matricula}</span>}
+                {vehiculo.bastidor && <span>VIN: {vehiculo.bastidor}</span>}
+                {vehiculo.motor && <span>Motor: {vehiculo.motor}</span>}
+                {vehiculo.anio && <span>Año: {vehiculo.anio}</span>}
               </div>
-            )}
-          </section>
+              {vehiculo.cliente && <Link href={`/clientes/${vehiculo.cliente.id}`} className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-slate-700 px-4 py-3 font-bold text-white hover:bg-slate-800"><UserRound size={17} /> {vehiculo.cliente.nombre}</Link>}
+            </div>
+            <button onClick={() => setModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 py-4 font-black text-white hover:bg-red-500"><Pencil size={18} /> Editar vehículo</button>
+          </div>
+        </section>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <MiniStat icon={<Cpu />} label="ECU" value={vehiculo.ecu || 'Sin datos'} />
+          <MiniStat icon={<FileText />} label="Expedientes" value={expedientes.length} />
+          <MiniStat icon={<ReceiptText />} label="Facturas" value={facturas.length} />
         </div>
+
+        <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
+          <h2 className="mb-4 text-2xl font-black text-white">Datos técnicos</h2>
+          <div className="grid gap-4 md:grid-cols-3">
+            <Info label="ECU" value={vehiculo.ecu} />
+            <Info label="Hardware" value={vehiculo.hardware} />
+            <Info label="Software" value={vehiculo.software} />
+          </div>
+          {vehiculo.notas && <p className="mt-5 rounded-2xl border border-slate-800 bg-slate-950/60 p-4 text-slate-300">{vehiculo.notas}</p>}
+        </section>
+
+        <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
+          <h2 className="mb-4 text-2xl font-black text-white">Historial de expedientes</h2>
+          <div className="grid gap-3">
+            {expedientes.map(e => <Link key={e.id} href={`/expedientes/${e.id}`} className="block rounded-2xl border border-slate-800 bg-slate-950/60 p-4 hover:border-red-500/50"><b className="text-white">{e.numero_ot || 'OT'}</b><p className="text-sm text-slate-400">{e.tipo_trabajo} · {e.estado}</p></Link>)}
+            {expedientes.length === 0 && <p className="text-slate-400">Sin expedientes.</p>}
+          </div>
+        </section>
       </div>
 
-      <VehiculoModal
-        open={modalOpen}
-        title="Editar vehículo"
-        clientes={clientes}
-        initialData={vehiculo}
-        loading={saving}
-        onClose={() => setModalOpen(false)}
-        onSubmit={saveVehiculo}
-      />
+      <VehiculoModal open={modalOpen} vehiculo={vehiculo} onClose={() => setModalOpen(false)} onSave={async payload => { await VehiculoService.update(id, payload); await load() }} />
     </AppShell>
   )
+}
+
+function MiniStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
+  return <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-5"><div className="mb-4 text-red-300">{icon}</div><p className="text-sm text-slate-400">{label}</p><b className="text-2xl text-white">{value}</b></div>
+}
+
+function Info({ label, value }: { label: string; value?: string | null }) {
+  return <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4"><p className="text-sm text-slate-500">{label}</p><p className="mt-1 font-black text-white">{value || 'Sin datos'}</p></div>
 }

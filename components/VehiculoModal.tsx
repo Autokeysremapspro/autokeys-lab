@@ -1,171 +1,96 @@
 'use client'
 
-import { FormEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import type { Cliente, Vehiculo } from '@/types/autokeys'
+import { ClienteService } from '@/lib/services/clientes'
 
-type ClienteOption = {
-  id: string
-  nombre: string
-  telefono?: string | null
-}
-
-type VehiculoForm = {
-  cliente_id: string
-  marca: string
-  modelo: string
-  motor: string
-  anio: string
-  matricula: string
-  bastidor: string
-  ecu: string
-  hardware: string
-  software: string
-  notas: string
-}
-
-const emptyForm: VehiculoForm = {
-  cliente_id: '',
-  marca: '',
-  modelo: '',
-  motor: '',
-  anio: '',
-  matricula: '',
-  bastidor: '',
-  ecu: '',
-  hardware: '',
-  software: '',
-  notas: ''
-}
-
-export default function VehiculoModal({
-  open,
-  title,
-  clientes,
-  initialData,
-  loading,
-  onClose,
-  onSubmit
-}: {
+type Props = {
   open: boolean
-  title: string
-  clientes: ClienteOption[]
-  initialData?: Partial<any>
-  loading?: boolean
+  vehiculo?: Vehiculo | null
   onClose: () => void
-  onSubmit: (payload: VehiculoForm) => Promise<void> | void
-}) {
-  const [form, setForm] = useState<VehiculoForm>(emptyForm)
+  onSave: (payload: Partial<Vehiculo>) => Promise<void>
+}
+
+export default function VehiculoModal({ open, vehiculo, onClose, onSave }: Props) {
+  const [form, setForm] = useState<Partial<Vehiculo>>({})
+  const [clientes, setClientes] = useState<Cliente[]>([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (open) {
-      setForm({
-        ...emptyForm,
-        ...(initialData || {}),
-        cliente_id: initialData?.cliente_id || '',
-        anio: initialData?.anio ? String(initialData.anio) : '',
-        marca: initialData?.marca || '',
-        modelo: initialData?.modelo || '',
-        motor: initialData?.motor || '',
-        matricula: initialData?.matricula || '',
-        bastidor: initialData?.bastidor || '',
-        ecu: initialData?.ecu || '',
-        hardware: initialData?.hardware || '',
-        software: initialData?.software || '',
-        notas: initialData?.notas || ''
-      })
-    }
-  }, [open, initialData])
+    if (!open) return
+    setForm(vehiculo || { marca: '', modelo: '', motor: '', matricula: '', bastidor: '', ecu: '', hardware: '', software: '', notas: '' })
+    ClienteService.getAll().then(setClientes).catch(console.error)
+  }, [open, vehiculo])
 
   if (!open) return null
+  const set = (key: keyof Vehiculo, value: string) => setForm(prev => ({ ...prev, [key]: key === 'anio' ? Number(value) || null : value }))
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
-    await onSubmit(form)
-  }
-
-  function update(key: keyof VehiculoForm, value: string) {
-    setForm(prev => ({ ...prev, [key]: value }))
+  async function submit() {
+    if (!form.marca?.trim() && !form.matricula?.trim()) {
+      alert('Introduce al menos marca o matrícula')
+      return
+    }
+    setLoading(true)
+    try {
+      await onSave(form)
+      onClose()
+    } catch (e: any) {
+      alert(e?.message || 'No se pudo guardar el vehículo')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-      <div className="card max-h-[92vh] w-full max-w-5xl overflow-auto p-6">
-        <div className="mb-6 flex items-start justify-between gap-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm">
+      <div className="w-full max-w-5xl rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+        <div className="mb-6 flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-black">{title}</h2>
-            <p className="mt-1 text-sm text-zinc-500">Datos técnicos y administrativos del vehículo.</p>
+            <h2 className="text-2xl font-black text-white">{vehiculo ? 'Editar vehículo' : 'Nuevo vehículo'}</h2>
+            <p className="text-sm text-slate-400">Ficha base del vehículo.</p>
           </div>
-          <button type="button" onClick={onClose} className="btn btn-dark">Cerrar</button>
+          <button onClick={onClose} className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800">Cerrar</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-2 md:col-span-2">
-            <span className="text-sm font-bold text-zinc-300">Cliente *</span>
-            <select required value={form.cliente_id} onChange={e => update('cliente_id', e.target.value)} className="w-full">
-              <option value="">Seleccionar cliente</option>
-              {clientes.map(cliente => (
-                <option key={cliente.id} value={cliente.id}>{cliente.nombre}{cliente.telefono ? ` · ${cliente.telefono}` : ''}</option>
-              ))}
+        <div className="grid gap-4 md:grid-cols-3">
+          <label className="block md:col-span-3">
+            <span className="mb-2 block text-sm font-bold text-slate-300">Cliente</span>
+            <select value={form.cliente_id || ''} onChange={e => setForm(prev => ({ ...prev, cliente_id: e.target.value || null }))} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-500">
+              <option value="">Sin asignar</option>
+              {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre} {c.telefono ? `- ${c.telefono}` : ''}</option>)}
             </select>
           </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-bold text-zinc-300">Marca *</span>
-            <input required value={form.marca} onChange={e => update('marca', e.target.value)} placeholder="BMW, Audi, Mercedes..." className="w-full" />
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-bold text-zinc-300">Modelo *</span>
-            <input required value={form.modelo} onChange={e => update('modelo', e.target.value)} placeholder="320d, A4, Clase C..." className="w-full" />
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-bold text-zinc-300">Matrícula</span>
-            <input value={form.matricula} onChange={e => update('matricula', e.target.value.toUpperCase())} placeholder="1234ABC" className="w-full uppercase" />
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-bold text-zinc-300">Bastidor / VIN</span>
-            <input value={form.bastidor} onChange={e => update('bastidor', e.target.value.toUpperCase())} placeholder="WBAXXXXXXXXXXXXX" className="w-full uppercase" />
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-bold text-zinc-300">Motor</span>
-            <input value={form.motor} onChange={e => update('motor', e.target.value)} placeholder="N47, M57, CDNC, DV6..." className="w-full" />
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-bold text-zinc-300">Año</span>
-            <input type="number" min="1950" max="2050" value={form.anio} onChange={e => update('anio', e.target.value)} placeholder="2018" className="w-full" />
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-bold text-zinc-300">ECU</span>
-            <input value={form.ecu} onChange={e => update('ecu', e.target.value)} placeholder="EDC17C50, MD1CS003, SID807..." className="w-full" />
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-bold text-zinc-300">Hardware</span>
-            <input value={form.hardware} onChange={e => update('hardware', e.target.value)} placeholder="HW / Bosch / Siemens..." className="w-full" />
-          </label>
-
-          <label className="space-y-2 md:col-span-2">
-            <span className="text-sm font-bold text-zinc-300">Software</span>
-            <input value={form.software} onChange={e => update('software', e.target.value)} placeholder="SW, calibración, versión..." className="w-full" />
-          </label>
-
-          <label className="space-y-2 md:col-span-2">
-            <span className="text-sm font-bold text-zinc-300">Observaciones</span>
-            <textarea value={form.notas} onChange={e => update('notas', e.target.value)} placeholder="Averías conocidas, equipamiento, modificaciones, notas internas..." className="min-h-[110px] w-full" />
-          </label>
-
-          <div className="flex justify-end gap-3 md:col-span-2">
-            <button type="button" onClick={onClose} className="btn btn-dark">Cancelar</button>
-            <button disabled={loading} className="btn btn-red disabled:opacity-50">
-              {loading ? 'Guardando...' : 'Guardar vehículo'}
-            </button>
+          <Field label="Marca" value={form.marca || ''} onChange={v => set('marca', v)} />
+          <Field label="Modelo" value={form.modelo || ''} onChange={v => set('modelo', v)} />
+          <Field label="Motor" value={form.motor || ''} onChange={v => set('motor', v)} />
+          <Field label="Matrícula" value={form.matricula || ''} onChange={v => set('matricula', v.toUpperCase())} />
+          <Field label="Bastidor / VIN" value={form.bastidor || ''} onChange={v => set('bastidor', v.toUpperCase())} />
+          <Field label="Año" value={form.anio ? String(form.anio) : ''} onChange={v => set('anio', v)} />
+          <Field label="ECU" value={form.ecu || ''} onChange={v => set('ecu', v)} />
+          <Field label="Hardware" value={form.hardware || ''} onChange={v => set('hardware', v)} />
+          <Field label="Software" value={form.software || ''} onChange={v => set('software', v)} />
+          <div className="md:col-span-3">
+            <label className="mb-2 block text-sm font-bold text-slate-300">Notas</label>
+            <textarea value={form.notas || ''} onChange={e => set('notas', e.target.value)} className="h-28 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-500" />
           </div>
-        </form>
+        </div>
+
+        <div className="mt-6 flex justify-end gap-3">
+          <button onClick={onClose} className="rounded-xl border border-slate-700 px-5 py-3 font-bold text-white hover:bg-slate-800">Cancelar</button>
+          <button onClick={submit} disabled={loading} className="rounded-xl bg-red-600 px-5 py-3 font-black text-white shadow-lg shadow-red-950/40 hover:bg-red-500 disabled:opacity-60">
+            {loading ? 'Guardando...' : 'Guardar vehículo'}
+          </button>
+        </div>
       </div>
     </div>
+  )
+}
+
+function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-sm font-bold text-slate-300">{label}</span>
+      <input value={value} onChange={e => onChange(e.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-500" />
+    </label>
   )
 }
