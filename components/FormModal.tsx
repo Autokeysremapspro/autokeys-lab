@@ -1,0 +1,2 @@
+'use client'
+export default function FormModal({open,title,onClose,children}: any){ if(!open) return null; return <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"><div className="card w-full max-w-2xl p-6"><div className="flex justify-between items-center mb-5"><h2 className="text-2xl font-black">{title}</h2><button onClick={onClose} className="btn btn-dark">Cerrar</button></div>{children}</div></div>}
