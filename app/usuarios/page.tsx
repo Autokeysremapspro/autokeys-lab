@@ -5,7 +5,7 @@ import AppShell from '@/components/AppShell'
 import FormModal from '@/components/FormModal'
 import { UsuariosService, type UsuarioApp, type UsuarioRol } from '@/lib/services/usuarios'
 import toast from 'react-hot-toast'
-import { ShieldCheck, UserPlus, Users, Wrench, Briefcase, Globe2, Crown, Pencil, Trash2 } from 'lucide-react'
+import { ShieldCheck, UserPlus, Users, Wrench, Briefcase, Globe2, Crown, Pencil, Trash2, KeyRound } from 'lucide-react'
 
 const roles: { value: UsuarioRol; label: string; desc: string; icon: any }[] = [
   { value: 'admin', label: 'Admin', desc: 'Acceso completo', icon: Crown },
@@ -17,8 +17,11 @@ const roles: { value: UsuarioRol; label: string; desc: string; icon: any }[] = [
 const emptyForm = {
   nombre: '',
   email: '',
+  telefono: '',
   rol: 'laboratorio' as UsuarioRol,
   activo: true,
+  password: '',
+  confirmPassword: '',
 }
 
 function roleBadge(rol: string) {
@@ -36,6 +39,7 @@ export default function UsuariosPage() {
   const [editing, setEditing] = useState<UsuarioApp | null>(null)
   const [form, setForm] = useState<any>(emptyForm)
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => { load() }, [])
 
@@ -54,7 +58,7 @@ export default function UsuariosPage() {
     const q = query.toLowerCase().trim()
     if (!q) return usuarios
     return usuarios.filter(u =>
-      `${u.nombre} ${u.email} ${u.rol}`.toLowerCase().includes(q)
+      `${u.nombre} ${u.email} ${u.telefono || ''} ${u.rol}`.toLowerCase().includes(q)
     )
   }, [usuarios, query])
 
@@ -69,8 +73,11 @@ export default function UsuariosPage() {
     setForm({
       nombre: user.nombre || '',
       email: user.email || '',
+      telefono: user.telefono || '',
       rol: user.rol || 'laboratorio',
       activo: user.activo ?? true,
+      password: '',
+      confirmPassword: '',
     })
     setOpen(true)
   }
@@ -78,17 +85,50 @@ export default function UsuariosPage() {
   async function save(e: any) {
     e.preventDefault()
     try {
+      setSaving(true)
+
       if (!form.nombre?.trim() || !form.email?.trim()) {
         toast.error('Nombre y email son obligatorios')
         return
       }
 
+      const wantsPassword = !!form.password || !!form.confirmPassword
+
+      if (!editing || wantsPassword) {
+        if (!form.password || form.password.length < 6) {
+          toast.error('La contraseña debe tener al menos 6 caracteres')
+          return
+        }
+        if (form.password !== form.confirmPassword) {
+          toast.error('Las contraseñas no coinciden')
+          return
+        }
+      }
+
       if (editing) {
-        await UsuariosService.update(editing.id, form)
-        toast.success('Usuario actualizado')
+        await UsuariosService.update(editing.id, {
+          nombre: form.nombre,
+          email: form.email,
+          telefono: form.telefono,
+          rol: form.rol,
+          activo: form.activo,
+        })
+
+        if (wantsPassword) {
+          await UsuariosService.resetPassword(editing.id, form.password)
+        }
+
+        toast.success(wantsPassword ? 'Usuario y contraseña actualizados' : 'Usuario actualizado')
       } else {
-        await UsuariosService.create(form)
-        toast.success('Usuario interno creado')
+        await UsuariosService.create({
+          nombre: form.nombre,
+          email: form.email,
+          telefono: form.telefono,
+          rol: form.rol,
+          activo: form.activo,
+          password: form.password,
+        })
+        toast.success('Usuario creado con acceso al software')
       }
 
       setOpen(false)
@@ -97,11 +137,13 @@ export default function UsuariosPage() {
       await load()
     } catch (error: any) {
       toast.error(error.message || 'Error guardando usuario')
+    } finally {
+      setSaving(false)
     }
   }
 
   async function remove(user: UsuarioApp) {
-    if (!confirm(`¿Eliminar el usuario interno ${user.nombre}?`)) return
+    if (!confirm(`¿Eliminar el usuario ${user.nombre}? También se intentará eliminar su acceso de Supabase Auth.`)) return
     try {
       await UsuariosService.remove(user.id)
       toast.success('Usuario eliminado')
@@ -117,7 +159,7 @@ export default function UsuariosPage() {
         <div>
           <p className="text-sm text-red-400 font-bold uppercase tracking-[0.2em]">Seguridad y acceso</p>
           <h2 className="text-3xl font-black mt-1">Usuarios</h2>
-          <p className="text-zinc-500 mt-2">Gestiona roles internos de Autokeys Core.</p>
+          <p className="text-zinc-500 mt-2">Crea usuarios, asigna roles y define la contraseña inicial de acceso.</p>
         </div>
         <button onClick={newUser} className="btn btn-red flex items-center gap-2 justify-center">
           <UserPlus size={18} /> Nuevo usuario
@@ -141,13 +183,13 @@ export default function UsuariosPage() {
         })}
       </div>
 
-      <div className="card p-5 mb-6 border-amber-500/20 bg-amber-500/5">
+      <div className="card p-5 mb-6 border-emerald-500/20 bg-emerald-500/5">
         <div className="flex gap-3">
-          <ShieldCheck className="text-amber-300 shrink-0" />
+          <ShieldCheck className="text-emerald-300 shrink-0" />
           <div>
-            <div className="font-black text-amber-100">Importante sobre el acceso</div>
+            <div className="font-black text-emerald-100">Acceso con Supabase Auth</div>
             <p className="text-sm text-zinc-400 mt-1">
-              Esta pantalla gestiona el perfil interno y el rol. Para que un usuario pueda iniciar sesión, crea también su cuenta en Supabase Authentication con el mismo email. Más adelante añadiremos invitaciones automáticas desde el panel.
+              Al crear un usuario se genera también su cuenta de acceso con email y contraseña. Para que funcione, añade en Vercel la variable <b>SUPABASE_SERVICE_ROLE_KEY</b> con la Secret Key de Supabase.
             </p>
           </div>
         </div>
@@ -162,7 +204,7 @@ export default function UsuariosPage() {
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Buscar por nombre, email o rol..."
+            placeholder="Buscar por nombre, email, teléfono o rol..."
             className="w-full md:w-96"
           />
         </div>
@@ -178,6 +220,7 @@ export default function UsuariosPage() {
                 <tr>
                   <th>Usuario</th>
                   <th>Email</th>
+                  <th>Teléfono</th>
                   <th>Rol</th>
                   <th>Estado</th>
                   <th>Acciones</th>
@@ -188,10 +231,11 @@ export default function UsuariosPage() {
                   <tr key={user.id}>
                     <td><b>{user.nombre}</b></td>
                     <td className="text-zinc-400">{user.email}</td>
+                    <td className="text-zinc-400">{user.telefono || '—'}</td>
                     <td><span className={roleBadge(user.rol)}>{user.rol}</span></td>
                     <td>{user.activo ? <span className="badge bg-emerald-500/15 text-emerald-300">Activo</span> : <span className="badge bg-zinc-500/15 text-zinc-400">Bloqueado</span>}</td>
                     <td>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <button onClick={() => editUser(user)} className="btn btn-dark flex items-center gap-2"><Pencil size={15} /> Editar</button>
                         <button onClick={() => remove(user)} className="btn bg-red-950/40 border border-red-500/20 text-red-300 flex items-center gap-2"><Trash2 size={15} /> Eliminar</button>
                       </div>
@@ -208,6 +252,7 @@ export default function UsuariosPage() {
         <form onSubmit={save} className="grid md:grid-cols-2 gap-3">
           <input required placeholder="Nombre" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} />
           <input required type="email" placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+          <input placeholder="Teléfono" value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })} />
           <select value={form.rol} onChange={e => setForm({ ...form, rol: e.target.value })}>
             {roles.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
           </select>
@@ -215,7 +260,27 @@ export default function UsuariosPage() {
             <option value="true">Activo</option>
             <option value="false">Bloqueado</option>
           </select>
-          <button className="btn btn-red md:col-span-2">{editing ? 'Guardar cambios' : 'Crear usuario interno'}</button>
+          <div className="md:col-span-2 grid md:grid-cols-2 gap-3 rounded-2xl border border-white/10 p-4 bg-black/20">
+            <div className="md:col-span-2 flex items-center gap-2 text-sm font-bold text-zinc-300">
+              <KeyRound size={16} className="text-red-400" /> {editing ? 'Cambiar contraseña opcional' : 'Contraseña de acceso'}
+            </div>
+            <input
+              type="password"
+              required={!editing}
+              placeholder={editing ? 'Nueva contraseña opcional' : 'Contraseña'}
+              value={form.password}
+              onChange={e => setForm({ ...form, password: e.target.value })}
+            />
+            <input
+              type="password"
+              required={!editing}
+              placeholder="Confirmar contraseña"
+              value={form.confirmPassword}
+              onChange={e => setForm({ ...form, confirmPassword: e.target.value })}
+            />
+            <p className="md:col-span-2 text-xs text-zinc-500">Mínimo 6 caracteres. La contraseña no se guarda en texto plano; la gestiona Supabase Auth.</p>
+          </div>
+          <button disabled={saving} className="btn btn-red md:col-span-2 disabled:opacity-50">{saving ? 'Guardando...' : editing ? 'Guardar cambios' : 'Crear usuario con acceso'}</button>
         </form>
       </FormModal>
     </AppShell>
