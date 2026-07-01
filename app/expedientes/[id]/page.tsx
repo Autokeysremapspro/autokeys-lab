@@ -7,13 +7,13 @@ import AppShell from '@/components/AppShell'
 import ExpedienteStatusBadge from '@/components/ExpedienteStatusBadge'
 import TechnicalField from '@/components/TechnicalField'
 import ExpedienteFilesPanel from '@/components/ExpedienteFilesPanel'
+import ChecklistPanel from '@/components/ChecklistPanel'
+import TimeTrackerPanel from '@/components/TimeTrackerPanel'
 import { ExpedienteService } from '@/lib/services/expedientes'
 import type { ExpedienteConRelaciones, ExpedienteECU, ExpedienteLlaves } from '@/types/autokeys'
 import {
   ArrowLeft,
   Car,
-  CheckCircle2,
-  ClipboardCheck,
   Clock3,
   Cpu,
   FileText,
@@ -27,7 +27,7 @@ import {
 
 const estados = ['recibido', 'diagnostico', 'en_proceso', 'pendiente_cliente', 'pendiente_material', 'terminado', 'entregado', 'cancelado']
 const prioridades = ['baja', 'normal', 'alta', 'urgente']
-const tabs = ['Resumen', 'ECU', 'Llaves', 'Archivos', 'Fotos', 'Checklist', 'Historial'] as const
+const tabs = ['Resumen', 'ECU', 'Llaves', 'Archivos', 'Fotos', 'Checklist', 'Tiempo', 'Historial'] as const
 
 type Tab = typeof tabs[number]
 
@@ -139,15 +139,7 @@ export default function ExpedienteFichaPage() {
     finally { setSaving(false) }
   }
 
-  async function markChecklist(point: string) {
-    setSaving(true); setError(''); setOk('')
-    try {
-      await ExpedienteService.addHistory(id, `Checklist: ${point}`, 'Marcado desde la ficha técnica')
-      setOk('Punto registrado en historial')
-      await load()
-    } catch (err: any) { setError(err.message || 'No se pudo registrar') }
-    finally { setSaving(false) }
-  }
+
 
   if (loading) return <AppShell><div className="card p-8 text-zinc-400">Cargando ficha técnica...</div></AppShell>
   if (!item) return <AppShell><div className="card p-8 text-red-300">OT no encontrada.</div></AppShell>
@@ -298,18 +290,24 @@ export default function ExpedienteFichaPage() {
       )}
 
       {tab === 'Checklist' && (
-        <div className="card p-6">
-          <h3 className="text-2xl font-black mb-2 flex items-center gap-2"><ClipboardCheck className="text-red-300" /> Checklist inteligente</h3>
-          <p className="text-zinc-500 mb-5">Plantilla sugerida según el tipo de trabajo. Al marcar un punto queda registrado en el historial.</p>
-          <div className="grid md:grid-cols-2 gap-3">
-            {checklist.map(point => (
-              <button key={point} onClick={() => markChecklist(point)} disabled={saving} className="rounded-2xl border border-white/10 bg-[#0B1220] p-4 text-left hover:border-red-500/40 hover:bg-red-500/10 transition flex items-center gap-3">
-                <CheckCircle2 className="text-emerald-300" size={22} />
-                <span className="font-black">{point}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+        <ChecklistPanel
+          expedienteId={id}
+          suggestedItems={checklist}
+          onEvent={async (evento, descripcion) => {
+            await ExpedienteService.addHistory(id, evento, descripcion)
+            await load()
+          }}
+        />
+      )}
+
+      {tab === 'Tiempo' && (
+        <TimeTrackerPanel
+          expedienteId={id}
+          onEvent={async (evento, descripcion) => {
+            await ExpedienteService.addHistory(id, evento, descripcion)
+            await load()
+          }}
+        />
       )}
 
       {tab === 'Historial' && (

@@ -151,3 +151,25 @@ export type ArchivoExpediente = {
   size_bytes?: number | null
   created_at?: string
 }
+
+export type ChecklistItem = {
+  id: string
+  expediente_id: string
+  titulo: string
+  descripcion?: string | null
+  orden?: number | null
+  completado?: boolean | null
+  completed_at?: string | null
+  created_at?: string
+}
+
+export type TiempoTrabajo = {
+  id: string
+  expediente_id: string
+  usuario?: string | null
+  started_at: string
+  ended_at?: string | null
+  duration_seconds?: number | null
+  notas?: string | null
+  created_at?: string
+}
