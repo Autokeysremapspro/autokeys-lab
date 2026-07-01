@@ -30,6 +30,8 @@ export type Vehiculo = {
   updated_at?: string
 }
 
+export type VehiculoConCliente = Vehiculo & { cliente?: Cliente | null }
+
 export type Expediente = {
   id: string
   numero_ot?: string | null
@@ -40,29 +42,99 @@ export type Expediente = {
   estado?: string | null
   prioridad?: string | null
   tecnico?: string | null
+  fecha_entrada?: string | null
+  fecha_entrega?: string | null
   precio_estimado?: number | null
   precio_final?: number | null
+  pagado?: boolean | null
+  metodo_pago?: string | null
+  notas_cliente?: string | null
+  notas_internas?: string | null
+  visible_admin?: boolean | null
+  created_at?: string
+  updated_at?: string
+}
+
+export type ExpedienteECU = {
+  id?: string
+  expediente_id: string
+  marca_ecu?: string | null
+  modelo_ecu?: string | null
+  hw?: string | null
+  sw?: string | null
+  vin_original?: string | null
+  vin_nuevo?: string | null
+  cvn?: string | null
+  password?: string | null
+  pin?: string | null
+  cs?: string | null
+  mac?: string | null
+  isn?: string | null
+  estado_immo?: string | null
+  stage?: string | null
+  dpf?: string | null
+  egr?: string | null
+  adblue?: string | null
+  checksum?: string | null
+  lectura?: string | null
+  herramienta?: string | null
+  notas?: string | null
+}
+
+export type ExpedienteLlaves = {
+  id?: string
+  expediente_id: string
+  llaves_originales?: number | null
+  llaves_programadas?: number | null
+  tipo_llave?: string | null
+  frecuencia?: string | null
+  transponder?: string | null
+  mando?: string | null
+  plataforma?: string | null
+  pin?: string | null
+  cs?: string | null
+  mac?: string | null
+  isn?: string | null
+  estado?: string | null
+  notas?: string | null
+}
+
+export type ExpedienteHistorial = {
+  id: string
+  expediente_id: string
+  evento: string
+  descripcion?: string | null
+  usuario?: string | null
   created_at?: string
 }
 
 export type Factura = {
   id: string
-  cliente_id?: string | null
   expediente_id?: string | null
+  cliente_id?: string | null
   tipo_documento?: string | null
   numero_documento?: string | null
+  fecha?: string | null
+  subtotal?: number | null
+  iva_porcentaje?: number | null
+  iva_importe?: number | null
   total?: number | null
   estado?: string | null
+  notas?: string | null
   created_at?: string
-}
-
-export type VehiculoConCliente = Vehiculo & {
-  cliente?: Cliente | null
-  expedientes_count?: number
+  updated_at?: string
 }
 
 export type ClienteResumen = Cliente & {
   vehiculos_count?: number
   expedientes_count?: number
   facturacion_total?: number
+}
+
+export type ExpedienteConRelaciones = Expediente & {
+  cliente?: Cliente | null
+  vehiculo?: Vehiculo | null
+  ecu?: ExpedienteECU | null
+  llaves?: ExpedienteLlaves | null
+  historial?: ExpedienteHistorial[]
 }

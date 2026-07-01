@@ -1,95 +1,303 @@
 'use client'
+
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import AppShell from '@/components/AppShell'
-import { supabase } from '@/lib/supabase'
-import { money, statusClass } from '@/lib/status'
-import toast from 'react-hot-toast'
+import ExpedienteStatusBadge from '@/components/ExpedienteStatusBadge'
+import TechnicalField from '@/components/TechnicalField'
+import { ExpedienteService } from '@/lib/services/expedientes'
+import type { ExpedienteConRelaciones, ExpedienteECU, ExpedienteLlaves } from '@/types/autokeys'
+import {
+  ArrowLeft,
+  Car,
+  CheckCircle2,
+  ClipboardCheck,
+  Clock3,
+  Cpu,
+  FileText,
+  History,
+  KeyRound,
+  Save,
+  UserRound,
+} from 'lucide-react'
 
-const tabs = ['resumen','ecu','llaves','historial'] as const
-const ecuFields = ['marca_ecu','modelo_ecu','hw','sw','vin_original','vin_nuevo','cvn','password','pin','cs','mac','isn','estado_immo','stage','dpf','egr','adblue','checksum','lectura','herramienta']
-const llaveFields = ['llaves_originales','llaves_programadas','tipo_llave','frecuencia','transponder','mando','plataforma','pin','cs','mac','isn','estado']
+const estados = ['recibido', 'diagnostico', 'en_proceso', 'pendiente_cliente', 'pendiente_material', 'terminado', 'entregado', 'cancelado']
+const prioridades = ['baja', 'normal', 'alta', 'urgente']
+const tabs = ['Resumen', 'ECU', 'Llaves', 'Checklist', 'Historial'] as const
 
-function Label({children}:{children:React.ReactNode}){ return <label className="text-xs uppercase tracking-wide text-zinc-500 font-bold">{children}</label> }
-function Input({label,value,onChange,type='text'}:{label:string,value:any,onChange:(v:any)=>void,type?:string}){ return <div className="space-y-1"><Label>{label.replaceAll('_',' ')}</Label><input type={type} value={value||''} onChange={e=>onChange(type==='number'?Number(e.target.value):e.target.value)} /></div> }
+type Tab = typeof tabs[number]
 
-export default function ExpedienteDetalle(){
-  const params = useParams<{id:string}>()
-  const id = params.id
-  const [active,setActive] = useState<typeof tabs[number]>('resumen')
-  const [ot,setOt] = useState<any>(null)
-  const [ecu,setEcu] = useState<any>({})
-  const [llaves,setLlaves] = useState<any>({})
-  const [historial,setHistorial] = useState<any[]>([])
-  const [evento,setEvento] = useState('')
+function money(value?: number | null) {
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value || 0)
+}
 
-  useEffect(()=>{ if(id) load() },[id])
+function formatDate(value?: string | null) {
+  if (!value) return '-'
+  return new Date(value).toLocaleString('es-ES')
+}
 
-  async function load(){
-    const [{data:o},{data:e},{data:l},{data:h}] = await Promise.all([
-      supabase.from('expedientes').select('*,clientes(*),vehiculos(*)').eq('id',id).single(),
-      supabase.from('expediente_ecu').select('*').eq('expediente_id',id).maybeSingle(),
-      supabase.from('expediente_llaves').select('*').eq('expediente_id',id).maybeSingle(),
-      supabase.from('expediente_historial').select('*').eq('expediente_id',id).order('created_at',{ascending:false})
-    ])
-    setOt(o); setEcu(e||{expediente_id:id}); setLlaves(l||{expediente_id:id}); setHistorial(h||[])
+function defaultECU(expediente_id: string): ExpedienteECU {
+  return { expediente_id, marca_ecu: '', modelo_ecu: '', hw: '', sw: '', vin_original: '', cvn: '', password: '', pin: '', cs: '', mac: '', isn: '', estado_immo: '', stage: '', dpf: '', egr: '', adblue: '', checksum: '', lectura: '', herramienta: '', notas: '' }
+}
+
+function defaultLlaves(expediente_id: string): ExpedienteLlaves {
+  return { expediente_id, llaves_originales: 0, llaves_programadas: 0, tipo_llave: '', frecuencia: '', transponder: '', mando: '', plataforma: '', pin: '', cs: '', mac: '', isn: '', estado: '', notas: '' }
+}
+
+function checklistFor(tipo?: string | null) {
+  const text = (tipo || '').toLowerCase()
+  if (text.includes('llave') || text.includes('fem') || text.includes('cas') || text.includes('bdc')) {
+    return ['Confirmar autorización arranque', 'Leer datos immo', 'Guardar backup', 'Programar llave', 'Probar mando', 'Probar arranque', 'Diagnosis final', 'Entregado']
+  }
+  if (text.includes('reprogram') || text.includes('stage')) {
+    return ['Leer original', 'Identificar HW/SW', 'Guardar backup', 'Modificar archivo', 'Checksum OK', 'Escribir archivo', 'Diagnosis final', 'Prueba dinámica']
+  }
+  if (text.includes('ecu') || text.includes('clon')) {
+    return ['Leer Flash', 'Leer EEPROM', 'Guardar original', 'Guardar donante', 'Clonar datos', 'Escribir unidad', 'Comprobar arranque', 'Diagnosis final']
+  }
+  return ['Recepción', 'Diagnóstico', 'Trabajo realizado', 'Prueba final', 'Cliente avisado', 'Entregado']
+}
+
+export default function ExpedienteFichaPage() {
+  const params = useParams()
+  const id = String(params.id)
+
+  const [item, setItem] = useState<ExpedienteConRelaciones | null>(null)
+  const [ecu, setEcu] = useState<ExpedienteECU | null>(null)
+  const [llaves, setLlaves] = useState<ExpedienteLlaves | null>(null)
+  const [tab, setTab] = useState<Tab>('Resumen')
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const [ok, setOk] = useState('')
+
+  async function load() {
+    setLoading(true)
+    setError('')
+    try {
+      const data = await ExpedienteService.getById(id)
+      setItem(data)
+      setEcu(data?.ecu || defaultECU(id))
+      setLlaves(data?.llaves || defaultLlaves(id))
+    } catch (err: any) {
+      setError(err.message || 'No se pudo cargar la OT')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  async function saveEcu(){
-    const {error}=await supabase.from('expediente_ecu').upsert({...ecu,expediente_id:id},{onConflict:'expediente_id'})
-    if(error) toast.error(error.message); else {toast.success('Ficha ECU guardada'); load()}
-  }
-  async function saveLlaves(){
-    const {error}=await supabase.from('expediente_llaves').upsert({...llaves,expediente_id:id},{onConflict:'expediente_id'})
-    if(error) toast.error(error.message); else {toast.success('Ficha llaves guardada'); load()}
-  }
-  async function addEvento(e:any){
-    e.preventDefault()
-    if(!evento.trim()) return
-    const {error}=await supabase.from('expediente_historial').insert({expediente_id:id,evento,usuario:'Autokeys Lab'})
-    if(error) toast.error(error.message); else {setEvento(''); toast.success('Evento añadido'); load()}
+  useEffect(() => { load() }, [id])
+
+  const checklist = useMemo(() => checklistFor(item?.tipo_trabajo), [item?.tipo_trabajo])
+
+  async function saveExpediente() {
+    if (!item) return
+    setSaving(true); setError(''); setOk('')
+    try {
+      await ExpedienteService.update(item.id, {
+        estado: item.estado,
+        prioridad: item.prioridad,
+        tecnico: item.tecnico,
+        precio_estimado: item.precio_estimado,
+        precio_final: item.precio_final,
+        descripcion: item.descripcion,
+        notas_cliente: item.notas_cliente,
+        notas_internas: item.notas_internas,
+      })
+      await ExpedienteService.addHistory(item.id, 'Expediente actualizado', `Estado: ${item.estado || 'sin estado'}`)
+      setOk('Expediente guardado')
+      await load()
+    } catch (err: any) { setError(err.message || 'No se pudo guardar') }
+    finally { setSaving(false) }
   }
 
-  if(!ot) return <AppShell><p>Cargando expediente...</p></AppShell>
+  async function saveECU() {
+    if (!ecu) return
+    setSaving(true); setError(''); setOk('')
+    try {
+      await ExpedienteService.upsertECU(id, ecu)
+      await ExpedienteService.addHistory(id, 'Ficha ECU actualizada', `${ecu.marca_ecu || ''} ${ecu.modelo_ecu || ''}`.trim())
+      setOk('Ficha ECU guardada')
+      await load()
+    } catch (err: any) { setError(err.message || 'No se pudo guardar ECU') }
+    finally { setSaving(false) }
+  }
 
-  return <AppShell>
-    <div className="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-      <div>
-        <Link href="/expedientes" className="text-zinc-500 hover:text-white text-sm">← Volver a expedientes</Link>
-        <h2 className="text-3xl font-black mt-2">{ot.numero_ot} · {ot.tipo_trabajo}</h2>
-        <p className="text-zinc-500">{ot.clientes?.nombre || 'Sin cliente'} · {ot.vehiculos?.marca} {ot.vehiculos?.modelo} {ot.vehiculos?.matricula}</p>
+  async function saveLlaves() {
+    if (!llaves) return
+    setSaving(true); setError(''); setOk('')
+    try {
+      await ExpedienteService.upsertLlaves(id, llaves)
+      await ExpedienteService.addHistory(id, 'Ficha llaves actualizada', `${llaves.tipo_llave || ''} ${llaves.frecuencia || ''}`.trim())
+      setOk('Ficha de llaves guardada')
+      await load()
+    } catch (err: any) { setError(err.message || 'No se pudo guardar llaves') }
+    finally { setSaving(false) }
+  }
+
+  async function markChecklist(point: string) {
+    setSaving(true); setError(''); setOk('')
+    try {
+      await ExpedienteService.addHistory(id, `Checklist: ${point}`, 'Marcado desde la ficha técnica')
+      setOk('Punto registrado en historial')
+      await load()
+    } catch (err: any) { setError(err.message || 'No se pudo registrar') }
+    finally { setSaving(false) }
+  }
+
+  if (loading) return <AppShell><div className="card p-8 text-zinc-400">Cargando ficha técnica...</div></AppShell>
+  if (!item) return <AppShell><div className="card p-8 text-red-300">OT no encontrada.</div></AppShell>
+
+  return (
+    <AppShell>
+      <div className="mb-6">
+        <Link href="/expedientes" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white mb-4"><ArrowLeft size={18} /> Volver a expedientes</Link>
+        <div className="card p-6">
+          <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-5">
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-sm text-red-400 font-black uppercase tracking-[0.2em]">Expediente inteligente</p>
+                <ExpedienteStatusBadge status={item.estado} />
+              </div>
+              <h2 className="text-3xl lg:text-5xl font-black mt-2">{item.numero_ot || 'OT sin número'}</h2>
+              <p className="text-zinc-400 mt-2 text-lg">{item.tipo_trabajo}</p>
+              <div className="flex flex-wrap gap-4 mt-5 text-sm text-zinc-400">
+                <span className="inline-flex items-center gap-2"><UserRound size={17} /> {item.cliente?.nombre || 'Sin cliente'}</span>
+                <span className="inline-flex items-center gap-2"><Car size={17} /> {[item.vehiculo?.marca, item.vehiculo?.modelo, item.vehiculo?.matricula].filter(Boolean).join(' · ') || 'Sin vehículo'}</span>
+                <span className="inline-flex items-center gap-2"><Clock3 size={17} /> {formatDate(item.created_at)}</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 min-w-[280px]">
+              <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-4"><p className="text-xs text-zinc-500 font-black uppercase">Estimado</p><p className="text-xl font-black">{money(item.precio_estimado)}</p></div>
+              <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-4"><p className="text-xs text-zinc-500 font-black uppercase">Final</p><p className="text-xl font-black">{money(item.precio_final)}</p></div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="flex items-center gap-3"><span className={`badge ${statusClass(ot.estado)}`}>{ot.estado}</span><span className="text-2xl font-black">{money(ot.precio_final || ot.precio_estimado)}</span></div>
-    </div>
 
-    <div className="card p-2 mb-6 flex flex-wrap gap-2">
-      {tabs.map(t=><button key={t} onClick={()=>setActive(t)} className={`btn ${active===t?'btn-red':'btn-dark'} capitalize`}>{t}</button>)}
-    </div>
+      {(error || ok) && <div className={`card p-4 mb-5 ${error ? 'text-red-300 border-red-500/30' : 'text-emerald-300 border-emerald-500/30'}`}>{error || ok}</div>}
 
-    {active==='resumen' && <div className="grid lg:grid-cols-3 gap-4">
-      <div className="card p-5"><h3 className="font-black text-xl mb-4">Cliente</h3><p className="font-bold">{ot.clientes?.nombre}</p><p className="text-zinc-400">{ot.clientes?.telefono}</p><p className="text-zinc-400">{ot.clientes?.email}</p><p className="text-zinc-400">{ot.clientes?.nif}</p></div>
-      <div className="card p-5"><h3 className="font-black text-xl mb-4">Vehículo</h3><p className="font-bold">{ot.vehiculos?.marca} {ot.vehiculos?.modelo}</p><p className="text-zinc-400">Matrícula: {ot.vehiculos?.matricula}</p><p className="text-zinc-400">VIN: {ot.vehiculos?.bastidor}</p><p className="text-zinc-400">ECU: {ot.vehiculos?.ecu}</p></div>
-      <div className="card p-5"><h3 className="font-black text-xl mb-4">Trabajo</h3><p className="text-zinc-300">{ot.descripcion}</p><p className="text-zinc-500 mt-4 whitespace-pre-wrap">{ot.notas_internas}</p></div>
-    </div>}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {tabs.map(t => (
+          <button key={t} onClick={() => setTab(t)} className={`btn ${tab === t ? 'btn-red' : 'btn-dark'}`}>{t}</button>
+        ))}
+      </div>
 
-    {active==='ecu' && <div className="card p-5">
-      <h3 className="font-black text-xl mb-4">Ficha técnica ECU / IMMO / Remap</h3>
-      <div className="grid md:grid-cols-3 gap-3">{ecuFields.map(k=><Input key={k} label={k} value={ecu[k]} onChange={v=>setEcu({...ecu,[k]:v})}/>)}</div>
-      <div className="mt-3"><Label>Notas ECU</Label><textarea className="w-full min-h-28" value={ecu.notas||''} onChange={e=>setEcu({...ecu,notas:e.target.value})}/></div>
-      <button onClick={saveEcu} className="btn btn-red mt-4">Guardar ficha ECU</button>
-    </div>}
+      {tab === 'Resumen' && (
+        <div className="grid xl:grid-cols-3 gap-5">
+          <div className="card p-6 xl:col-span-2">
+            <h3 className="text-2xl font-black mb-5 flex items-center gap-2"><FileText className="text-red-300" /> Resumen de OT</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <label className="space-y-2"><span className="text-xs font-black uppercase text-zinc-400">Estado</span><select value={item.estado || 'recibido'} onChange={e => setItem({ ...item, estado: e.target.value })}>{estados.map(e => <option key={e}>{e}</option>)}</select></label>
+              <label className="space-y-2"><span className="text-xs font-black uppercase text-zinc-400">Prioridad</span><select value={item.prioridad || 'normal'} onChange={e => setItem({ ...item, prioridad: e.target.value })}>{prioridades.map(e => <option key={e}>{e}</option>)}</select></label>
+              <TechnicalField label="Técnico" value={item.tecnico} onChange={v => setItem({ ...item, tecnico: v })} />
+              <TechnicalField label="Precio estimado" type="number" value={item.precio_estimado || 0} onChange={v => setItem({ ...item, precio_estimado: Number(v) })} />
+              <TechnicalField label="Precio final" type="number" value={item.precio_final || 0} onChange={v => setItem({ ...item, precio_final: Number(v) })} />
+              <div />
+              <TechnicalField label="Descripción" textarea value={item.descripcion} onChange={v => setItem({ ...item, descripcion: v })} />
+              <TechnicalField label="Notas cliente" textarea value={item.notas_cliente} onChange={v => setItem({ ...item, notas_cliente: v })} />
+              <TechnicalField label="Notas internas" textarea value={item.notas_internas} onChange={v => setItem({ ...item, notas_internas: v })} />
+            </div>
+            <button disabled={saving} onClick={saveExpediente} className="btn btn-red mt-5 inline-flex items-center gap-2"><Save size={18} /> {saving ? 'Guardando...' : 'Guardar resumen'}</button>
+          </div>
 
-    {active==='llaves' && <div className="card p-5">
-      <h3 className="font-black text-xl mb-4">Ficha técnica llaves</h3>
-      <div className="grid md:grid-cols-3 gap-3">{llaveFields.map(k=><Input key={k} label={k} type={k.includes('llaves_')?'number':'text'} value={llaves[k]} onChange={v=>setLlaves({...llaves,[k]:v})}/>)}</div>
-      <div className="mt-3"><Label>Notas llaves</Label><textarea className="w-full min-h-28" value={llaves.notas||''} onChange={e=>setLlaves({...llaves,notas:e.target.value})}/></div>
-      <button onClick={saveLlaves} className="btn btn-red mt-4">Guardar ficha llaves</button>
-    </div>}
+          <div className="card p-6">
+            <h3 className="text-2xl font-black mb-5">Datos rápidos</h3>
+            <div className="space-y-4 text-sm">
+              <div><p className="text-zinc-500 font-bold">Cliente</p><p className="font-black">{item.cliente?.nombre || '-'}</p><p className="text-zinc-400">{item.cliente?.telefono || ''}</p></div>
+              <div><p className="text-zinc-500 font-bold">Vehículo</p><p className="font-black">{item.vehiculo?.marca} {item.vehiculo?.modelo}</p><p className="text-zinc-400">{item.vehiculo?.matricula || ''} · {item.vehiculo?.bastidor || ''}</p></div>
+              <div><p className="text-zinc-500 font-bold">ECU vehículo</p><p className="font-black">{item.vehiculo?.ecu || item.ecu?.modelo_ecu || '-'}</p></div>
+            </div>
+          </div>
+        </div>
+      )}
 
-    {active==='historial' && <div className="grid lg:grid-cols-3 gap-4">
-      <form onSubmit={addEvento} className="card p-5 lg:col-span-1"><h3 className="font-black text-xl mb-4">Añadir evento</h3><textarea className="w-full min-h-28" placeholder="Ej: Leída ECU por bench, backup guardado, pendiente prueba..." value={evento} onChange={e=>setEvento(e.target.value)}/><button className="btn btn-red mt-3 w-full">Añadir</button></form>
-      <div className="card p-5 lg:col-span-2"><h3 className="font-black text-xl mb-4">Timeline</h3><div className="space-y-3">{historial.map(h=><div key={h.id} className="border border-zinc-800 rounded-2xl p-4"><p className="font-bold">{h.evento}</p><p className="text-zinc-500 text-sm">{new Date(h.created_at).toLocaleString()}</p></div>)}{historial.length===0 && <p className="text-zinc-500">Sin eventos todavía.</p>}</div></div>
-    </div>}
-  </AppShell>
+      {tab === 'ECU' && ecu && (
+        <div className="card p-6">
+          <h3 className="text-2xl font-black mb-5 flex items-center gap-2"><Cpu className="text-red-300" /> Ficha ECU</h3>
+          <div className="grid md:grid-cols-3 gap-4">
+            <TechnicalField label="Marca ECU" value={ecu.marca_ecu} onChange={v => setEcu({ ...ecu, marca_ecu: v })} placeholder="Bosch, Delphi, Continental..." />
+            <TechnicalField label="Modelo ECU" value={ecu.modelo_ecu} onChange={v => setEcu({ ...ecu, modelo_ecu: v })} placeholder="MD1CS003, EDC17C50..." />
+            <TechnicalField label="Herramienta" value={ecu.herramienta} onChange={v => setEcu({ ...ecu, herramienta: v })} placeholder="Flex, Kess V3, Autel..." />
+            <TechnicalField label="HW" value={ecu.hw} onChange={v => setEcu({ ...ecu, hw: v })} />
+            <TechnicalField label="SW" value={ecu.sw} onChange={v => setEcu({ ...ecu, sw: v })} />
+            <TechnicalField label="CVN" value={ecu.cvn} onChange={v => setEcu({ ...ecu, cvn: v })} />
+            <TechnicalField label="VIN original" value={ecu.vin_original} onChange={v => setEcu({ ...ecu, vin_original: v })} />
+            <TechnicalField label="VIN nuevo" value={ecu.vin_nuevo} onChange={v => setEcu({ ...ecu, vin_nuevo: v })} />
+            <TechnicalField label="Password" value={ecu.password} onChange={v => setEcu({ ...ecu, password: v })} />
+            <TechnicalField label="PIN" value={ecu.pin} onChange={v => setEcu({ ...ecu, pin: v })} />
+            <TechnicalField label="CS" value={ecu.cs} onChange={v => setEcu({ ...ecu, cs: v })} />
+            <TechnicalField label="MAC" value={ecu.mac} onChange={v => setEcu({ ...ecu, mac: v })} />
+            <TechnicalField label="ISN" value={ecu.isn} onChange={v => setEcu({ ...ecu, isn: v })} />
+            <TechnicalField label="Estado IMMO" value={ecu.estado_immo} onChange={v => setEcu({ ...ecu, estado_immo: v })} placeholder="Activo, OFF, virgin..." />
+            <TechnicalField label="Stage" value={ecu.stage} onChange={v => setEcu({ ...ecu, stage: v })} />
+            <TechnicalField label="DPF" value={ecu.dpf} onChange={v => setEcu({ ...ecu, dpf: v })} />
+            <TechnicalField label="EGR" value={ecu.egr} onChange={v => setEcu({ ...ecu, egr: v })} />
+            <TechnicalField label="AdBlue / SCR" value={ecu.adblue} onChange={v => setEcu({ ...ecu, adblue: v })} />
+            <TechnicalField label="Checksum" value={ecu.checksum} onChange={v => setEcu({ ...ecu, checksum: v })} placeholder="Correcto, pendiente..." />
+            <TechnicalField label="Lectura" value={ecu.lectura} onChange={v => setEcu({ ...ecu, lectura: v })} placeholder="Bench, Boot, OBD..." />
+            <div className="md:col-span-3"><TechnicalField label="Notas ECU" textarea value={ecu.notas} onChange={v => setEcu({ ...ecu, notas: v })} /></div>
+          </div>
+          <button disabled={saving} onClick={saveECU} className="btn btn-red mt-5 inline-flex items-center gap-2"><Save size={18} /> {saving ? 'Guardando...' : 'Guardar ECU'}</button>
+        </div>
+      )}
+
+      {tab === 'Llaves' && llaves && (
+        <div className="card p-6">
+          <h3 className="text-2xl font-black mb-5 flex items-center gap-2"><KeyRound className="text-red-300" /> Ficha llaves / IMMO</h3>
+          <div className="grid md:grid-cols-3 gap-4">
+            <TechnicalField label="Llaves originales" type="number" value={llaves.llaves_originales || 0} onChange={v => setLlaves({ ...llaves, llaves_originales: Number(v) })} />
+            <TechnicalField label="Llaves programadas" type="number" value={llaves.llaves_programadas || 0} onChange={v => setLlaves({ ...llaves, llaves_programadas: Number(v) })} />
+            <TechnicalField label="Tipo llave" value={llaves.tipo_llave} onChange={v => setLlaves({ ...llaves, tipo_llave: v })} placeholder="Smart, mando, transponder..." />
+            <TechnicalField label="Frecuencia" value={llaves.frecuencia} onChange={v => setLlaves({ ...llaves, frecuencia: v })} placeholder="433MHz, 868MHz..." />
+            <TechnicalField label="Transponder" value={llaves.transponder} onChange={v => setLlaves({ ...llaves, transponder: v })} placeholder="ID48, PCF7936, MQB..." />
+            <TechnicalField label="Mando" value={llaves.mando} onChange={v => setLlaves({ ...llaves, mando: v })} />
+            <TechnicalField label="Plataforma" value={llaves.plataforma} onChange={v => setLlaves({ ...llaves, plataforma: v })} placeholder="CAS, FEM, BDC, EZS..." />
+            <TechnicalField label="PIN" value={llaves.pin} onChange={v => setLlaves({ ...llaves, pin: v })} />
+            <TechnicalField label="CS" value={llaves.cs} onChange={v => setLlaves({ ...llaves, cs: v })} />
+            <TechnicalField label="MAC" value={llaves.mac} onChange={v => setLlaves({ ...llaves, mac: v })} />
+            <TechnicalField label="ISN" value={llaves.isn} onChange={v => setLlaves({ ...llaves, isn: v })} />
+            <TechnicalField label="Estado" value={llaves.estado} onChange={v => setLlaves({ ...llaves, estado: v })} placeholder="OK, pendiente, revisar..." />
+            <div className="md:col-span-3"><TechnicalField label="Notas llaves" textarea value={llaves.notas} onChange={v => setLlaves({ ...llaves, notas: v })} /></div>
+          </div>
+          <button disabled={saving} onClick={saveLlaves} className="btn btn-red mt-5 inline-flex items-center gap-2"><Save size={18} /> {saving ? 'Guardando...' : 'Guardar llaves'}</button>
+        </div>
+      )}
+
+      {tab === 'Checklist' && (
+        <div className="card p-6">
+          <h3 className="text-2xl font-black mb-2 flex items-center gap-2"><ClipboardCheck className="text-red-300" /> Checklist inteligente</h3>
+          <p className="text-zinc-500 mb-5">Plantilla sugerida según el tipo de trabajo. Al marcar un punto queda registrado en el historial.</p>
+          <div className="grid md:grid-cols-2 gap-3">
+            {checklist.map(point => (
+              <button key={point} onClick={() => markChecklist(point)} disabled={saving} className="rounded-2xl border border-white/10 bg-[#0B1220] p-4 text-left hover:border-red-500/40 hover:bg-red-500/10 transition flex items-center gap-3">
+                <CheckCircle2 className="text-emerald-300" size={22} />
+                <span className="font-black">{point}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tab === 'Historial' && (
+        <div className="card p-6">
+          <h3 className="text-2xl font-black mb-5 flex items-center gap-2"><History className="text-red-300" /> Historial técnico</h3>
+          <div className="space-y-3">
+            {(item.historial || []).map(h => (
+              <div key={h.id} className="rounded-2xl border border-white/10 bg-[#0B1220] p-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                  <p className="font-black">{h.evento}</p>
+                  <p className="text-xs text-zinc-500">{formatDate(h.created_at)}</p>
+                </div>
+                {h.descripcion && <p className="text-zinc-400 mt-2">{h.descripcion}</p>}
+                <p className="text-xs text-zinc-600 mt-2">{h.usuario || 'Autokeys Core'}</p>
+              </div>
+            ))}
+            {!item.historial?.length && <div className="text-zinc-500">Aún no hay eventos registrados.</div>}
+          </div>
+        </div>
+      )}
+    </AppShell>
+  )
 }

@@ -1,73 +1,140 @@
 'use client'
+
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import AppShell from '@/components/AppShell'
-import DataTable from '@/components/DataTable'
-import FormModal from '@/components/FormModal'
-import { supabase } from '@/lib/supabase'
-import { statusClass, money } from '@/lib/status'
-import toast from 'react-hot-toast'
+import ExpedienteStatusBadge from '@/components/ExpedienteStatusBadge'
+import { ExpedienteService } from '@/lib/services/expedientes'
+import type { ExpedienteConRelaciones } from '@/types/autokeys'
+import { Car, ClipboardList, Cpu, Eye, KeyRound, Plus, Search, UserRound } from 'lucide-react'
 
-const estados = ['recibido','diagnostico','en_proceso','pendiente_cliente','pendiente_material','terminado','entregado','cancelado']
+function money(value?: number | null) {
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value || 0)
+}
 
-export default function Expedientes(){
-  const [items,setItems] = useState<any[]>([])
-  const [clientes,setClientes] = useState<any[]>([])
-  const [vehiculos,setVehiculos] = useState<any[]>([])
-  const [open,setOpen] = useState(false)
-  const [f,setF] = useState<any>({estado:'recibido',prioridad:'normal'})
+function formatVehicle(item: ExpedienteConRelaciones) {
+  const v = item.vehiculo
+  if (!v) return 'Sin vehículo'
+  return [v.marca, v.modelo, v.matricula].filter(Boolean).join(' · ') || 'Vehículo sin datos'
+}
 
-  useEffect(()=>{load()},[])
+function techIcon(tipo?: string | null) {
+  const text = (tipo || '').toLowerCase()
+  if (text.includes('llave') || text.includes('cas') || text.includes('fem') || text.includes('bdc')) return KeyRound
+  return Cpu
+}
 
-  async function load(){
-    const [{data:e},{data:c},{data:v}] = await Promise.all([
-      supabase.from('expedientes').select('*,clientes(nombre),vehiculos(marca,modelo,matricula)').order('created_at',{ascending:false}),
-      supabase.from('clientes').select('id,nombre').order('nombre'),
-      supabase.from('vehiculos').select('id,marca,modelo,matricula').order('created_at',{ascending:false})
-    ])
-    setItems(e||[]); setClientes(c||[]); setVehiculos(v||[])
+export default function ExpedientesPage() {
+  const [items, setItems] = useState<ExpedienteConRelaciones[]>([])
+  const [query, setQuery] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  async function load() {
+    setLoading(true)
+    setError('')
+    try {
+      setItems(await ExpedienteService.getAll())
+    } catch (err: any) {
+      setError(err.message || 'No se pudieron cargar los expedientes')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  async function save(e:any){
-    e.preventDefault()
-    const {error}=await supabase.from('expedientes').insert(f)
-    if(error) toast.error(error.message)
-    else { toast.success('OT creada'); setOpen(false); setF({estado:'recibido',prioridad:'normal'}); load() }
-  }
+  useEffect(() => { load() }, [])
 
-  return <AppShell>
-    <div className="flex justify-between mb-5">
-      <div>
-        <h2 className="text-2xl font-black">Expedientes / OT</h2>
-        <p className="text-zinc-500 text-sm">Gestión de trabajos, estados y ficha técnica.</p>
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase().trim()
+    if (!q) return items
+    return items.filter((e) => {
+      const haystack = `${e.numero_ot || ''} ${e.tipo_trabajo || ''} ${e.estado || ''} ${e.prioridad || ''} ${e.tecnico || ''} ${e.cliente?.nombre || ''} ${e.cliente?.telefono || ''} ${e.vehiculo?.marca || ''} ${e.vehiculo?.modelo || ''} ${e.vehiculo?.matricula || ''} ${e.vehiculo?.bastidor || ''} ${e.ecu?.modelo_ecu || ''} ${e.ecu?.hw || ''} ${e.ecu?.sw || ''}`.toLowerCase()
+      return haystack.includes(q)
+    })
+  }, [items, query])
+
+  const openCount = items.filter(i => !['terminado', 'entregado', 'cancelado'].includes(i.estado || '')).length
+  const urgentCount = items.filter(i => i.prioridad === 'urgente').length
+  const ecuCount = items.filter(i => i.ecu).length
+  const keyCount = items.filter(i => i.llaves).length
+
+  return (
+    <AppShell>
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-7">
+        <div>
+          <p className="text-sm text-red-400 font-black uppercase tracking-[0.2em]">Autokeys Core</p>
+          <h2 className="text-3xl font-black mt-1">Expedientes inteligentes</h2>
+          <p className="text-zinc-500 mt-2">OT, ficha técnica, ECU, llaves e historial del laboratorio.</p>
+        </div>
+        <Link href="/expedientes/nueva" className="btn btn-red inline-flex items-center gap-2 justify-center">
+          <Plus size={18} /> Nueva OT
+        </Link>
       </div>
-      <Link href="/expedientes/nueva" className="btn btn-red">Nueva OT</Link>
-    </div>
 
-    <DataTable columns={['OT','Cliente','Vehículo','Trabajo','Estado','Prioridad','Importe','Acción']} rows={items.map(i=>[
-      <b>{i.numero_ot}</b>,
-      i.clientes?.nombre || '-',
-      `${i.vehiculos?.marca||''} ${i.vehiculos?.modelo||''} ${i.vehiculos?.matricula||''}`,
-      i.tipo_trabajo,
-      <span className={`badge ${statusClass(i.estado)}`}>{i.estado}</span>,
-      i.prioridad,
-      money(i.precio_final||i.precio_estimado),
-      <Link className="btn btn-dark text-sm" href={`/expedientes/${i.id}`}>Abrir ficha</Link>
-    ])}/>
+      <div className="grid md:grid-cols-4 gap-4 mb-6">
+        <div className="card p-5"><p className="text-zinc-400 text-sm font-bold">OT abiertas</p><p className="text-3xl font-black mt-2">{openCount}</p></div>
+        <div className="card p-5"><p className="text-zinc-400 text-sm font-bold">Urgentes</p><p className="text-3xl font-black mt-2">{urgentCount}</p></div>
+        <div className="card p-5"><p className="text-zinc-400 text-sm font-bold">Fichas ECU</p><p className="text-3xl font-black mt-2">{ecuCount}</p></div>
+        <div className="card p-5"><p className="text-zinc-400 text-sm font-bold">Fichas llaves</p><p className="text-3xl font-black mt-2">{keyCount}</p></div>
+      </div>
 
-    <FormModal open={open} onClose={()=>setOpen(false)} title="Nueva OT">
-      <form onSubmit={save} className="grid md:grid-cols-2 gap-3">
-        <select onChange={e=>setF({...f,cliente_id:e.target.value})}><option>Cliente</option>{clientes.map(c=><option key={c.id} value={c.id}>{c.nombre}</option>)}</select>
-        <select onChange={e=>setF({...f,vehiculo_id:e.target.value})}><option>Vehículo</option>{vehiculos.map(v=><option key={v.id} value={v.id}>{v.marca} {v.modelo} {v.matricula}</option>)}</select>
-        <input required placeholder="Tipo trabajo: clonación ECU, llave, stage..." onChange={e=>setF({...f,tipo_trabajo:e.target.value})}/>
-        <select value={f.estado} onChange={e=>setF({...f,estado:e.target.value})}>{estados.map(x=><option key={x}>{x}</option>)}</select>
-        <select onChange={e=>setF({...f,prioridad:e.target.value})}><option>normal</option><option>baja</option><option>alta</option><option>urgente</option></select>
-        <input placeholder="Técnico" onChange={e=>setF({...f,tecnico:e.target.value})}/>
-        <input placeholder="Precio estimado" type="number" onChange={e=>setF({...f,precio_estimado:Number(e.target.value)})}/>
-        <textarea className="md:col-span-2" placeholder="Descripción" onChange={e=>setF({...f,descripcion:e.target.value})}/>
-        <textarea className="md:col-span-2" placeholder="Notas internas" onChange={e=>setF({...f,notas_internas:e.target.value})}/>
-        <button className="btn btn-red md:col-span-2">Guardar OT</button>
-      </form>
-    </FormModal>
-  </AppShell>
+      <div className="card p-5 mb-6">
+        <div className="flex items-center gap-3 bg-[#0B1220] border border-white/10 rounded-2xl px-4 py-3">
+          <Search size={18} className="text-zinc-500" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar por OT, cliente, matrícula, VIN, ECU, HW, SW..."
+            className="bg-transparent border-0 p-0 w-full"
+          />
+        </div>
+      </div>
+
+      {error && <div className="card p-4 border-red-500/30 text-red-300 mb-5">{error}</div>}
+      {loading && <div className="card p-6 text-zinc-400">Cargando expedientes...</div>}
+
+      {!loading && (
+        <div className="grid gap-4">
+          {filtered.map((item) => {
+            const Icon = techIcon(item.tipo_trabajo)
+            return (
+              <div key={item.id} className="card p-5 hover:border-red-500/30 transition">
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+                  <div className="flex gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center text-red-300">
+                      <Icon size={24} />
+                    </div>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <h3 className="text-xl font-black">{item.numero_ot || 'OT sin número'}</h3>
+                        <ExpedienteStatusBadge status={item.estado} />
+                        {item.prioridad === 'urgente' && <span className="rounded-full border border-red-500/40 bg-red-500/15 text-red-300 px-3 py-1 text-xs font-black uppercase">Urgente</span>}
+                      </div>
+                      <p className="text-zinc-300 font-bold mt-1">{item.tipo_trabajo}</p>
+                      <div className="flex flex-wrap gap-4 text-sm text-zinc-500 mt-3">
+                        <span className="inline-flex items-center gap-2"><UserRound size={16} /> {item.cliente?.nombre || 'Sin cliente'}</span>
+                        <span className="inline-flex items-center gap-2"><Car size={16} /> {formatVehicle(item)}</span>
+                        <span className="inline-flex items-center gap-2"><ClipboardList size={16} /> {item.tecnico || 'Sin técnico'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="text-right hidden md:block">
+                      <p className="text-xs text-zinc-500 font-bold uppercase">Importe</p>
+                      <p className="text-lg font-black">{money(item.precio_final || item.precio_estimado)}</p>
+                    </div>
+                    <Link href={`/expedientes/${item.id}`} className="btn btn-dark inline-flex items-center gap-2">
+                      <Eye size={17} /> Abrir ficha
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+          {!filtered.length && <div className="card p-8 text-center text-zinc-500">No hay expedientes con ese filtro.</div>}
+        </div>
+      )}
+    </AppShell>
+  )
 }
