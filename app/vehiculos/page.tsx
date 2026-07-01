@@ -49,7 +49,14 @@ export default function VehiculosPage() {
     const [vehiculosRes, clientesRes] = await Promise.all([
       supabase
         .from('vehiculos')
-        .select('*, clientes(id,nombre,telefono)')
+        .select(`
+  *,
+  clientes:cliente_id (
+    id,
+    nombre,
+    telefono
+  )
+`)
         .order('created_at', { ascending: false }),
       supabase
         .from('clientes')
