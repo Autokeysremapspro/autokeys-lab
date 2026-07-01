@@ -10,6 +10,7 @@ import ExpedienteFilesPanel from '@/components/ExpedienteFilesPanel'
 import ChecklistPanel from '@/components/ChecklistPanel'
 import TimeTrackerPanel from '@/components/TimeTrackerPanel'
 import FacturacionPanel from '@/components/FacturacionPanel'
+import MaterialPanel from '@/components/MaterialPanel'
 import { ExpedienteService } from '@/lib/services/expedientes'
 import type { ExpedienteConRelaciones, ExpedienteECU, ExpedienteLlaves } from '@/types/autokeys'
 import {
@@ -28,7 +29,7 @@ import {
 
 const estados = ['recibido', 'diagnostico', 'en_proceso', 'pendiente_cliente', 'pendiente_material', 'terminado', 'entregado', 'cancelado']
 const prioridades = ['baja', 'normal', 'alta', 'urgente']
-const tabs = ['Resumen', 'ECU', 'Llaves', 'Archivos', 'Fotos', 'Checklist', 'Tiempo', 'Facturación', 'Historial'] as const
+const tabs = ['Resumen', 'ECU', 'Llaves', 'Archivos', 'Fotos', 'Checklist', 'Tiempo', 'Material', 'Facturación', 'Historial'] as const
 
 type Tab = typeof tabs[number]
 
@@ -311,6 +312,16 @@ export default function ExpedienteFichaPage() {
         />
       )}
 
+
+      {tab === 'Material' && (
+        <MaterialPanel
+          expedienteId={id}
+          onEvent={async (evento, descripcion) => {
+            await ExpedienteService.addHistory(id, evento, descripcion)
+            await load()
+          }}
+        />
+      )}
 
       {tab === 'Facturación' && (
         <FacturacionPanel

@@ -188,3 +188,31 @@ export type LineaFactura = {
 export type DocumentoFacturacion = Factura & {
   lineas?: LineaFactura[]
 }
+
+
+export type StockItem = {
+  id: string
+  tipo: string
+  referencia?: string | null
+  descripcion: string
+  marca?: string | null
+  modelo?: string | null
+  cantidad?: number | null
+  cantidad_minima?: number | null
+  precio_compra?: number | null
+  precio_venta?: number | null
+  ubicacion?: string | null
+  notas?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+export type MovimientoStock = {
+  id: string
+  stock_id: string
+  tipo_movimiento: 'entrada' | 'salida' | 'ajuste' | string
+  cantidad: number
+  motivo?: string | null
+  expediente_id?: string | null
+  created_at?: string
+}
