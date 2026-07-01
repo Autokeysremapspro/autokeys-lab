@@ -8,7 +8,12 @@ const config: Config = {
     "./lib/**/*.{js,ts,jsx,tsx,mdx}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        akdark: '#070707',
+        akred: '#e50914'
+      }
+    },
   },
   plugins: [],
 }

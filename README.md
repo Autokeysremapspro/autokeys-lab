@@ -1,44 +1,29 @@
-# Autokeys Lab
+# Autokeys Lab v2
 
-ERP interno para Autokeys Lab: clientes, vehículos, expedientes/OT, facturas, stock y file service.
+ERP interno para Autokeys Lab.
+
+## Cambios v2
+
+- Ficha individual de expediente `/expedientes/[id]`.
+- Pestañas: Resumen, ECU, Llaves e Historial.
+- Nueva migración SQL técnica: `supabase/autokeys_lab_v2.sql`.
+- Botón “Abrir ficha” desde el listado de expedientes.
 
 ## Configuración
 
-1. Instala dependencias:
+Variables necesarias en Vercel:
 
-```bash
-npm install
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_xxxxx
 ```
 
-2. Crea `.env.local` copiando `.env.example`:
+## Supabase
 
-```bash
-NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=TU_ANON_KEY
-```
+Antes de usar las nuevas pestañas, ejecutar en Supabase:
 
-3. Ejecuta en local:
+`supabase/autokeys_lab_v2.sql`
 
-```bash
-npm run dev
-```
+## Deploy
 
-4. En Supabase crea usuarios desde Authentication > Users.
-
-5. Para Vercel, sube el proyecto a GitHub y añade las mismas variables de entorno.
-
-## Tablas necesarias
-
-Usa el SQL completo que ya ejecutaste en Supabase.
-
-## Primera versión incluida
-
-- Login con Supabase Auth
-- Dashboard
-- Clientes
-- Vehículos
-- Expedientes / OT
-- Facturas / Presupuestos / Albaranes / Tickets
-- Stock
-- File Service
-- Tema oscuro negro/rojo Autokeys Lab
+Subir los archivos a GitHub y Vercel hará redeploy automático.
