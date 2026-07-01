@@ -138,3 +138,16 @@ export type ExpedienteConRelaciones = Expediente & {
   llaves?: ExpedienteLlaves | null
   historial?: ExpedienteHistorial[]
 }
+
+export type ArchivoExpediente = {
+  id: string
+  expediente_id: string
+  nombre_archivo: string
+  tipo?: string | null
+  url?: string | null
+  notas?: string | null
+  storage_path?: string | null
+  mime_type?: string | null
+  size_bytes?: number | null
+  created_at?: string
+}

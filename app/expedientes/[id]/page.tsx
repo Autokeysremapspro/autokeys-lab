@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation'
 import AppShell from '@/components/AppShell'
 import ExpedienteStatusBadge from '@/components/ExpedienteStatusBadge'
 import TechnicalField from '@/components/TechnicalField'
+import ExpedienteFilesPanel from '@/components/ExpedienteFilesPanel'
 import { ExpedienteService } from '@/lib/services/expedientes'
 import type { ExpedienteConRelaciones, ExpedienteECU, ExpedienteLlaves } from '@/types/autokeys'
 import {
@@ -16,6 +17,8 @@ import {
   Clock3,
   Cpu,
   FileText,
+  FolderOpen,
+  Camera,
   History,
   KeyRound,
   Save,
@@ -24,7 +27,7 @@ import {
 
 const estados = ['recibido', 'diagnostico', 'en_proceso', 'pendiente_cliente', 'pendiente_material', 'terminado', 'entregado', 'cancelado']
 const prioridades = ['baja', 'normal', 'alta', 'urgente']
-const tabs = ['Resumen', 'ECU', 'Llaves', 'Checklist', 'Historial'] as const
+const tabs = ['Resumen', 'ECU', 'Llaves', 'Archivos', 'Fotos', 'Checklist', 'Historial'] as const
 
 type Tab = typeof tabs[number]
 
@@ -263,6 +266,35 @@ export default function ExpedienteFichaPage() {
           </div>
           <button disabled={saving} onClick={saveLlaves} className="btn btn-red mt-5 inline-flex items-center gap-2"><Save size={18} /> {saving ? 'Guardando...' : 'Guardar llaves'}</button>
         </div>
+      )}
+
+
+      {tab === 'Archivos' && (
+        <ExpedienteFilesPanel
+          expedienteId={id}
+          mode="archivos"
+          title="Archivos técnicos"
+          description="Guarda originales, modificados, flash, EEPROM, full backup, dumps y documentación técnica de esta OT."
+          icon={<FolderOpen className="text-red-300" />}
+          onEvent={async (evento, descripcion) => {
+            await ExpedienteService.addHistory(id, evento, descripcion)
+            await load()
+          }}
+        />
+      )}
+
+      {tab === 'Fotos' && (
+        <ExpedienteFilesPanel
+          expedienteId={id}
+          mode="fotos"
+          title="Fotografías del expediente"
+          description="Organiza fotos de vehículo, matrícula, VIN, ECU, etiqueta, cuadro, llave y avería."
+          icon={<Camera className="text-red-300" />}
+          onEvent={async (evento, descripcion) => {
+            await ExpedienteService.addHistory(id, evento, descripcion)
+            await load()
+          }}
+        />
       )}
 
       {tab === 'Checklist' && (
