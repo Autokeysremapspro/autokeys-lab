@@ -51,9 +51,22 @@ export default function VehiculoDetallePage() {
   async function loadData() {
     setLoading(true)
     const [vehiculoRes, clientesRes, expedientesRes] = await Promise.all([
-      supabase.from('vehiculos').select('*, clientes(id,nombre,telefono)').eq('id', id).single(),
+      supabase.from('vehiculos').select(`
+          *,
+          clientes:cliente_id (
+            id,
+            nombre,
+            telefono
+          )
+        `).eq('id', id).single(),
       supabase.from('clientes').select('id,nombre,telefono').order('nombre', { ascending: true }),
-      supabase.from('expedientes').select('*, clientes(nombre,telefono)').eq('vehiculo_id', id).order('created_at', { ascending: false }).limit(20)
+      supabase.from('expedientes').select(`
+          *,
+          clientes:cliente_id (
+            nombre,
+            telefono
+          )
+        `).eq('vehiculo_id', id).order('created_at', { ascending: false }).limit(20)
     ])
 
     if (vehiculoRes.error) toast.error(vehiculoRes.error.message)

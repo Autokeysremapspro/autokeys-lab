@@ -50,13 +50,13 @@ export default function VehiculosPage() {
       supabase
         .from('vehiculos')
         .select(`
-  *,
-  clientes:cliente_id (
-    id,
-    nombre,
-    telefono
-  )
-`)
+          *,
+          clientes:cliente_id (
+            id,
+            nombre,
+            telefono
+          )
+        `)
         .order('created_at', { ascending: false }),
       supabase
         .from('clientes')
