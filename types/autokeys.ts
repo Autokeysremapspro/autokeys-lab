@@ -216,3 +216,25 @@ export type MovimientoStock = {
   expediente_id?: string | null
   created_at?: string
 }
+
+export type FileServiceJob = {
+  id: string
+  cliente_id?: string | null
+  taller?: string | null
+  marca?: string | null
+  modelo?: string | null
+  motor?: string | null
+  matricula?: string | null
+  ecu?: string | null
+  hw?: string | null
+  sw?: string | null
+  servicio: string
+  estado?: string | null
+  precio?: number | null
+  pagado?: boolean | null
+  archivo_original_url?: string | null
+  archivo_modificado_url?: string | null
+  notas?: string | null
+  created_at?: string
+  updated_at?: string
+}
