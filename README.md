@@ -1,23 +1,21 @@
-# Autokeys Core v2.4 - Notificaciones
+# Autokeys Core v2.5 - Backups / Exportación
 
 ## Instalación
 
 1. Ejecuta en Supabase:
 
 ```text
-supabase/autokeys_core_v2.4_notificaciones.sql
+supabase/autokeys_core_v2.5_backups.sql
 ```
 
-2. Copia estos archivos encima del repositorio.
+2. Copia los archivos encima del repositorio.
 3. Commit + push.
-4. Vercel desplegará automáticamente.
+4. Entra en **Backups**.
 
 ## Incluye
 
-- Centro de notificaciones `/notificaciones`.
-- Tabla `notificaciones`.
-- Campana conectada a avisos persistentes.
-- Avisos automáticos básicos de stock, facturas, File Service y OT urgentes.
-- Marcar una o todas como leídas.
-- Eliminar notificaciones.
-- Menú lateral actualizado.
+- Apartado Backups en el menú.
+- Exportación CSV de clientes, vehículos, expedientes, facturas y stock.
+- Exportación completa JSON seleccionando tablas.
+- Registro de copias realizadas.
+- Recomendación de copia semanal.

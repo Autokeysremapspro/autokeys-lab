@@ -28,6 +28,7 @@ import {
   CalendarDays,
   History,
   Bell,
+  Archive,
 } from 'lucide-react'
 
 type NavItem = {
@@ -77,6 +78,7 @@ const groups: NavGroup[] = [
     items: [
       { href: '/usuarios', label: 'Usuarios', icon: UserCog },
       { href: '/notificaciones', label: 'Notificaciones', icon: Bell },
+      { href: '/backups', label: 'Backups', icon: Archive },
       { href: '/auditoria', label: 'Auditoría', icon: History },
       { href: '/configuracion', label: 'Configuración', icon: Settings },
     ],
@@ -99,6 +101,7 @@ const activeLabels = [
   'Informes',
   'Auditoría',
   'Notificaciones',
+  'Backups',
   'Configuración',
 ]
 
