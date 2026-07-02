@@ -238,3 +238,34 @@ export type FileServiceJob = {
   created_at?: string
   updated_at?: string
 }
+
+export type CasoTecnico = {
+  id: string
+  expediente_id?: string | null
+  cliente_id?: string | null
+  vehiculo_id?: string | null
+  titulo: string
+  categoria?: string | null
+  marca?: string | null
+  modelo?: string | null
+  motor?: string | null
+  matricula?: string | null
+  bastidor?: string | null
+  ecu?: string | null
+  hw?: string | null
+  sw?: string | null
+  dtc?: string | null
+  sintomas?: string | null
+  diagnostico?: string | null
+  solucion?: string | null
+  herramientas?: string | null
+  archivos_resumen?: string | null
+  tiempo_estimado?: number | null
+  tiempo_real?: number | null
+  tags?: string[] | null
+  publico?: boolean | null
+  destacado?: boolean | null
+  created_by?: string | null
+  created_at?: string
+  updated_at?: string
+}
