@@ -30,6 +30,7 @@ import {
   Bell,
   Archive,
   CreditCard,
+  ReceiptText,
 } from 'lucide-react'
 
 type NavItem = {
@@ -72,6 +73,7 @@ const groups: NavGroup[] = [
       { href: '/stock', label: 'Stock', icon: Package },
       { href: '/facturas', label: 'Facturas', icon: FileText },
       { href: '/pagos', label: 'Cobros / Pagos', icon: CreditCard },
+      { href: '/gastos', label: 'Gastos / Compras', icon: ReceiptText },
       { href: '/informes', label: 'Informes', icon: BarChart3 },
     ],
   },
@@ -98,6 +100,7 @@ const activeLabels = [
   'Stock',
   'Facturas',
   'Cobros / Pagos',
+  'Gastos / Compras',
   'Usuarios',
   'Portal Distribuidores',
   'Biblioteca Técnica',

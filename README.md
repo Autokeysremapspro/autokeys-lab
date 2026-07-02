@@ -1,22 +1,23 @@
-# Autokeys Core v2.8 - Cobros / Pagos
+# Autokeys Core v2.9 - Gastos / Compras
 
 ## Instalación
 
 1. Ejecuta en Supabase:
 
 ```text
-supabase/autokeys_core_v2.8_cobros_pagos.sql
+supabase/autokeys_core_v2.9_gastos_compras.sql
 ```
 
 2. Copia los archivos encima del repositorio actual.
 3. Commit + push.
-4. Vercel desplegará automáticamente.
+4. Espera el deploy de Vercel.
 
-## Añade
+## Incluye
 
-- Apartado **Cobros / Pagos**.
-- Registro de pagos parciales.
-- Métodos: efectivo, tarjeta, transferencia, Bizum y otro.
-- Historial de pagos por factura.
-- Pendiente de cobro.
-- Actualización automática del estado de factura: pendiente / parcial / pagada.
+- Apartado **Gastos / Compras**.
+- Registrar, editar y eliminar gastos.
+- Categorías: stock, herramientas, software, licencias, alquiler, luz, internet, gestoría, marketing, material, vehículo y otros.
+- IVA soportado.
+- Estado pendiente / pagado / cancelado.
+- Beneficio bruto mensual: ingresos del mes - gastos del mes.
+- Menú lateral actualizado.
