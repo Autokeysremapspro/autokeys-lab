@@ -5,7 +5,7 @@ import AppShell from '@/components/AppShell'
 import FormModal from '@/components/FormModal'
 import { UsuariosService, type UsuarioApp, type UsuarioRol } from '@/lib/services/usuarios'
 import toast from 'react-hot-toast'
-import { ShieldCheck, UserPlus, Users, Wrench, Briefcase, Globe2, Crown, Pencil, Trash2, KeyRound } from 'lucide-react'
+import { ShieldCheck, UserPlus, Users, Wrench, Briefcase, Globe2, Crown, Pencil, Trash2, KeyRound, Link2, Link2Off } from 'lucide-react'
 
 const roles: { value: UsuarioRol; label: string; desc: string; icon: any }[] = [
   { value: 'admin', label: 'Admin', desc: 'Acceso completo', icon: Crown },
@@ -118,7 +118,7 @@ export default function UsuariosPage() {
           await UsuariosService.resetPassword(editing.id, form.password)
         }
 
-        toast.success(wantsPassword ? 'Usuario y contraseña actualizados' : 'Usuario actualizado')
+        toast.success(wantsPassword ? 'Usuario actualizado y acceso Auth preparado' : 'Usuario actualizado')
       } else {
         await UsuariosService.create({
           nombre: form.nombre,
@@ -223,6 +223,7 @@ export default function UsuariosPage() {
                   <th>Teléfono</th>
                   <th>Rol</th>
                   <th>Estado</th>
+                  <th>Auth</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -234,6 +235,7 @@ export default function UsuariosPage() {
                     <td className="text-zinc-400">{user.telefono || '—'}</td>
                     <td><span className={roleBadge(user.rol)}>{user.rol}</span></td>
                     <td>{user.activo ? <span className="badge bg-emerald-500/15 text-emerald-300">Activo</span> : <span className="badge bg-zinc-500/15 text-zinc-400">Bloqueado</span>}</td>
+                    <td>{user.auth_user_id ? <span className="badge bg-emerald-500/15 text-emerald-300 inline-flex items-center gap-1"><Link2 size={13} /> Vinculado</span> : <span className="badge bg-amber-500/15 text-amber-300 inline-flex items-center gap-1"><Link2Off size={13} /> Sin acceso</span>}</td>
                     <td>
                       <div className="flex gap-2 flex-wrap">
                         <button onClick={() => editUser(user)} className="btn btn-dark flex items-center gap-2"><Pencil size={15} /> Editar</button>
@@ -262,7 +264,7 @@ export default function UsuariosPage() {
           </select>
           <div className="md:col-span-2 grid md:grid-cols-2 gap-3 rounded-2xl border border-white/10 p-4 bg-black/20">
             <div className="md:col-span-2 flex items-center gap-2 text-sm font-bold text-zinc-300">
-              <KeyRound size={16} className="text-red-400" /> {editing ? 'Cambiar contraseña opcional' : 'Contraseña de acceso'}
+              <KeyRound size={16} className="text-red-400" /> {editing ? (editing.auth_user_id ? 'Cambiar contraseña opcional' : 'Crear acceso Auth con contraseña') : 'Contraseña de acceso'}
             </div>
             <input
               type="password"
@@ -278,7 +280,7 @@ export default function UsuariosPage() {
               value={form.confirmPassword}
               onChange={e => setForm({ ...form, confirmPassword: e.target.value })}
             />
-            <p className="md:col-span-2 text-xs text-zinc-500">Mínimo 6 caracteres. La contraseña no se guarda en texto plano; la gestiona Supabase Auth.</p>
+            <p className="md:col-span-2 text-xs text-zinc-500">Mínimo 6 caracteres. Si el usuario antiguo no tiene Auth vinculado, al guardar contraseña se creará y vinculará automáticamente.</p>
           </div>
           <button disabled={saving} className="btn btn-red md:col-span-2 disabled:opacity-50">{saving ? 'Guardando...' : editing ? 'Guardar cambios' : 'Crear usuario con acceso'}</button>
         </form>

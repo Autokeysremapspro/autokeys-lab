@@ -10,6 +10,7 @@ export type UsuarioApp = {
   telefono?: string | null
   rol: UsuarioRol | string
   activo?: boolean | null
+  ultimo_acceso?: string | null
   created_at?: string
 }
 
@@ -52,23 +53,18 @@ export const UsuariosService = {
   },
 
   async update(id: string, payload: Partial<UsuarioApp>): Promise<UsuarioApp> {
-    const { data, error } = await supabase
-      .from(TABLE)
-      .update({
-        nombre: payload.nombre,
-        email: payload.email,
-        telefono: payload.telefono,
-        rol: payload.rol,
-        activo: payload.activo,
-      })
-      .eq('id', id)
-      .select('*')
-      .single()
-    if (error) throw error
-    return data as UsuarioApp
+    const response = await fetch('/api/admin/users', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, ...payload }),
+    })
+
+    if (!response.ok) throw new Error(await parseApiError(response))
+    const data = await response.json()
+    return data.usuario as UsuarioApp
   },
 
-  async resetPassword(id: string, password: string): Promise<void> {
+  async resetPassword(id: string, password: string): Promise<{ linked?: boolean }> {
     const response = await fetch('/api/admin/users', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -76,6 +72,7 @@ export const UsuariosService = {
     })
 
     if (!response.ok) throw new Error(await parseApiError(response))
+    return response.json().catch(() => ({}))
   },
 
   async remove(id: string): Promise<void> {
