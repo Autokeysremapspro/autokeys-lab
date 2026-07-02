@@ -1,11 +1,11 @@
-# Autokeys Core v1.9 - Centro de Administración
+# Autokeys Core v2.0 - Portal Distribuidores
 
 ## Instalación
 
 1. Ejecutar en Supabase:
 
 ```text
-supabase/autokeys_core_v1.9_centro_admin.sql
+supabase/autokeys_core_v2.0_portal_distribuidores.sql
 ```
 
 2. Copiar los archivos encima del repositorio.
@@ -14,9 +14,10 @@ supabase/autokeys_core_v1.9_centro_admin.sql
 
 ## Incluye
 
-- Configuración convertida en Centro de Administración.
-- Pestañas: Empresa, Documentos, Usuarios, Permisos, Email, Logs, Sistema.
-- Resumen de usuarios, clientes, stock bajo, expedientes, facturas y file service.
-- Matriz visual de permisos por rol.
-- Logs/auditoría inicial.
-- Tablas nuevas: `auditoria_core`, `configuracion_notificaciones`, `configuracion_permisos`.
+- Nuevo apartado **Portal Distribuidores** en el menú.
+- Gestión de distribuidores vinculados a usuarios con rol `distribuidor`.
+- Perfil comercial del distribuidor.
+- Solicitudes de File Service asociadas a distribuidor.
+- Estados, prioridad, fecha prevista, precio y pagado.
+- Mensajes visibles para el distribuidor.
+- SQL para tablas `distribuidor_perfiles` y `portal_distribuidor_mensajes`.
