@@ -13,18 +13,18 @@ export type BackupTable =
   | 'auditoria'
   | 'notificaciones'
 
-export const BACKUP_TABLES: { key: BackupTable; label: string }[] = [
-  { key: 'clientes', label: 'Clientes' },
-  { key: 'vehiculos', label: 'Vehículos' },
-  { key: 'expedientes', label: 'Expedientes' },
-  { key: 'facturas', label: 'Facturas' },
-  { key: 'stock', label: 'Stock' },
-  { key: 'file_service', label: 'File Service' },
-  { key: 'usuarios', label: 'Usuarios' },
-  { key: 'agenda_eventos', label: 'Agenda' },
-  { key: 'biblioteca_tecnica', label: 'Biblioteca Técnica' },
-  { key: 'auditoria', label: 'Auditoría' },
-  { key: 'notificaciones', label: 'Notificaciones' },
+export const BACKUP_TABLES: { name: BackupTable; key: BackupTable; label: string }[] = [
+  { name: 'clientes', key: 'clientes', label: 'Clientes' },
+  { name: 'vehiculos', key: 'vehiculos', label: 'Vehículos' },
+  { name: 'expedientes', key: 'expedientes', label: 'Expedientes' },
+  { name: 'facturas', key: 'facturas', label: 'Facturas' },
+  { name: 'stock', key: 'stock', label: 'Stock' },
+  { name: 'file_service', key: 'file_service', label: 'File Service' },
+  { name: 'usuarios', key: 'usuarios', label: 'Usuarios' },
+  { name: 'agenda_eventos', key: 'agenda_eventos', label: 'Agenda' },
+  { name: 'biblioteca_tecnica', key: 'biblioteca_tecnica', label: 'Biblioteca Técnica' },
+  { name: 'auditoria', key: 'auditoria', label: 'Auditoría' },
+  { name: 'notificaciones', key: 'notificaciones', label: 'Notificaciones' },
 ]
 
 export const QUICK_EXPORTS = [
