@@ -24,8 +24,8 @@ export const BACKUP_TABLES: { name: BackupTable; key: BackupTable; label: string
   { name: 'agenda_eventos', key: 'agenda_eventos', label: 'Agenda' },
   { name: 'biblioteca_tecnica', key: 'biblioteca_tecnica', label: 'Biblioteca Técnica' },
   { name: 'auditoria', key: 'auditoria', label: 'Auditoría' },
-  { name: 'notificaciones', key: 'notificaciones', label: 'Notificaciones' },
-]
+  { name: 'notificaciones', key: 'notificaciones', label: 'Notificaciones' },]
+
 
 export const QUICK_EXPORTS = [
   { label: 'Clientes', table: 'clientes' as BackupTable },
