@@ -1,10 +1,22 @@
-# Autokeys Core v2.6B - Facturas PDF + imprimir
+# Autokeys Core v2.8 - Cobros / Pagos
 
-Copia encima del repo y haz commit + push.
+## Instalación
 
-Incluye:
-- app/facturas/page.tsx con botones Ver PDF e Imprimir
-- app/api/documentos/[id]/route.ts con vista imprimible A4
+1. Ejecuta en Supabase:
 
-Uso:
-En Facturas, cada documento tendrá botones Ver PDF e Imprimir.
+```text
+supabase/autokeys_core_v2.8_cobros_pagos.sql
+```
+
+2. Copia los archivos encima del repositorio actual.
+3. Commit + push.
+4. Vercel desplegará automáticamente.
+
+## Añade
+
+- Apartado **Cobros / Pagos**.
+- Registro de pagos parciales.
+- Métodos: efectivo, tarjeta, transferencia, Bizum y otro.
+- Historial de pagos por factura.
+- Pendiente de cobro.
+- Actualización automática del estado de factura: pendiente / parcial / pagada.

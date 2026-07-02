@@ -29,6 +29,7 @@ import {
   History,
   Bell,
   Archive,
+  CreditCard,
 } from 'lucide-react'
 
 type NavItem = {
@@ -70,6 +71,7 @@ const groups: NavGroup[] = [
       { href: '/portal-distribuidores', label: 'Portal Distribuidores', icon: Globe2 },
       { href: '/stock', label: 'Stock', icon: Package },
       { href: '/facturas', label: 'Facturas', icon: FileText },
+      { href: '/pagos', label: 'Cobros / Pagos', icon: CreditCard },
       { href: '/informes', label: 'Informes', icon: BarChart3 },
     ],
   },
@@ -95,6 +97,7 @@ const activeLabels = [
   'File Service',
   'Stock',
   'Facturas',
+  'Cobros / Pagos',
   'Usuarios',
   'Portal Distribuidores',
   'Biblioteca Técnica',
