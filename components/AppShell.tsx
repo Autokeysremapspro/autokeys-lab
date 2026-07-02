@@ -25,6 +25,7 @@ import {
   Globe2,
   FolderTree,
   ChevronDown,
+  CalendarDays,
 } from 'lucide-react'
 
 type NavItem = {
@@ -44,6 +45,7 @@ const groups: NavGroup[] = [
     items: [
       { href: '/', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/explorador', label: 'Explorador', icon: FolderTree },
+      { href: '/agenda', label: 'Agenda', icon: CalendarDays },
       { href: '/expedientes', label: 'Expedientes', icon: ClipboardList },
       { href: '/clientes', label: 'Clientes', icon: Users },
       { href: '/vehiculos', label: 'Vehículos', icon: Car },
@@ -80,6 +82,7 @@ const groups: NavGroup[] = [
 const activeLabels = [
   'Dashboard',
   'Explorador',
+  'Agenda',
   'Expedientes',
   'Clientes',
   'Vehículos',
