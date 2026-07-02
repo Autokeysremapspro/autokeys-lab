@@ -35,7 +35,7 @@ const nav = [
   ['/facturas', 'Facturas', FileText],
   ['/usuarios', 'Usuarios', UserCog],
   ['/biblioteca', 'Biblioteca Técnica', BookOpen],
-  ['/', 'Informes', BarChart3],
+  ['/informes', 'Informes', BarChart3],
   ['/', 'Configuración', Settings],
 ]
 
@@ -62,7 +62,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         <nav className="space-y-1 flex-1">
           {nav.map(([href, label, Icon]: any) => {
-            const active = pathname === href || (href !== '/' && pathname.startsWith(href) && ['Expedientes','Clientes','Vehículos','File Service','Stock','Facturas','Usuarios','Biblioteca Técnica'].includes(label))
+            const active = pathname === href || (href !== '/' && pathname.startsWith(href) && ['Expedientes','Clientes','Vehículos','File Service','Stock','Facturas','Usuarios','Biblioteca Técnica','Informes'].includes(label))
             return (
               <Link
                 key={`${href}-${label}`}
