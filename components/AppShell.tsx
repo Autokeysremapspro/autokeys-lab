@@ -26,6 +26,7 @@ import {
   FolderTree,
   ChevronDown,
   CalendarDays,
+  History,
 } from 'lucide-react'
 
 type NavItem = {
@@ -74,6 +75,7 @@ const groups: NavGroup[] = [
     title: 'Sistema',
     items: [
       { href: '/usuarios', label: 'Usuarios', icon: UserCog },
+      { href: '/auditoria', label: 'Auditoría', icon: History },
       { href: '/configuracion', label: 'Configuración', icon: Settings },
     ],
   },
@@ -93,6 +95,7 @@ const activeLabels = [
   'Portal Distribuidores',
   'Biblioteca Técnica',
   'Informes',
+  'Auditoría',
   'Configuración',
 ]
 
