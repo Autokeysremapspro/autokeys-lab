@@ -31,6 +31,7 @@ import {
   Archive,
   CreditCard,
   ReceiptText,
+  TrendingUp,
 } from 'lucide-react'
 
 type NavItem = {
@@ -74,6 +75,7 @@ const groups: NavGroup[] = [
       { href: '/facturas', label: 'Facturas', icon: FileText },
       { href: '/pagos', label: 'Cobros / Pagos', icon: CreditCard },
       { href: '/gastos', label: 'Gastos / Compras', icon: ReceiptText },
+      { href: '/finanzas', label: 'Finanzas', icon: TrendingUp },
       { href: '/informes', label: 'Informes', icon: BarChart3 },
     ],
   },
@@ -101,6 +103,7 @@ const activeLabels = [
   'Facturas',
   'Cobros / Pagos',
   'Gastos / Compras',
+  'Finanzas',
   'Usuarios',
   'Portal Distribuidores',
   'Biblioteca Técnica',

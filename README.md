@@ -1,23 +1,22 @@
-# Autokeys Core v2.9 - Gastos / Compras
+# Autokeys Core v3.0 - Finanzas / Rentabilidad
 
 ## Instalación
 
-1. Ejecuta en Supabase:
+1. Copia el contenido del ZIP encima del repositorio.
+2. Commit + push.
+3. Vercel desplegará automáticamente.
 
-```text
-supabase/autokeys_core_v2.9_gastos_compras.sql
-```
+## Añade
 
-2. Copia los archivos encima del repositorio actual.
-3. Commit + push.
-4. Espera el deploy de Vercel.
+- Apartado **Finanzas**.
+- Ingresos mes/año.
+- Gastos mes/año.
+- Beneficio mes/año.
+- Margen mensual.
+- Pendiente de cobro.
+- Gastos pendientes.
+- Top clientes por facturación.
+- Gastos por categoría.
+- Evolución mensual.
 
-## Incluye
-
-- Apartado **Gastos / Compras**.
-- Registrar, editar y eliminar gastos.
-- Categorías: stock, herramientas, software, licencias, alquiler, luz, internet, gestoría, marketing, material, vehículo y otros.
-- IVA soportado.
-- Estado pendiente / pagado / cancelado.
-- Beneficio bruto mensual: ingresos del mes - gastos del mes.
-- Menú lateral actualizado.
+No requiere SQL nuevo. Usa las tablas ya creadas: `facturas`, `gastos`, `pagos_factura` y `clientes`.
