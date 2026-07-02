@@ -1,35 +1,23 @@
-# Autokeys Core v2.3 - Auditoría / Registro de actividad
+# Autokeys Core v2.4 - Notificaciones
 
 ## Instalación
 
-1. Ejecutar en Supabase:
+1. Ejecuta en Supabase:
 
 ```text
-supabase/autokeys_core_v2.3_auditoria.sql
+supabase/autokeys_core_v2.4_notificaciones.sql
 ```
 
-2. Copiar los archivos encima del repo.
+2. Copia estos archivos encima del repositorio.
 3. Commit + push.
+4. Vercel desplegará automáticamente.
 
 ## Incluye
 
-- Nuevo apartado: `/auditoria`
-- Menú lateral con acceso a Auditoría
-- Tabla `auditoria_eventos`
-- Función SQL `registrar_auditoria(...)`
-- Servicio `lib/services/auditoria.ts`
-- Tipos `types/auditoria.ts`
-- Filtros por texto, módulo y severidad
-- Estadísticas: eventos totales, eventos de hoy, avisos y críticos
-
-## Próximo uso
-
-En los siguientes sprints se puede llamar a `registrar_auditoria` desde acciones importantes:
-
-- crear/editar/eliminar clientes
-- crear/editar/eliminar vehículos
-- cambios de estado de OT
-- edición/eliminación de facturas
-- movimientos de stock
-- subida/eliminación de archivos
-- cambios en usuarios y configuración
+- Centro de notificaciones `/notificaciones`.
+- Tabla `notificaciones`.
+- Campana conectada a avisos persistentes.
+- Avisos automáticos básicos de stock, facturas, File Service y OT urgentes.
+- Marcar una o todas como leídas.
+- Eliminar notificaciones.
+- Menú lateral actualizado.

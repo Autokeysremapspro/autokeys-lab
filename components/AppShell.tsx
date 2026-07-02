@@ -27,6 +27,7 @@ import {
   ChevronDown,
   CalendarDays,
   History,
+  Bell,
 } from 'lucide-react'
 
 type NavItem = {
@@ -75,6 +76,7 @@ const groups: NavGroup[] = [
     title: 'Sistema',
     items: [
       { href: '/usuarios', label: 'Usuarios', icon: UserCog },
+      { href: '/notificaciones', label: 'Notificaciones', icon: Bell },
       { href: '/auditoria', label: 'Auditoría', icon: History },
       { href: '/configuracion', label: 'Configuración', icon: Settings },
     ],
@@ -96,6 +98,7 @@ const activeLabels = [
   'Biblioteca Técnica',
   'Informes',
   'Auditoría',
+  'Notificaciones',
   'Configuración',
 ]
 
