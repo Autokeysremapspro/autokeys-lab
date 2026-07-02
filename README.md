@@ -1,21 +1,24 @@
-# Autokeys Core v2.5 - Backups / Exportación
+# Autokeys Core v2.6 - PDF documentos
 
-## Instalación
+## Pasos
 
 1. Ejecuta en Supabase:
+   supabase/autokeys_core_v2.6_documentos_pdf.sql
 
-```text
-supabase/autokeys_core_v2.5_backups.sql
-```
+2. Copia los archivos encima del repo.
 
-2. Copia los archivos encima del repositorio.
 3. Commit + push.
-4. Entra en **Backups**.
 
-## Incluye
+## Uso
 
-- Apartado Backups en el menú.
-- Exportación CSV de clientes, vehículos, expedientes, facturas y stock.
-- Exportación completa JSON seleccionando tablas.
-- Registro de copias realizadas.
-- Recomendación de copia semanal.
+Endpoint:
+/api/documentos/[id]
+
+Abre una vista imprimible de la factura/presupuesto/albarán/ticket.
+Desde el navegador usa "Imprimir / Guardar PDF".
+
+Componente opcional:
+components/DocumentPdfButton.tsx
+
+Puedes añadirlo en páginas de facturas:
+<DocumentPdfButton id={factura.id} />
