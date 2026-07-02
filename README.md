@@ -1,6 +1,9 @@
-# Autokeys Core v3.1 - Objetivos / KPIs
+# Autokeys Core v3.2 - CRM + Historial técnico inteligente
 
-1. Ejecuta `supabase/autokeys_core_v3.1_objetivos_kpis.sql` en Supabase.
-2. Copia los archivos encima del repositorio.
+## Instalación
+1. Ejecuta `supabase/autokeys_core_v3.2_crm_historial.sql` en Supabase.
+2. Copia el contenido del ZIP encima del repositorio.
 3. Commit + push.
-4. Si el menú no muestra Objetivos, añade enlace a `/objetivos` en `components/AppShell.tsx`.
+
+## Añade al menú
+Si el menú no muestra CRM automáticamente, añade enlace a `/crm` en `components/AppShell.tsx`.
