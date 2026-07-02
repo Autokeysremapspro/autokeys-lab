@@ -6,7 +6,17 @@ import FormModal from '@/components/FormModal'
 import { supabase } from '@/lib/supabase'
 import { money } from '@/lib/status'
 import toast from 'react-hot-toast'
-import { FileText, Pencil, Trash2, PlusCircle, Search, CheckCircle2, XCircle } from 'lucide-react'
+import {
+  CheckCircle2,
+  Eye,
+  FileText,
+  Pencil,
+  PlusCircle,
+  Printer,
+  Search,
+  Trash2,
+  XCircle,
+} from 'lucide-react'
 
 type Documento = {
   id: string
@@ -46,6 +56,11 @@ function estadoBadge(estado?: string | null) {
   if (estado === 'pagada') return 'badge bg-emerald-600/20 text-emerald-300 border border-emerald-500/30'
   if (estado === 'cancelada') return 'badge bg-zinc-600/20 text-zinc-400 border border-zinc-500/30'
   return 'badge bg-amber-600/20 text-amber-300 border border-amber-500/30'
+}
+
+function abrirDocumento(id: string, imprimir = false) {
+  const url = imprimir ? `/api/documentos/${id}?print=1` : `/api/documentos/${id}`
+  window.open(url, '_blank', 'noopener,noreferrer')
 }
 
 export default function FacturasPage() {
@@ -187,7 +202,7 @@ export default function FacturasPage() {
         <div>
           <p className="text-sm text-red-400 font-bold uppercase tracking-[0.2em]">Administración</p>
           <h2 className="text-3xl font-black mt-1">Facturas / Presupuestos</h2>
-          <p className="text-zinc-500 mt-2">Crea, edita, elimina y controla el estado de los documentos.</p>
+          <p className="text-zinc-500 mt-2">Crea, edita, imprime y controla el estado de los documentos.</p>
         </div>
         <button onClick={nuevo} className="btn btn-red flex items-center gap-2 justify-center">
           <PlusCircle size={18} /> Nuevo documento
@@ -242,6 +257,8 @@ export default function FacturasPage() {
                     <td><span className={estadoBadge(doc.estado)}>{doc.estado || 'pendiente'}</span></td>
                     <td>
                       <div className="flex flex-wrap gap-2">
+                        <button onClick={() => abrirDocumento(doc.id)} className="btn btn-dark flex items-center gap-2"><Eye size={15} /> Ver PDF</button>
+                        <button onClick={() => abrirDocumento(doc.id, true)} className="btn btn-dark flex items-center gap-2"><Printer size={15} /> Imprimir</button>
                         <button onClick={() => editar(doc)} className="btn btn-dark flex items-center gap-2"><Pencil size={15} /> Editar</button>
                         {doc.estado !== 'pagada' && <button onClick={() => cambiarEstado(doc, 'pagada')} className="btn bg-emerald-950/40 border border-emerald-500/20 text-emerald-300 flex items-center gap-2"><CheckCircle2 size={15} /> Pagada</button>}
                         {doc.estado !== 'cancelada' && <button onClick={() => cambiarEstado(doc, 'cancelada')} className="btn bg-zinc-900 border border-white/10 text-zinc-300 flex items-center gap-2"><XCircle size={15} /> Cancelar</button>}

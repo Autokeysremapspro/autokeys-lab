@@ -1,24 +1,10 @@
-# Autokeys Core v2.6 - PDF documentos
+# Autokeys Core v2.6B - Facturas PDF + imprimir
 
-## Pasos
+Copia encima del repo y haz commit + push.
 
-1. Ejecuta en Supabase:
-   supabase/autokeys_core_v2.6_documentos_pdf.sql
+Incluye:
+- app/facturas/page.tsx con botones Ver PDF e Imprimir
+- app/api/documentos/[id]/route.ts con vista imprimible A4
 
-2. Copia los archivos encima del repo.
-
-3. Commit + push.
-
-## Uso
-
-Endpoint:
-/api/documentos/[id]
-
-Abre una vista imprimible de la factura/presupuesto/albarán/ticket.
-Desde el navegador usa "Imprimir / Guardar PDF".
-
-Componente opcional:
-components/DocumentPdfButton.tsx
-
-Puedes añadirlo en páginas de facturas:
-<DocumentPdfButton id={factura.id} />
+Uso:
+En Facturas, cada documento tendrá botones Ver PDF e Imprimir.
