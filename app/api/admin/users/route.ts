@@ -22,9 +22,10 @@ async function findAuthUserByEmail(admin: ReturnType<typeof getAdminClient>, ema
   for (let page = 1; page <= 20; page++) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 100 })
     if (error) throw error
-    const found = data.users.find(user => user.email?.toLowerCase() === target)
+    const users = (data.users || []) as Array<{ id: string; email?: string | null }>
+    const found = users.find(user => user.email?.toLowerCase() === target)
     if (found) return found
-    if (data.users.length < 100) return null
+    if (users.length < 100) return null
   }
   return null
 }
