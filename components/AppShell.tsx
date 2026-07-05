@@ -13,6 +13,7 @@ import {
   ClipboardList,
   FileText,
   Package,
+  Cloud,
   UploadCloud,
   LogOut,
   Cpu,
