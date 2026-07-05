@@ -227,7 +227,16 @@ export default function VehiculosPage() {
         </div>
       )}
 
-      <VehiculoModal open={modalOpen} title={editing ? 'Editar vehículo' : 'Nuevo vehículo'} clientes={clientes} initialData={editing || undefined} loading={saving} onClose={() => { setModalOpen(false); setEditing(null) }} onSubmit={saveVehiculo} />
-    </AppShell>
+      <<VehiculoModal
+  open={modalOpen}
+  clientes={clientes}
+  initialData={editing || undefined}
+  loading={saving}
+  onClose={() => {
+    setModalOpen(false)
+    setEditing(null)
+  }}
+  onSubmit={saveVehiculo}
+/>
   )
 }
