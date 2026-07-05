@@ -1,29 +1,21 @@
-# Autokeys Core v4.5 - Garantías + justificantes
+# Autokeys Core v4.5B - Garantías en ERP principal
 
 ## Instalación
 
-1. Ejecutar en Supabase:
+1. Ejecuta en Supabase el SQL:
 
 ```text
 supabase/autokeys_core_v4.5_garantias_documentos.sql
 ```
 
-2. Copiar los archivos encima del repositorio.
-3. Commit + push.
+2. Copia el contenido del ZIP encima del repositorio.
+3. Haz commit + push.
 
-## Nuevas rutas
+## Incluye
 
-```text
-/mobile/garantia
-/api/garantias/[id]
-```
-
-## Funciones
-
-- Generar garantía desde móvil.
-- Seleccionar OT.
-- Datos receptor/DNI.
-- Trabajo realizado.
-- Condiciones y observaciones.
-- Documento imprimible A4.
-- Historial automático en expediente.
+- Pestaña **Garantía** dentro de cada expediente.
+- Crear garantía desde el ERP principal.
+- Ver / imprimir garantía.
+- Eliminar garantía.
+- Historial automático en el expediente.
+- Reutiliza el endpoint `/api/garantias/[id]`.

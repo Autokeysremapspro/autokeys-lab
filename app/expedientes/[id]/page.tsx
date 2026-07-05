@@ -11,6 +11,7 @@ import ChecklistPanel from '@/components/ChecklistPanel'
 import TimeTrackerPanel from '@/components/TimeTrackerPanel'
 import FacturacionPanel from '@/components/FacturacionPanel'
 import MaterialPanel from '@/components/MaterialPanel'
+import GarantiaPanel from '@/components/GarantiaPanel'
 import { ExpedienteService } from '@/lib/services/expedientes'
 import type { ExpedienteConRelaciones, ExpedienteECU, ExpedienteLlaves } from '@/types/autokeys'
 import {
@@ -23,6 +24,7 @@ import {
   Clock3,
   Cpu,
   Euro,
+  FileSignature,
   FileText,
   FolderOpen,
   Gauge,
@@ -38,7 +40,7 @@ import {
 
 const estados = ['recibido', 'diagnostico', 'en_proceso', 'pendiente_cliente', 'pendiente_material', 'terminado', 'entregado', 'cancelado']
 const prioridades = ['baja', 'normal', 'alta', 'urgente']
-const tabs = ['360°', 'Resumen', 'ECU', 'Llaves', 'Archivos', 'Fotos', 'Checklist', 'Tiempo', 'Material', 'Facturación', 'Historial'] as const
+const tabs = ['360°', 'Resumen', 'ECU', 'Llaves', 'Archivos', 'Fotos', 'Checklist', 'Tiempo', 'Material', 'Facturación', 'Garantía', 'Historial'] as const
 
 type Tab = typeof tabs[number]
 
@@ -322,6 +324,11 @@ export default function ExpedienteFichaPage() {
                   <p className="font-black">Facturación</p>
                   <p className="mt-1 text-sm text-zinc-500">Presupuesto, factura, ticket, albarán y cobros asociados.</p>
                 </button>
+                <button onClick={() => setTab('Garantía')} className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-red-500/40 hover:bg-red-500/10">
+                  <FileSignature className="mb-3 text-red-300" />
+                  <p className="font-black">Garantía / entrega</p>
+                  <p className="mt-1 text-sm text-zinc-500">Genera, imprime y archiva garantías dentro del expediente.</p>
+                </button>
               </div>
             </div>
 
@@ -522,6 +529,21 @@ export default function ExpedienteFichaPage() {
       {tab === 'Facturación' && (
         <FacturacionPanel
           expediente={item}
+          onEvent={async (evento, descripcion) => {
+            await ExpedienteService.addHistory(id, evento, descripcion)
+            await load()
+          }}
+        />
+      )}
+
+
+      {tab === 'Garantía' && (
+        <GarantiaPanel
+          expedienteId={id}
+          clienteNombre={item.cliente?.nombre || ''}
+          clienteNif={item.cliente?.nif || ''}
+          tipoTrabajo={item.tipo_trabajo || ''}
+          descripcion={item.descripcion || ''}
           onEvent={async (evento, descripcion) => {
             await ExpedienteService.addHistory(id, evento, descripcion)
             await load()
