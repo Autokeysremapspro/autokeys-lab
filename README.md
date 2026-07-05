@@ -1,17 +1,29 @@
-# Autokeys Core v4.3 - Cámara + Fotos por expediente
+# Autokeys Core v4.5 - Garantías + justificantes
 
-Copia encima del repositorio y haz commit + push.
+## Instalación
 
-Archivos incluidos:
-- app/mobile/page.tsx
-- components/MobileCameraCapture.tsx
+1. Ejecutar en Supabase:
 
-No requiere SQL nuevo si ya tienes v0.7 Storage ejecutado.
+```text
+supabase/autokeys_core_v4.5_garantias_documentos.sql
+```
 
-Uso:
-- Entra en /mobile
-- Pulsa Cámara
-- Busca o selecciona una OT
-- Elige categoría
-- Haz foto o sube desde galería
-- La foto queda asociada al expediente y registra historial.
+2. Copiar los archivos encima del repositorio.
+3. Commit + push.
+
+## Nuevas rutas
+
+```text
+/mobile/garantia
+/api/garantias/[id]
+```
+
+## Funciones
+
+- Generar garantía desde móvil.
+- Seleccionar OT.
+- Datos receptor/DNI.
+- Trabajo realizado.
+- Condiciones y observaciones.
+- Documento imprimible A4.
+- Historial automático en expediente.
