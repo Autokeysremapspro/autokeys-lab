@@ -144,7 +144,7 @@ export async function asignarTecnicoProduccion(id: string, tecnico: string) {
 }
 
 async function crearNotificacionEstado(pedido: AkCloudProduccionPedido, estado: ProduccionEstado) {
-  const userId = pedido.user_id || null
+  const userId = (pedido as any).user_id || null
   if (!userId) return
 
   const titulo = estado === 'finalizado' ? 'Archivo listo' : 'Estado actualizado'
