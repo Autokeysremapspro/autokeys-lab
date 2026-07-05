@@ -1,16 +1,26 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import toast from 'react-hot-toast'
 import { LockKeyhole, Mail, ShieldCheck } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const next = searchParams.get('next') || '/'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        router.replace(next)
+      }
+    })
+  }, [router, next])
 
   async function submit(e: any) {
     e.preventDefault()
@@ -54,7 +64,7 @@ export default function LoginPage() {
       await supabase.from('usuarios_app').update({ ultimo_acceso: new Date().toISOString() }).eq('id', perfil.id)
 
       toast.success(`Bienvenido, ${perfil.nombre || cleanEmail}`)
-      router.push('/')
+      router.push(next)
       router.refresh()
     } catch (error: any) {
       toast.error(error.message || 'No se pudo iniciar sesión')

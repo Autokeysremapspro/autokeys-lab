@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -123,10 +124,67 @@ function isActive(pathname: string, href: string, label: string) {
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
+  const [checkingSession, setCheckingSession] = useState(true)
+  const [authorized, setAuthorized] = useState(false)
+
+  useEffect(() => {
+    let alive = true
+
+    async function checkSession() {
+      const { data } = await supabase.auth.getSession()
+      const session = data.session
+
+      if (!alive) return
+
+      if (!session) {
+        setAuthorized(false)
+        setCheckingSession(false)
+        const next = pathname || '/'
+        router.replace(`/login?next=${encodeURIComponent(next)}`)
+        return
+      }
+
+      setAuthorized(true)
+      setCheckingSession(false)
+    }
+
+    checkSession()
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!alive) return
+
+      if (!session) {
+        setAuthorized(false)
+        router.replace('/login')
+        return
+      }
+
+      setAuthorized(true)
+      setCheckingSession(false)
+    })
+
+    return () => {
+      alive = false
+      listener.subscription.unsubscribe()
+    }
+  }, [pathname, router])
 
   async function logout() {
     await supabase.auth.signOut()
     router.push('/login')
+  }
+
+  if (checkingSession || !authorized) {
+    return (
+      <main className="min-h-screen grid place-items-center bg-[#111827] text-zinc-100 p-6">
+        <div className="card max-w-md w-full p-8 text-center">
+          <div className="text-3xl font-black tracking-tight">
+            AUTOKEYS <span className="text-red-500">CORE</span>
+          </div>
+          <p className="text-zinc-500 mt-3">Comprobando sesión segura...</p>
+        </div>
+      </main>
+    )
   }
 
   return (
