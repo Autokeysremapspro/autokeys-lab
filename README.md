@@ -1,17 +1,10 @@
-# Autokeys Core v4.7 - Biblioteca de archivos técnicos
+# Autokeys Core v4.8 - Biblioteca Técnica PRO
 
-## Instalación
+1. Ejecutar en Supabase:
+   `supabase/autokeys_core_v4.8_biblioteca_tecnica_pro.sql`
 
-1. Copia el contenido de este ZIP encima del repositorio.
-2. Commit + push.
-3. Accede a `/archivos`.
+2. Copiar archivos encima del repo.
 
-## Añade
+3. Commit + push.
 
-- Biblioteca global de archivos técnicos.
-- Búsqueda por archivo, matrícula, VIN, ECU, HW, SW, cliente u OT.
-- Filtro por categoría: ORI, MOD, FLASH, EEPROM, MICRO, OTP, PASSWORD, PDF, FOTO y OTRO.
-- Descarga/eliminación de archivos.
-- Acceso directo al expediente del archivo.
-
-No requiere SQL nuevo. Usa la tabla `expediente_archivos_pro` de v4.6.
+Añade `/biblioteca-tecnica` con casos técnicos, búsqueda, tags, ECU/HW/SW, dificultad, solución definitiva y casos frecuentes.
