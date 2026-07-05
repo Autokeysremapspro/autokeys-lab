@@ -18,8 +18,9 @@ import {
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import MobileQuickCreate from '@/components/MobileQuickCreate'
+import MobileCameraCapture from '@/components/MobileCameraCapture'
 
-type View = 'home' | 'alta' | 'buscar' | 'agenda'
+type View = 'home' | 'alta' | 'buscar' | 'agenda' | 'camara'
 
 type AgendaEvent = {
   id: string
@@ -176,6 +177,7 @@ export default function MobilePage() {
     if (view === 'alta') return 'Alta rápida'
     if (view === 'buscar') return 'Buscar'
     if (view === 'agenda') return 'Agenda de hoy'
+    if (view === 'camara') return 'Cámara'
     return 'Móvil Pro'
   }, [view])
 
@@ -188,6 +190,7 @@ export default function MobilePage() {
   }
 
   if (view === 'alta') return <MobileQuickCreate onBack={() => setView('home')} />
+  if (view === 'camara') return <MobileCameraCapture onBack={() => setView('home')} />
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
@@ -217,7 +220,7 @@ export default function MobilePage() {
 
             <div className="grid grid-cols-2 gap-3">
               <MobileButton icon={<ClipboardList />} label="Nueva OT" onClick={() => setView('alta')} primary />
-              <MobileButton icon={<Camera />} label="Cámara" onClick={() => toast('Cámara directa: siguiente sprint')} />
+              <MobileButton icon={<Camera />} label="Cámara" onClick={() => setView('camara')} />
               <MobileButton icon={<Search />} label="Buscar" onClick={() => setView('buscar')} />
               <MobileButton icon={<CalendarDays />} label="Agenda" onClick={() => setView('agenda')} />
               <Link href="/clientes" className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 text-center font-black"><User className="mx-auto mb-2 text-red-400" /> Clientes</Link>
