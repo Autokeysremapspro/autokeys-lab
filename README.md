@@ -1,11 +1,9 @@
-# Autokeys Core v4.0 PWA móvil
+# Autokeys Core v4.1 - Móvil Pro
 
-Copiar encima del repo y hacer commit + push.
+Copia encima del repositorio y haz commit + push.
 
-Incluye:
-- /mobile alta rápida optimizada para móvil
-- Manifest PWA
-- Iconos SVG
-- Service worker básico
+Archivos incluidos:
+- app/mobile/page.tsx
+- components/MobileQuickCreate.tsx
 
-Nota: para instalar en iPhone/Android, abrir /mobile y usar "Añadir a pantalla de inicio".
+No requiere SQL nuevo.
