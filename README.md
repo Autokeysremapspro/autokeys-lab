@@ -1,9 +1,3 @@
-# Autokeys Core v4.1 - Móvil Pro
+Autokeys Core v4.2 Expediente 360
 
-Copia encima del repositorio y haz commit + push.
-
-Archivos incluidos:
-- app/mobile/page.tsx
-- components/MobileQuickCreate.tsx
-
-No requiere SQL nuevo.
+Copiar encima del repo. No requiere SQL.
