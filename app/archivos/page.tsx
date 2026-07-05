@@ -29,7 +29,7 @@ export default function ArchivosPage() {
   async function load() {
     setLoading(true)
     try {
-      setArchivos(await getArchivosGlobales())
+      const data = await getArchivosGlobales() setArchivos(data as ArchivoGlobal[])
     } catch (error: any) {
       toast.error(error?.message || 'No se pudieron cargar los archivos')
     } finally {
