@@ -227,16 +227,17 @@ export default function VehiculosPage() {
         </div>
       )}
 
-      <<VehiculoModal
-  open={modalOpen}
-  clientes={clientes}
-  initialData={editing || undefined}
-  loading={saving}
-  onClose={() => {
-    setModalOpen(false)
-    setEditing(null)
-  }}
-  onSubmit={saveVehiculo}
-/>
+      <VehiculoModal
+        open={modalOpen}
+        clientes={clientes}
+        initialData={editing || undefined}
+        loading={saving}
+        onClose={() => {
+          setModalOpen(false)
+          setEditing(null)
+        }}
+        onSubmit={saveVehiculo}
+      />
+    </AppShell>
   )
 }
