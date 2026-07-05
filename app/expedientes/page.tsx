@@ -2,11 +2,13 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
 import AppShell from '@/components/AppShell'
 import ExpedienteStatusBadge from '@/components/ExpedienteStatusBadge'
 import { ExpedienteService } from '@/lib/services/expedientes'
+import { supabase } from '@/lib/supabase'
 import type { ExpedienteConRelaciones } from '@/types/autokeys'
-import { Car, ClipboardList, Cpu, Eye, KeyRound, Plus, Search, UserRound } from 'lucide-react'
+import { Car, ClipboardList, Cpu, Eye, KeyRound, Plus, Search, Trash2, UserRound } from 'lucide-react'
 
 function money(value?: number | null) {
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value || 0)
@@ -29,6 +31,7 @@ export default function ExpedientesPage() {
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [deleting, setDeleting] = useState<string | null>(null)
 
   async function load() {
     setLoading(true)
@@ -53,6 +56,39 @@ export default function ExpedientesPage() {
     })
   }, [items, query])
 
+  async function deleteExpediente(item: ExpedienteConRelaciones) {
+    const title = item.numero_ot || 'este expediente'
+    const ok = confirm(`Vas a eliminar definitivamente ${title}.\n\nEsto puede borrar datos técnicos asociados: ECU, llaves, checklist, tiempos, archivos, material y facturación relacionada según tus relaciones de base de datos.\n\nPara trabajos reales es mejor cambiar estado a cancelado/archivado.\n\n¿Seguro que quieres eliminarlo?`)
+    if (!ok) return
+
+    const second = confirm(`Confirmación final:\n\nEscribe ACEPTAR mentalmente antes de continuar.\n\n¿Eliminar ${title}?`)
+    if (!second) return
+
+    setDeleting(item.id)
+
+    try {
+      await Promise.allSettled([
+        supabase.from('expediente_ecu').delete().eq('expediente_id', item.id),
+        supabase.from('expediente_llaves').delete().eq('expediente_id', item.id),
+        supabase.from('expediente_historial').delete().eq('expediente_id', item.id),
+        supabase.from('archivos_expediente').delete().eq('expediente_id', item.id),
+        supabase.from('servicios_expediente').delete().eq('expediente_id', item.id),
+        supabase.from('movimientos_stock').update({ expediente_id: null }).eq('expediente_id', item.id),
+        supabase.from('facturas').update({ expediente_id: null }).eq('expediente_id', item.id),
+      ])
+
+      const { error } = await supabase.from('expedientes').delete().eq('id', item.id)
+      if (error) throw error
+
+      toast.success('Expediente eliminado')
+      await load()
+    } catch (err: any) {
+      toast.error(err?.message || 'No se pudo eliminar el expediente')
+    } finally {
+      setDeleting(null)
+    }
+  }
+
   const openCount = items.filter(i => !['terminado', 'entregado', 'cancelado'].includes(i.estado || '')).length
   const urgentCount = items.filter(i => i.prioridad === 'urgente').length
   const ecuCount = items.filter(i => i.ecu).length
@@ -66,9 +102,14 @@ export default function ExpedientesPage() {
           <h2 className="text-3xl font-black mt-1">Expedientes inteligentes</h2>
           <p className="text-zinc-500 mt-2">OT, ficha técnica, ECU, llaves e historial del laboratorio.</p>
         </div>
-        <Link href="/expedientes/nueva" className="btn btn-red inline-flex items-center gap-2 justify-center">
-          <Plus size={18} /> Nueva OT
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Link href="/alta-rapida" className="btn btn-dark inline-flex items-center gap-2 justify-center">
+            <Plus size={18} /> Alta móvil
+          </Link>
+          <Link href="/expedientes/nueva" className="btn btn-red inline-flex items-center gap-2 justify-center">
+            <Plus size={18} /> Nueva OT
+          </Link>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-4 gap-4 mb-6">
@@ -81,12 +122,7 @@ export default function ExpedientesPage() {
       <div className="card p-5 mb-6">
         <div className="flex items-center gap-3 bg-[#0B1220] border border-white/10 rounded-2xl px-4 py-3">
           <Search size={18} className="text-zinc-500" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar por OT, cliente, matrícula, VIN, ECU, HW, SW..."
-            className="bg-transparent border-0 p-0 w-full"
-          />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar por OT, cliente, matrícula, VIN, ECU, HW, SW..." className="bg-transparent border-0 p-0 w-full" />
         </div>
       </div>
 
@@ -101,9 +137,7 @@ export default function ExpedientesPage() {
               <div key={item.id} className="card p-5 hover:border-red-500/30 transition">
                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                   <div className="flex gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center text-red-300">
-                      <Icon size={24} />
-                    </div>
+                    <div className="w-14 h-14 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center text-red-300"><Icon size={24} /></div>
                     <div>
                       <div className="flex flex-wrap items-center gap-3">
                         <h3 className="text-xl font-black">{item.numero_ot || 'OT sin número'}</h3>
@@ -119,14 +153,13 @@ export default function ExpedientesPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <div className="text-right hidden md:block">
                       <p className="text-xs text-zinc-500 font-bold uppercase">Importe</p>
                       <p className="text-lg font-black">{money(item.precio_final || item.precio_estimado)}</p>
                     </div>
-                    <Link href={`/expedientes/${item.id}`} className="btn btn-dark inline-flex items-center gap-2">
-                      <Eye size={17} /> Abrir ficha
-                    </Link>
+                    <Link href={`/expedientes/${item.id}`} className="btn btn-dark inline-flex items-center gap-2"><Eye size={17} /> Abrir ficha</Link>
+                    <button onClick={() => deleteExpediente(item)} disabled={deleting === item.id} className="btn btn-dark inline-flex items-center gap-2 text-red-300 disabled:opacity-60"><Trash2 size={17} /> {deleting === item.id ? 'Eliminando...' : 'Eliminar'}</button>
                   </div>
                 </div>
               </div>
