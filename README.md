@@ -1,30 +1,11 @@
-# Autokeys Core v3.3 - Eliminar + Alta móvil rápida
+# Autokeys Core v4.0 PWA móvil
 
-## Instalación
+Copiar encima del repo y hacer commit + push.
 
-1. Ejecutar en Supabase:
+Incluye:
+- /mobile alta rápida optimizada para móvil
+- Manifest PWA
+- Iconos SVG
+- Service worker básico
 
-```text
-supabase/autokeys_core_v3.3_alta_movil.sql
-```
-
-2. Copiar el contenido del ZIP encima del repo.
-3. Commit + push.
-
-## Incluye
-
-- Botón eliminar en Vehículos.
-- Eliminación segura de vehículo con aviso si tiene expedientes.
-- Botón eliminar en Expedientes.
-- Alta rápida móvil en `/alta-rapida`.
-- Servicio `crearAltaRapida`.
-
-## Uso móvil
-
-Abrir desde el iPhone:
-
-```text
-https://TU-DOMINIO/alta-rapida
-```
-
-Permite crear cliente, vehículo y OT en segundos.
+Nota: para instalar en iPhone/Android, abrir /mobile y usar "Añadir a pantalla de inicio".
