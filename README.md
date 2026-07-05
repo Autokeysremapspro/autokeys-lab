@@ -1,28 +1,17 @@
-# Autokeys Core v4.6 - Archivos Pro
+# Autokeys Core v4.7 - Biblioteca de archivos técnicos
 
 ## Instalación
 
-1. Ejecuta en Supabase:
+1. Copia el contenido de este ZIP encima del repositorio.
+2. Commit + push.
+3. Accede a `/archivos`.
 
-```text
-supabase/autokeys_core_v4.6_archivos_pro.sql
-```
+## Añade
 
-2. Copia encima del repo:
+- Biblioteca global de archivos técnicos.
+- Búsqueda por archivo, matrícula, VIN, ECU, HW, SW, cliente u OT.
+- Filtro por categoría: ORI, MOD, FLASH, EEPROM, MICRO, OTP, PASSWORD, PDF, FOTO y OTRO.
+- Descarga/eliminación de archivos.
+- Acceso directo al expediente del archivo.
 
-```text
-app/expedientes/[id]/archivos/page.tsx
-components/ArchivosProPanel.tsx
-lib/services/archivosPro.ts
-types/archivosPro.ts
-```
-
-3. Commit + push.
-
-## Ruta nueva
-
-```text
-/expedientes/[id]/archivos
-```
-
-Permite subir archivos técnicos por expediente: ORI, MOD, FLASH, EEPROM, MICRO, OTP, PASSWORD, PDF, FOTO y OTRO.
+No requiere SQL nuevo. Usa la tabla `expediente_archivos_pro` de v4.6.
