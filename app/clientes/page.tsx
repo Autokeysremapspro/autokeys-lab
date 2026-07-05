@@ -209,16 +209,12 @@ export default function ClientesPage() {
           </div>
         )}
       </div>
-      <ClienteModal
-        open={modalOpen}
-        initialData={editing || undefined}
-        loading={saving}
-        onClose={() => {
-          setModalOpen(false)
-          setEditing(null)
-        }}
-        onSubmit={saveCliente}
-      />
-    </AppShell>
-  )
-}
+     <ClienteModal
+  open={modalOpen}
+  cliente={editing || null}
+  onClose={() => {
+    setModalOpen(false)
+    setEditing(null)
+  }}
+  onSave={saveCliente}
+/>
