@@ -1,21 +1,28 @@
-# Autokeys Core v4.5B - Garantías en ERP principal
+# Autokeys Core v4.6 - Archivos Pro
 
 ## Instalación
 
-1. Ejecuta en Supabase el SQL:
+1. Ejecuta en Supabase:
 
 ```text
-supabase/autokeys_core_v4.5_garantias_documentos.sql
+supabase/autokeys_core_v4.6_archivos_pro.sql
 ```
 
-2. Copia el contenido del ZIP encima del repositorio.
-3. Haz commit + push.
+2. Copia encima del repo:
 
-## Incluye
+```text
+app/expedientes/[id]/archivos/page.tsx
+components/ArchivosProPanel.tsx
+lib/services/archivosPro.ts
+types/archivosPro.ts
+```
 
-- Pestaña **Garantía** dentro de cada expediente.
-- Crear garantía desde el ERP principal.
-- Ver / imprimir garantía.
-- Eliminar garantía.
-- Historial automático en el expediente.
-- Reutiliza el endpoint `/api/garantias/[id]`.
+3. Commit + push.
+
+## Ruta nueva
+
+```text
+/expedientes/[id]/archivos
+```
+
+Permite subir archivos técnicos por expediente: ORI, MOD, FLASH, EEPROM, MICRO, OTP, PASSWORD, PDF, FOTO y OTRO.
