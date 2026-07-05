@@ -39,6 +39,17 @@ export type AkCloudPedido = {
   updated_at?: string | null
 }
 
+export type AkCloudMensaje = {
+  id: string
+  pedido_id: string
+  user_id?: string | null
+  autor_nombre?: string | null
+  autor_tipo?: string | null
+  mensaje: string
+  leido?: boolean | null
+  created_at?: string | null
+}
+
 export type AkCloudRecarga = {
   id: string
   user_id?: string | null
@@ -160,6 +171,132 @@ export async function getSignedFileUrl(bucket?: string | null, path?: string | n
   const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 60 * 5)
   if (error) throw new Error(error.message)
   return data?.signedUrl || null
+}
+
+export async function subirModAkCloud(pedido: AkCloudPedido, file: File) {
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+  const base = pedido.numero || pedido.id
+  const path = `mod/${base}/${Date.now()}-${safeName}`
+  const bucket = 'file-service'
+
+  const { error: uploadError } = await supabase.storage
+    .from(bucket)
+    .upload(path, file, { upsert: true })
+
+  if (uploadError) throw new Error(uploadError.message)
+
+  const updated = await updateAkCloudPedido(pedido.id, {
+    estado: 'finalizado',
+    mod_bucket: bucket,
+    mod_path: path,
+    mod_nombre: file.name,
+  })
+
+  await crearMensajeAkCloud({
+    pedidoId: pedido.id,
+    userId: pedido.user_id || null,
+    autorNombre: 'Autokeys Core',
+    autorTipo: 'admin',
+    mensaje: `Archivo MOD listo para descargar: ${file.name}`,
+  })
+
+  await crearNotificacionAkCloud({
+    userId: pedido.user_id || null,
+    pedidoId: pedido.id,
+    titulo: 'Archivo MOD listo',
+    mensaje: `${pedido.numero || 'Tu pedido'} ya está finalizado y disponible para descargar.`,
+    tipo: 'success',
+  })
+
+  if (pedido.core_expediente_id) {
+    await supabase.from('expediente_historial').insert({
+      expediente_id: pedido.core_expediente_id,
+      evento: 'MOD subido desde AK Cloud',
+      descripcion: `Archivo finalizado: ${file.name}`,
+      usuario: 'Autokeys Core',
+    })
+  }
+
+  return updated
+}
+
+export async function getMensajesAkCloud(pedidoId: string): Promise<AkCloudMensaje[]> {
+  const { data, error } = await supabase
+    .from('file_service_mensajes')
+    .select('*')
+    .eq('pedido_id', pedidoId)
+    .order('created_at', { ascending: true })
+
+  if (error) {
+    console.warn('No se pudieron cargar mensajes AK Cloud:', error.message)
+    return []
+  }
+
+  return (data || []) as AkCloudMensaje[]
+}
+
+export async function crearMensajeAkCloud({
+  pedidoId,
+  userId,
+  autorNombre,
+  autorTipo,
+  mensaje,
+}: {
+  pedidoId: string
+  userId?: string | null
+  autorNombre?: string | null
+  autorTipo?: string | null
+  mensaje: string
+}) {
+  const { data, error } = await supabase
+    .from('file_service_mensajes')
+    .insert({
+      pedido_id: pedidoId,
+      user_id: userId || null,
+      autor_nombre: autorNombre || 'Autokeys Core',
+      autor_tipo: autorTipo || 'admin',
+      mensaje,
+    })
+    .select('*')
+    .single()
+
+  if (error) throw new Error(error.message)
+  return data as AkCloudMensaje
+}
+
+export async function crearNotificacionAkCloud({
+  userId,
+  pedidoId,
+  titulo,
+  mensaje,
+  tipo = 'info',
+}: {
+  userId?: string | null
+  pedidoId?: string | null
+  titulo: string
+  mensaje?: string | null
+  tipo?: string
+}) {
+  if (!userId) return null
+
+  const { data, error } = await supabase
+    .from('file_service_notificaciones')
+    .insert({
+      user_id: userId,
+      pedido_id: pedidoId || null,
+      titulo,
+      mensaje: mensaje || null,
+      tipo,
+    })
+    .select('id')
+    .single()
+
+  if (error) {
+    console.warn('No se pudo crear notificación AK Cloud:', error.message)
+    return null
+  }
+
+  return data?.id || null
 }
 
 async function findOrCreateCoreCliente(pedido: AkCloudPedido) {
@@ -288,6 +425,22 @@ export async function convertirAkCloudPedidoEnExpediente(pedidoId: string) {
     core_expediente_id: expedienteId,
     estado: pedido.estado === 'pendiente' ? 'en_proceso' : pedido.estado,
     convertido_at: new Date().toISOString(),
+  })
+
+  await crearMensajeAkCloud({
+    pedidoId: pedido.id,
+    userId: pedido.user_id || null,
+    autorNombre: 'Autokeys Core',
+    autorTipo: 'admin',
+    mensaje: 'Pedido recibido por el laboratorio. Se ha creado expediente interno para comenzar el trabajo.',
+  })
+
+  await crearNotificacionAkCloud({
+    userId: pedido.user_id || null,
+    pedidoId: pedido.id,
+    titulo: 'Pedido en proceso',
+    mensaje: `${pedido.numero || 'Tu pedido'} ya está en el laboratorio.`,
+    tipo: 'info',
   })
 
   return { clienteId, vehiculoId, expedienteId }
