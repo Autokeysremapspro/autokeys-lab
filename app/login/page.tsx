@@ -1,15 +1,30 @@
 'use client'
 
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import toast from 'react-hot-toast'
 import { LockKeyhole, Mail, ShieldCheck } from 'lucide-react'
 
+function getStandaloneMode() {
+  if (typeof window === 'undefined') return false
+
+  const navigatorStandalone = (window.navigator as Navigator & { standalone?: boolean }).standalone
+  const displayModeStandalone = window.matchMedia?.('(display-mode: standalone)').matches
+
+  return Boolean(navigatorStandalone || displayModeStandalone)
+}
+
 function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const next = searchParams.get('next') || '/'
+
+  const fallbackNext = useMemo(() => {
+    if (typeof window === 'undefined') return '/'
+    return getStandaloneMode() ? '/mobile' : '/'
+  }, [])
+
+  const next = searchParams.get('next') || fallbackNext
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -71,7 +86,7 @@ function LoginContent() {
         .eq('id', perfil.id)
 
       toast.success(`Bienvenido, ${perfil.nombre || cleanEmail}`)
-      router.push(next)
+      router.replace(next)
       router.refresh()
     } catch (error: any) {
       toast.error(error.message || 'No se pudo iniciar sesión')
@@ -130,7 +145,7 @@ function LoginContent() {
         <div className="rounded-2xl bg-emerald-500/5 border border-emerald-500/20 p-4 text-sm text-zinc-400 flex gap-3">
           <ShieldCheck className="text-emerald-300 shrink-0" size={20} />
           <p>
-            El acceso se gestiona con Supabase Auth. Los usuarios y roles se administran desde el apartado Usuarios.
+            El acceso se gestiona con Supabase Auth. Si entras desde la app móvil, después del login volverás al panel móvil.
           </p>
         </div>
       </form>

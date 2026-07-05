@@ -3,7 +3,7 @@ import type { MetadataRoute } from 'next'
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Autokeys Core',
-    short_name: 'AK Core',
+    short_name: 'Core',
     description: 'App móvil PWA para alta rápida de clientes, vehículos y expedientes de Autokeys Lab.',
     start_url: '/mobile',
     scope: '/',
