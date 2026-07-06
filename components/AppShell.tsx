@@ -72,8 +72,8 @@ const groups: NavGroup[] = [
     title: 'Negocio',
     items: [
       { href: '/ak-cloud', label: 'AK Cloud', icon: Cloud },
-{ href: '/file-service', label: 'AK Cloud File Service', icon: UploadCloud },
-
+      { href: '/ak-cloud/admin', label: 'AK Cloud Admin', icon: Settings },
+      { href: '/file-service', label: 'AK Cloud File Service', icon: UploadCloud },
       { href: '/portal-distribuidores', label: 'Portal Distribuidores', icon: Globe2 },
       { href: '/stock', label: 'Stock', icon: Package },
       { href: '/facturas', label: 'Facturas', icon: FileText },
@@ -103,6 +103,7 @@ const activeLabels = [
   'Clientes',
   'Vehículos',
   'AK Cloud',
+  'AK Cloud Admin',
   'File Service',
   'Stock',
   'Facturas',
