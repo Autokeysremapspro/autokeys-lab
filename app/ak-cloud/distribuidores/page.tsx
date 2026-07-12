@@ -132,10 +132,14 @@ export default function DistribuidoresPage() {
                       <Clock3 size={13} />
                       {plan?.nombre || 'Sin plan'} · {d.plan_expira_at ? (dias !== null && dias < 0 ? `Caducado hace ${Math.abs(dias)} días` : `${dias} días restantes`) : 'Sin caducidad'}
                     </p>
-                    {d.solicito_renovacion && <p className="mt-1 text-xs font-bold text-amber-300">Pidió renovar el {new Date(d.solicito_renovacion_at!).toLocaleDateString('es-ES')}</p>}
+                    {d.solicito_renovacion && (
+                      <p className="mt-1 text-xs font-bold text-amber-300">
+                        {d.plan_expira_at ? 'Pidió renovar' : 'Eligió este plan (primera vez)'} el {new Date(d.solicito_renovacion_at!).toLocaleDateString('es-ES')}
+                      </p>
+                    )}
                   </div>
                   <button onClick={() => confirmarRenovacion(d)} className="btn btn-red">
-                    Confirmar renovación (+{plan?.duracion_dias || 30} días)
+                    {d.plan_expira_at ? 'Confirmar renovación' : 'Confirmar activación'} (+{plan?.duracion_dias || 30} días)
                   </button>
                 </article>
               )
