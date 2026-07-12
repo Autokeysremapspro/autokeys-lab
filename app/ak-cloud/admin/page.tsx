@@ -69,6 +69,14 @@ type Branding = {
   color_principal: string | null
 }
 
+type PlanServicio = {
+  id?: string
+  plan_id: string
+  servicio_id: string
+  incluido: boolean
+  descuento_pct: number | null
+}
+
 const emptyServicio: Servicio = {
   nombre: '',
   slug: '',
@@ -148,7 +156,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
 }
 
 export default function AkCloudAdminPage() {
-  const [tab, setTab] = useState<'servicios' | 'reglas' | 'planes' | 'pagos' | 'branding'>('servicios')
+  const [tab, setTab] = useState<'servicios' | 'reglas' | 'planes' | 'plan-servicios' | 'pagos' | 'branding'>('servicios')
   const [loading, setLoading] = useState(true)
   const [servicios, setServicios] = useState<Servicio[]>([])
   const [planes, setPlanes] = useState<Plan[]>([])
@@ -159,6 +167,9 @@ export default function AkCloudAdminPage() {
   const [plan, setPlan] = useState<Plan>(emptyPlan)
   const [metodo, setMetodo] = useState<MetodoPago>(emptyMetodo)
   const [regla, setRegla] = useState<ReglaPrecio>(emptyRegla)
+  const [planServicios, setPlanServicios] = useState<PlanServicio[]>([])
+  const [planSeleccionado, setPlanSeleccionado] = useState<string>('')
+  const [savingPlanServicios, setSavingPlanServicios] = useState(false)
 
   useEffect(() => {
     loadAll()
@@ -166,12 +177,13 @@ export default function AkCloudAdminPage() {
 
   async function loadAll() {
     setLoading(true)
-    const [serviciosRes, planesRes, metodosRes, reglasRes, brandingRes] = await Promise.all([
+    const [serviciosRes, planesRes, metodosRes, reglasRes, brandingRes, planServiciosRes] = await Promise.all([
       supabase.from('akcloud_servicios').select('*').order('orden', { ascending: true }),
       supabase.from('akcloud_planes').select('*').order('orden', { ascending: true }),
       supabase.from('akcloud_metodos_pago').select('*').order('orden', { ascending: true }),
       supabase.from('akcloud_reglas_precios').select('*').order('orden', { ascending: true }),
       supabase.from('akcloud_branding').select('*').eq('id', 1).maybeSingle(),
+      supabase.from('akcloud_plan_servicios').select('*'),
     ])
 
     if (serviciosRes.error) toast.error(serviciosRes.error.message)
@@ -185,7 +197,44 @@ export default function AkCloudAdminPage() {
     setMetodos((metodosRes.data || []) as MetodoPago[])
     setReglas((reglasRes.data || []) as ReglaPrecio[])
     setBranding((brandingRes.data || null) as Branding | null)
+    setPlanServicios((planServiciosRes.data || []) as PlanServicio[])
     setLoading(false)
+  }
+
+  async function togglePlanServicio(servicioId: string, incluido: boolean) {
+    if (!planSeleccionado) return
+    setPlanServicios((current) => {
+      const existing = current.find((ps) => ps.plan_id === planSeleccionado && ps.servicio_id === servicioId)
+      if (existing) {
+        return current.map((ps) => (ps === existing ? { ...ps, incluido } : ps))
+      }
+      return [...current, { plan_id: planSeleccionado, servicio_id: servicioId, incluido, descuento_pct: null }]
+    })
+  }
+
+  function setPlanServicioDescuento(servicioId: string, descuento: number | null) {
+    if (!planSeleccionado) return
+    setPlanServicios((current) => {
+      const existing = current.find((ps) => ps.plan_id === planSeleccionado && ps.servicio_id === servicioId)
+      if (existing) {
+        return current.map((ps) => (ps === existing ? { ...ps, descuento_pct: descuento } : ps))
+      }
+      return [...current, { plan_id: planSeleccionado, servicio_id: servicioId, incluido: true, descuento_pct: descuento }]
+    })
+  }
+
+  async function guardarPlanServicios() {
+    if (!planSeleccionado) return
+    setSavingPlanServicios(true)
+    const filas = planServicios
+      .filter((ps) => ps.plan_id === planSeleccionado)
+      .map((ps) => ({ plan_id: ps.plan_id, servicio_id: ps.servicio_id, incluido: ps.incluido, descuento_pct: ps.descuento_pct }))
+
+    const { error } = await supabase.from('akcloud_plan_servicios').upsert(filas, { onConflict: 'plan_id,servicio_id' })
+    setSavingPlanServicios(false)
+    if (error) return toast.error(error.message)
+    toast.success('Servicios del plan guardados')
+    loadAll()
   }
 
   async function saveServicio() {
@@ -325,6 +374,7 @@ export default function AkCloudAdminPage() {
           ['servicios', 'Soluciones / Servicios'],
           ['reglas', 'Reglas de packs'],
           ['planes', 'Planes'],
+          ['plan-servicios', 'Servicios por plan'],
           ['pagos', 'Métodos de pago'],
           ['branding', 'Branding'],
         ].map(([key, label]) => (
@@ -453,6 +503,74 @@ export default function AkCloudAdminPage() {
             <div className="flex gap-2"><button onClick={savePlan} className="btn btn-red flex-1">Guardar plan</button><button onClick={() => setPlan(emptyPlan)} className="btn btn-dark">Limpiar</button></div>
           </div></div>
           <div className="grid gap-4 md:grid-cols-2">{planes.map((p) => <div key={p.id} className="card p-5"><div className="flex justify-between"><h3 className="text-xl font-black">{p.nombre}</h3><span className="badge bg-red-500/10 text-red-300">{p.precio_mensual} €/mes</span></div><p className="mt-2 text-sm text-zinc-400">{p.descripcion}</p><p className="mt-4 text-3xl font-black">{p.creditos_mes} créditos</p><div className="mt-2 flex gap-2 text-xs text-zinc-400">{(p.grupos_incluidos || []).length === 0 ? <span>Sin descuento de grupo</span> : <span>{(p.grupos_incluidos || []).join(' + ')} · -{p.descuento_plan_pct || 0}%</span>}</div><ul className="mt-4 space-y-1 text-sm text-zinc-400">{(p.ventajas || []).map((v) => <li key={v}>✓ {v}</li>)}</ul><div className="mt-5 flex gap-2"><button className="btn btn-dark" onClick={() => setPlan(p)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_planes', p.id)}>Eliminar</button></div></div>)}</div>
+        </div>
+      )}
+
+      {!loading && tab === 'plan-servicios' && (
+        <div className="space-y-5">
+          <div className="card p-5">
+            <p className="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Elige el plan a configurar</p>
+            <div className="flex flex-wrap gap-2">
+              {planes.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => setPlanSeleccionado(p.id!)}
+                  className={`btn ${planSeleccionado === p.id ? 'btn-red' : 'btn-dark'}`}
+                >
+                  {p.nombre}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {!planSeleccionado ? (
+            <div className="card p-8 text-center text-zinc-500">Elige un plan arriba para ver y marcar sus servicios.</div>
+          ) : (
+            <div className="card p-5">
+              <div className="mb-4 flex items-center justify-between">
+                <p className="text-sm text-zinc-400">
+                  Marca qué servicios están incluidos con descuento en <b>{planes.find((p) => p.id === planSeleccionado)?.nombre}</b>. Los que dejes sin marcar se pueden pedir igual, pero al precio completo.
+                </p>
+                <button onClick={guardarPlanServicios} disabled={savingPlanServicios} className="btn btn-red">
+                  {savingPlanServicios ? 'Guardando...' : 'Guardar cambios'}
+                </button>
+              </div>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs uppercase tracking-wider text-zinc-500">
+                    <th className="pb-2">Servicio</th>
+                    <th className="pb-2">Precio base</th>
+                    <th className="pb-2">Incluido en el plan</th>
+                    <th className="pb-2">Descuento propio (%) — vacío = usar el del plan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {servicios.map((s) => {
+                    const fila = planServicios.find((ps) => ps.plan_id === planSeleccionado && ps.servicio_id === s.id)
+                    const incluido = fila?.incluido ?? false
+                    return (
+                      <tr key={s.id} className="border-t border-white/5">
+                        <td className="py-2"><b>{s.icono} {s.nombre}</b></td>
+                        <td className="py-2 text-zinc-400">{s.precio} € · {s.creditos} cr</td>
+                        <td className="py-2">
+                          <Toggle checked={incluido} onChange={(v) => togglePlanServicio(s.id!, v)} label={incluido ? 'Incluido' : 'Fuera del plan'} />
+                        </td>
+                        <td className="py-2">
+                          <input
+                            type="number"
+                            className="w-24"
+                            placeholder="—"
+                            value={fila?.descuento_pct ?? ''}
+                            onChange={(e) => setPlanServicioDescuento(s.id!, e.target.value === '' ? null : Number(e.target.value))}
+                          />
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
