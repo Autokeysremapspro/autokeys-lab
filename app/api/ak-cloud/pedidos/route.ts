@@ -84,22 +84,14 @@ export async function POST(request: Request) {
 
       const creditosADevolver = Math.abs(Number(consumo?.creditos || 0))
       if (creditosADevolver > 0) {
-        const { data: last } = await admin
-          .from('ak_creditos_movimientos')
-          .select('saldo_resultante')
-          .eq('user_id', pedido.user_id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle()
-        const saldoActual = Number(last?.saldo_resultante || 0)
-
-        await admin.from('ak_creditos_movimientos').insert({
-          user_id: pedido.user_id,
-          tipo: 'devolucion',
-          concepto: `Devolución por cancelación de pedido ${pedido.numero || id}`,
-          pedido_id: id,
-          creditos: creditosADevolver,
-          saldo_resultante: saldoActual + creditosADevolver,
+        // Atómico: misma función que usa AK Cloud, evita el mismo tipo de
+        // condición de carrera que se cerró en la creación de pedidos.
+        await admin.rpc('ak_anadir_creditos', {
+          p_user_id: pedido.user_id,
+          p_creditos: creditosADevolver,
+          p_concepto: `Devolución por cancelación de pedido ${pedido.numero || id}`,
+          p_tipo: 'devolucion',
+          p_pedido_id: id,
         })
       }
     }

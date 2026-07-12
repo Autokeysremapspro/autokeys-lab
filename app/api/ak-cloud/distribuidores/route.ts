@@ -110,20 +110,11 @@ export async function POST(request: Request) {
       if (distError) throw distError
 
       if (creditos > 0 && solicitud.auth_user_id) {
-        const { data: last } = await admin
-          .from('ak_creditos_movimientos')
-          .select('saldo_resultante')
-          .eq('user_id', solicitud.auth_user_id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle()
-        const saldo = Number(last?.saldo_resultante || 0) + creditos
-        await admin.from('ak_creditos_movimientos').insert({
-          user_id: solicitud.auth_user_id,
-          tipo: 'ajuste',
-          concepto: 'Créditos de bienvenida por aprobación',
-          creditos,
-          saldo_resultante: saldo,
+        await admin.rpc('ak_anadir_creditos', {
+          p_user_id: solicitud.auth_user_id,
+          p_creditos: creditos,
+          p_concepto: 'Créditos de bienvenida por aprobación',
+          p_tipo: 'ajuste',
         })
       }
 

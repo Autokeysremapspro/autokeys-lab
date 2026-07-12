@@ -70,23 +70,11 @@ export async function POST(request: Request) {
     if (updateError) throw updateError
 
     if (estado === 'aprobado' && recarga.user_id) {
-      const { data: last } = await admin
-        .from('ak_creditos_movimientos')
-        .select('saldo_resultante')
-        .eq('user_id', recarga.user_id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-
-      const saldoAnterior = Number(last?.saldo_resultante || 0)
-      const saldoNuevo = saldoAnterior + Number(recarga.creditos || 0)
-
-      await admin.from('ak_creditos_movimientos').insert({
-        user_id: recarga.user_id,
-        tipo: 'recarga',
-        concepto: `Recarga aprobada (${recarga.metodo_pago || 'manual'})`,
-        creditos: recarga.creditos,
-        saldo_resultante: saldoNuevo,
+      await admin.rpc('ak_anadir_creditos', {
+        p_user_id: recarga.user_id,
+        p_creditos: Number(recarga.creditos || 0),
+        p_concepto: `Recarga aprobada (${recarga.metodo_pago || 'manual'})`,
+        p_tipo: 'recarga',
       })
 
       await admin.from('file_service_notificaciones').insert({
