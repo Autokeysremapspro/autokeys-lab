@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { getSignedFileUrl } from '@/lib/services/storageAccess'
 
 const BUCKET = 'autokeys-expedientes'
 
@@ -106,8 +107,11 @@ export const EntregaService = {
 
     if (uploadError) throw uploadError
 
-    const { data: publicData } = supabase.storage.from(BUCKET).getPublicUrl(storagePath)
-    const firmaUrl = publicData.publicUrl
+    // El bucket es privado: ya no se guarda una URL "pública" permanente
+    // (nunca habría funcionado, y quedaba grabada como si fuera válida para
+    // siempre). Quien necesite ver la firma debe llamar a
+    // EntregaService.getFirmaUrl(storagePath) para obtener una URL firmada
+    // vigente en el momento de mostrarla.
 
     const { data: entrega, error: entregaError } = await supabase
       .from('entregas_expediente')
@@ -116,7 +120,7 @@ export const EntregaService = {
         receptor_nombre: receptorNombre.trim(),
         receptor_dni: receptorDni?.trim() || null,
         observaciones: observaciones?.trim() || null,
-        firma_url: firmaUrl,
+        firma_url: null,
         firma_storage_path: storagePath,
         entregado_por: entregadoPor,
       })
@@ -143,6 +147,10 @@ export const EntregaService = {
     })
 
     return entrega
+  },
+
+  async getFirmaUrl(storagePath: string) {
+    return getSignedFileUrl(BUCKET, storagePath)
   },
 }
 
