@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { sendNotificationEmail } from '@/lib/email'
+import { sendWhatsAppNotification } from '@/lib/whatsapp'
 
 function adminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -33,16 +33,9 @@ export async function POST(request: Request) {
       accion_texto: 'Revisar solicitud',
     })
 
-    if (process.env.STAFF_NOTIFICATION_EMAIL) {
-      await sendNotificationEmail({
-        to: process.env.STAFF_NOTIFICATION_EMAIL,
-        subject: `Nueva solicitud de distribuidor: ${empresa}`,
-        title: 'Nueva solicitud de distribuidor',
-        bodyHtml: `<b>${empresa}</b> (${nombre}${email ? `, ${email}` : ''}) ha solicitado acceso como distribuidor.${body.ciudad ? `<br>Ciudad: ${body.ciudad}` : ''}${body.especialidad ? `<br>Especialidad: ${body.especialidad}` : ''}`,
-        ctaHref: '/ak-cloud/solicitudes',
-        ctaLabel: 'Revisar solicitud',
-      })
-    }
+    await sendWhatsAppNotification(
+      `🆕 Nueva solicitud AK Cloud\n${empresa} (${nombre})${email ? `\n${email}` : ''}${body.ciudad ? `\nCiudad: ${body.ciudad}` : ''}${body.especialidad ? `\nEspecialidad: ${body.especialidad}` : ''}\n\nRevisar: /ak-cloud/solicitudes`
+    )
 
     return NextResponse.json({ ok: true })
   } catch (error: any) {
