@@ -32,6 +32,7 @@ import {
   ShieldCheck,
   Sparkles,
   UploadCloud,
+  Users,
   Wallet,
 } from 'lucide-react'
 
@@ -143,6 +144,13 @@ export default function AkCloudPage() {
             <div>
               <p className="font-black">Planes AK</p>
               <p className="text-xs text-zinc-500">Crear planes y precios</p>
+            </div>
+          </Link>
+          <Link href="/ak-cloud/distribuidores" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">
+            <Users className="text-red-400" size={22} />
+            <div>
+              <p className="font-black">Renovaciones</p>
+              <p className="text-xs text-zinc-500">Confirmar planes caducados</p>
             </div>
           </Link>
           <Link href="/ak-cloud/produccion" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">

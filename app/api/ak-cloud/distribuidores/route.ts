@@ -74,8 +74,11 @@ export async function POST(request: Request) {
       const creditos = Math.max(0, Number(body.creditos_iniciales || 0))
       const clienteId = await findOrCreateCliente(admin, solicitud)
 
+      const planData = planId ? (await admin.from('akcloud_planes').select('slug, nombre, duracion_dias').eq('id', planId).maybeSingle()).data : null
+      const ahora = new Date()
+      const expira = planData?.duracion_dias ? new Date(ahora.getTime() + planData.duracion_dias * 24 * 60 * 60 * 1000) : null
+
       if (solicitud.auth_user_id) {
-        const plan = planId ? (await admin.from('akcloud_planes').select('slug,nombre').eq('id', planId).maybeSingle()).data : null
         const { error: authError } = await admin.auth.admin.updateUserById(solicitud.auth_user_id, {
           email_confirm: true,
           user_metadata: {
@@ -83,7 +86,7 @@ export async function POST(request: Request) {
             nombre: `${solicitud.nombre} ${solicitud.apellidos || ''}`.trim(),
             tipo_usuario: 'distribuidor',
             estado_acceso: 'activo',
-            plan_slug: plan?.slug || null,
+            plan_slug: planData?.slug || null,
           },
           app_metadata: { rol: 'distribuidor', estado_acceso: 'activo' },
         })
@@ -96,6 +99,8 @@ export async function POST(request: Request) {
           solicitud_id: solicitud.id,
           core_cliente_id: clienteId,
           plan_id: planId,
+          plan_inicio_at: planId ? ahora.toISOString() : null,
+          plan_expira_at: expira ? expira.toISOString() : null,
           empresa: solicitud.empresa,
           nombre_contacto: `${solicitud.nombre} ${solicitud.apellidos || ''}`.trim(),
           email: solicitud.email,

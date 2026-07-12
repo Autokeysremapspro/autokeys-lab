@@ -16,6 +16,8 @@ type Plan = {
   creditos_mes: number
   activo: boolean
   destacado: boolean
+  duracion_dias: number | null
+  limite_diario_pedidos: number | null
 }
 
 type Servicio = {
@@ -40,7 +42,7 @@ function slugify(value: string) {
   return value.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 }
 
-const emptyPlan = { nombre: '', descripcion: '', precio_mensual: 0, creditos_mes: 0, activo: true, destacado: false }
+const emptyPlan = { nombre: '', descripcion: '', precio_mensual: 0, creditos_mes: 0, activo: true, destacado: false, duracion_dias: 30, limite_diario_pedidos: null as number | null }
 
 export default function PlanesAkPage() {
   const [planes, setPlanes] = useState<Plan[]>([])
@@ -55,7 +57,7 @@ export default function PlanesAkPage() {
   async function loadAll() {
     setLoading(true)
     const [planesRes, serviciosRes, planServiciosRes] = await Promise.all([
-      supabase.from('akcloud_planes').select('id, nombre, slug, descripcion, precio_mensual, creditos_mes, activo, destacado').order('orden', { ascending: true }),
+      supabase.from('akcloud_planes').select('id, nombre, slug, descripcion, precio_mensual, creditos_mes, activo, destacado, duracion_dias, limite_diario_pedidos').order('orden', { ascending: true }),
       supabase.from('akcloud_servicios').select('id, nombre, slug, icono, precio, creditos').eq('activo', true).order('orden', { ascending: true }),
       supabase.from('akcloud_plan_servicios').select('*'),
     ])
@@ -90,6 +92,8 @@ export default function PlanesAkPage() {
         descripcion: nuevoPlan.descripcion || null,
         precio_mensual: Number(nuevoPlan.precio_mensual || 0),
         creditos_mes: Number(nuevoPlan.creditos_mes || 0),
+        duracion_dias: Number(nuevoPlan.duracion_dias || 30),
+        limite_diario_pedidos: nuevoPlan.limite_diario_pedidos,
         activo: true,
         destacado: false,
         orden: 100,
@@ -122,6 +126,8 @@ export default function PlanesAkPage() {
         descripcion: plan.descripcion,
         precio_mensual: Number(plan.precio_mensual || 0),
         creditos_mes: Number(plan.creditos_mes || 0),
+        duracion_dias: Number(plan.duracion_dias || 30),
+        limite_diario_pedidos: plan.limite_diario_pedidos,
         activo: plan.activo,
         destacado: plan.destacado,
       })
@@ -226,6 +232,14 @@ export default function PlanesAkPage() {
                 <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-zinc-500">Créditos incluidos al mes</label>
                 <input type="number" className="w-full" value={nuevoPlan.creditos_mes} onChange={(e) => setNuevoPlan({ ...nuevoPlan, creditos_mes: Number(e.target.value) })} />
               </div>
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-zinc-500">Duración del plan (días)</label>
+                <input type="number" className="w-full" placeholder="30" value={nuevoPlan.duracion_dias} onChange={(e) => setNuevoPlan({ ...nuevoPlan, duracion_dias: Number(e.target.value) })} />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-zinc-500">Límite de pedidos al día (vacío = sin límite)</label>
+                <input type="number" className="w-full" placeholder="Sin límite" value={nuevoPlan.limite_diario_pedidos ?? ''} onChange={(e) => setNuevoPlan({ ...nuevoPlan, limite_diario_pedidos: e.target.value === '' ? null : Number(e.target.value) })} />
+              </div>
             </div>
             <button onClick={crearPlan} className="btn btn-red mt-4 inline-flex items-center gap-2"><Save size={16} /> Crear plan</button>
           </section>
@@ -249,6 +263,7 @@ export default function PlanesAkPage() {
                     {p.destacado && <Sparkles size={14} className="text-red-400" />}
                   </div>
                   <p className="mt-1 text-xs text-zinc-500">{p.precio_mensual} €/mes · {p.creditos_mes} créditos</p>
+                  <p className="mt-1 text-xs text-zinc-500">{p.duracion_dias || 30} días{p.limite_diario_pedidos ? ` · máx. ${p.limite_diario_pedidos}/día` : ' · sin límite diario'}</p>
                   <p className="mt-1 text-xs text-zinc-600">{planServicios.filter((ps) => ps.plan_id === p.id && ps.incluido).length} servicios</p>
                 </button>
               ))
@@ -279,6 +294,14 @@ export default function PlanesAkPage() {
                     <div>
                       <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-zinc-500">Créditos / mes</label>
                       <input type="number" className="w-full" value={plan.creditos_mes} onChange={(e) => setPlanes((cur) => cur.map((x) => (x.id === plan.id ? { ...x, creditos_mes: Number(e.target.value) } : x)))} />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-zinc-500">Duración del plan (días)</label>
+                      <input type="number" className="w-full" value={plan.duracion_dias ?? 30} onChange={(e) => setPlanes((cur) => cur.map((x) => (x.id === plan.id ? { ...x, duracion_dias: Number(e.target.value) } : x)))} />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-zinc-500">Límite de pedidos al día</label>
+                      <input type="number" className="w-full" placeholder="Sin límite" value={plan.limite_diario_pedidos ?? ''} onChange={(e) => setPlanes((cur) => cur.map((x) => (x.id === plan.id ? { ...x, limite_diario_pedidos: e.target.value === '' ? null : Number(e.target.value) } : x)))} />
                     </div>
                   </div>
                   <div className="mt-4 flex items-center gap-3">
