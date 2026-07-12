@@ -43,6 +43,7 @@ export default function AkCloudSolicitudesPage() {
   const [loading, setLoading] = useState(true)
   const [estado, setEstado] = useState('pendiente')
   const [working, setWorking] = useState<string | null>(null)
+  const [planPorSolicitud, setPlanPorSolicitud] = useState<Record<string, string>>({})
 
   async function load() {
     setLoading(true)
@@ -69,7 +70,8 @@ export default function AkCloudSolicitudesPage() {
   )
 
   async function aprobar(solicitud: Solicitud) {
-    const planId = planes[0]?.id
+    const planId = planPorSolicitud[solicitud.id] || planes[0]?.id
+    if (!planId) return toast.error('No hay ningún plan creado todavía — ve a "Planes AK" y crea al menos uno.')
     const creditos = prompt('Créditos de bienvenida (0 si no aplica):', '0')
     if (creditos === null) return
     setWorking(solicitud.id)
@@ -77,11 +79,12 @@ export default function AkCloudSolicitudesPage() {
       const res = await fetch('/api/ak-cloud/distribuidores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: solicitud.id, action: 'aprobar', plan_id: planId || null, creditos_iniciales: Number(creditos) || 0 }),
+        body: JSON.stringify({ id: solicitud.id, action: 'aprobar', plan_id: planId, creditos_iniciales: Number(creditos) || 0 }),
       })
       const payload = await res.json()
       if (!res.ok) throw new Error(payload.error)
-      toast.success(`${solicitud.empresa} aprobado como distribuidor`)
+      const nombrePlan = planes.find((p) => p.id === planId)?.nombre || 'plan'
+      toast.success(`${solicitud.empresa} aprobado como distribuidor · ${nombrePlan}`)
       await load()
     } catch (error: any) {
       toast.error(error?.message || 'No se pudo aprobar')
@@ -181,13 +184,26 @@ export default function AkCloudSolicitudesPage() {
                     {s.motivo_estado && <p className="mt-3 text-sm text-zinc-500">Motivo: {s.motivo_estado}</p>}
                   </div>
                   {(s.estado || 'pendiente') === 'pendiente' && (
-                    <div className="flex shrink-0 flex-wrap gap-2 xl:flex-col">
-                      <button disabled={working === s.id} onClick={() => aprobar(s)} className="btn btn-red inline-flex items-center gap-2 disabled:opacity-50">
-                        <CheckCircle2 size={18} /> Aprobar
-                      </button>
-                      <button disabled={working === s.id} onClick={() => rechazar(s)} className="btn btn-dark inline-flex items-center gap-2 text-red-300 disabled:opacity-50">
-                        <XCircle size={18} /> Rechazar
-                      </button>
+                    <div className="flex shrink-0 flex-col gap-2">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Plan a asignar</label>
+                      <select
+                        className="min-w-[180px]"
+                        value={planPorSolicitud[s.id] || planes[0]?.id || ''}
+                        onChange={(e) => setPlanPorSolicitud((cur) => ({ ...cur, [s.id]: e.target.value }))}
+                      >
+                        {planes.length === 0 && <option value="">Sin planes creados</option>}
+                        {planes.map((p) => (
+                          <option key={p.id} value={p.id}>{p.nombre}</option>
+                        ))}
+                      </select>
+                      <div className="flex gap-2">
+                        <button disabled={working === s.id} onClick={() => aprobar(s)} className="btn btn-red inline-flex items-center gap-2 disabled:opacity-50">
+                          <CheckCircle2 size={18} /> Aprobar
+                        </button>
+                        <button disabled={working === s.id} onClick={() => rechazar(s)} className="btn btn-dark inline-flex items-center gap-2 text-red-300 disabled:opacity-50">
+                          <XCircle size={18} /> Rechazar
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
