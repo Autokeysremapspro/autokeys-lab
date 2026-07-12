@@ -27,6 +27,7 @@ import {
   Filter,
   RefreshCw,
   Search,
+  Settings,
   ShieldCheck,
   Sparkles,
   UploadCloud,
@@ -162,6 +163,13 @@ export default function AkCloudPage() {
             <div>
               <p className="font-black">Facturación</p>
               <p className="text-xs text-zinc-500">Cobros AK Cloud</p>
+            </div>
+          </Link>
+          <Link href="/ak-cloud/admin" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">
+            <Settings className="text-red-400" size={22} />
+            <div>
+              <p className="font-black">Planes y servicios</p>
+              <p className="text-xs text-zinc-500">Precios, catálogo, branding</p>
             </div>
           </Link>
         </section>

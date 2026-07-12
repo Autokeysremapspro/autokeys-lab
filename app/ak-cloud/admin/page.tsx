@@ -10,6 +10,7 @@ type Servicio = {
   nombre: string
   slug: string
   categoria: string
+  grupo_facturacion?: string | null
   descripcion: string | null
   precio: number
   creditos: number
@@ -29,6 +30,8 @@ type Plan = {
   destacado: boolean
   activo: boolean
   orden: number
+  grupos_incluidos?: string[] | null
+  descuento_plan_pct?: number | null
 }
 
 type MetodoPago = {
@@ -70,6 +73,7 @@ const emptyServicio: Servicio = {
   nombre: '',
   slug: '',
   categoria: 'reprogramacion',
+  grupo_facturacion: null,
   descripcion: '',
   precio: 0,
   creditos: 0,
@@ -88,6 +92,8 @@ const emptyPlan: Plan = {
   destacado: false,
   activo: true,
   orden: 100,
+  grupos_incluidos: [],
+  descuento_plan_pct: 0,
 }
 
 const emptyMetodo: MetodoPago = {
@@ -336,6 +342,7 @@ export default function AkCloudAdminPage() {
               <Field label="Nombre"><input className="w-full" value={servicio.nombre} onChange={(e) => setServicio({ ...servicio, nombre: e.target.value, slug: servicio.slug || slugify(e.target.value) })} placeholder="Stage 1" /></Field>
               <Field label="Slug"><input className="w-full" value={servicio.slug} onChange={(e) => setServicio({ ...servicio, slug: slugify(e.target.value) })} placeholder="stage-1" /></Field>
               <Field label="Categoría"><select className="w-full" value={servicio.categoria} onChange={(e) => setServicio({ ...servicio, categoria: e.target.value })}><option value="reprogramacion">Reprogramación</option><option value="anticontaminacion">Anticontaminación</option><option value="opciones">Opciones</option><option value="electronica">Electrónica</option><option value="otros">Otros</option></select></Field>
+              <Field label="Grupo de facturación (qué plan lo cubre con descuento)"><select className="w-full" value={servicio.grupo_facturacion || ''} onChange={(e) => setServicio({ ...servicio, grupo_facturacion: e.target.value || null })}><option value="">Sin grupo (siempre precio completo)</option><option value="anulacion">Anulación (EGR/DPF/AdBlue/DTC/Flaps OFF)</option><option value="tuning">Tuning (Stage 1/2, Pops & Bangs, Hardcut...)</option></select></Field>
               <div className="grid grid-cols-3 gap-3"><Field label="Icono"><input className="w-full" value={servicio.icono || ''} onChange={(e) => setServicio({ ...servicio, icono: e.target.value })} /></Field><Field label="Precio €"><input type="number" className="w-full" value={servicio.precio} onChange={(e) => setServicio({ ...servicio, precio: Number(e.target.value) })} /></Field><Field label="Créditos"><input type="number" className="w-full" value={servicio.creditos} onChange={(e) => setServicio({ ...servicio, creditos: Number(e.target.value) })} /></Field></div>
               <Field label="Descripción"><textarea className="h-24 w-full" value={servicio.descripcion || ''} onChange={(e) => setServicio({ ...servicio, descripcion: e.target.value })} /></Field>
               <div className="flex gap-3"><Toggle checked={servicio.activo} onChange={(v) => setServicio({ ...servicio, activo: v })} label="Visible en portal" /><Field label="Orden"><input type="number" className="w-24" value={servicio.orden} onChange={(e) => setServicio({ ...servicio, orden: Number(e.target.value) })} /></Field></div>
@@ -348,7 +355,7 @@ export default function AkCloudAdminPage() {
             <div className="overflow-auto">
               <table>
                 <thead><tr><th>Servicio</th><th>Categoría</th><th>Precio</th><th>Créditos</th><th>Estado</th><th>Acciones</th></tr></thead>
-                <tbody>{servicios.map((s) => <tr key={s.id}><td><b>{s.icono} {s.nombre}</b><div className="text-xs text-zinc-500">{s.descripcion}</div></td><td>{s.categoria}</td><td>{s.precio} €</td><td>{s.creditos}</td><td><span className={`badge ${s.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{s.activo ? 'Activo' : 'Inactivo'}</span></td><td><div className="flex gap-2"><button className="btn btn-dark" onClick={() => setServicio(s)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_servicios', s.id)}>Eliminar</button></div></td></tr>)}</tbody>
+                <tbody>{servicios.map((s) => <tr key={s.id}><td><b>{s.icono} {s.nombre}</b><div className="text-xs text-zinc-500">{s.descripcion}</div></td><td>{s.categoria}{s.grupo_facturacion && <div className="text-xs text-red-300">Grupo: {s.grupo_facturacion}</div>}</td><td>{s.precio} €</td><td>{s.creditos}</td><td><span className={`badge ${s.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{s.activo ? 'Activo' : 'Inactivo'}</span></td><td><div className="flex gap-2"><button className="btn btn-dark" onClick={() => setServicio(s)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_servicios', s.id)}>Eliminar</button></div></td></tr>)}</tbody>
               </table>
             </div>
           </div>
@@ -425,10 +432,27 @@ export default function AkCloudAdminPage() {
             <div className="grid grid-cols-2 gap-3"><Field label="Precio mensual"><input type="number" className="w-full" value={plan.precio_mensual} onChange={(e) => setPlan({ ...plan, precio_mensual: Number(e.target.value) })} /></Field><Field label="Créditos / mes"><input type="number" className="w-full" value={plan.creditos_mes} onChange={(e) => setPlan({ ...plan, creditos_mes: Number(e.target.value) })} /></Field></div>
             <Field label="Descripción"><textarea className="h-20 w-full" value={plan.descripcion || ''} onChange={(e) => setPlan({ ...plan, descripcion: e.target.value })} /></Field>
             <Field label="Ventajas (una por línea)"><textarea className="h-28 w-full" value={(plan.ventajas || []).join('\n')} onChange={(e) => setPlan({ ...plan, ventajas: e.target.value.split('\n').map((v) => v.trim()).filter(Boolean) })} /></Field>
+            <Field label="Grupos cubiertos con descuento">
+              <div className="flex gap-3">
+                <label className="flex items-center gap-2 text-sm text-zinc-300">
+                  <input type="checkbox" checked={(plan.grupos_incluidos || []).includes('anulacion')} onChange={(e) => {
+                    const current = plan.grupos_incluidos || []
+                    setPlan({ ...plan, grupos_incluidos: e.target.checked ? [...current, 'anulacion'] : current.filter((g: string) => g !== 'anulacion') })
+                  }} /> Anulaciones
+                </label>
+                <label className="flex items-center gap-2 text-sm text-zinc-300">
+                  <input type="checkbox" checked={(plan.grupos_incluidos || []).includes('tuning')} onChange={(e) => {
+                    const current = plan.grupos_incluidos || []
+                    setPlan({ ...plan, grupos_incluidos: e.target.checked ? [...current, 'tuning'] : current.filter((g: string) => g !== 'tuning') })
+                  }} /> Tuning
+                </label>
+              </div>
+            </Field>
+            <Field label="Descuento en esos grupos (%)"><input type="number" className="w-full" value={plan.descuento_plan_pct || 0} onChange={(e) => setPlan({ ...plan, descuento_plan_pct: Number(e.target.value) })} /></Field>
             <div className="flex gap-2"><Toggle checked={plan.activo} onChange={(v) => setPlan({ ...plan, activo: v })} label="Plan activo" /><Toggle checked={plan.destacado} onChange={(v) => setPlan({ ...plan, destacado: v })} label="Destacado" /></div>
             <div className="flex gap-2"><button onClick={savePlan} className="btn btn-red flex-1">Guardar plan</button><button onClick={() => setPlan(emptyPlan)} className="btn btn-dark">Limpiar</button></div>
           </div></div>
-          <div className="grid gap-4 md:grid-cols-2">{planes.map((p) => <div key={p.id} className="card p-5"><div className="flex justify-between"><h3 className="text-xl font-black">{p.nombre}</h3><span className="badge bg-red-500/10 text-red-300">{p.precio_mensual} €/mes</span></div><p className="mt-2 text-sm text-zinc-400">{p.descripcion}</p><p className="mt-4 text-3xl font-black">{p.creditos_mes} créditos</p><ul className="mt-4 space-y-1 text-sm text-zinc-400">{(p.ventajas || []).map((v) => <li key={v}>✓ {v}</li>)}</ul><div className="mt-5 flex gap-2"><button className="btn btn-dark" onClick={() => setPlan(p)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_planes', p.id)}>Eliminar</button></div></div>)}</div>
+          <div className="grid gap-4 md:grid-cols-2">{planes.map((p) => <div key={p.id} className="card p-5"><div className="flex justify-between"><h3 className="text-xl font-black">{p.nombre}</h3><span className="badge bg-red-500/10 text-red-300">{p.precio_mensual} €/mes</span></div><p className="mt-2 text-sm text-zinc-400">{p.descripcion}</p><p className="mt-4 text-3xl font-black">{p.creditos_mes} créditos</p><div className="mt-2 flex gap-2 text-xs text-zinc-400">{(p.grupos_incluidos || []).length === 0 ? <span>Sin descuento de grupo</span> : <span>{(p.grupos_incluidos || []).join(' + ')} · -{p.descuento_plan_pct || 0}%</span>}</div><ul className="mt-4 space-y-1 text-sm text-zinc-400">{(p.ventajas || []).map((v) => <li key={v}>✓ {v}</li>)}</ul><div className="mt-5 flex gap-2"><button className="btn btn-dark" onClick={() => setPlan(p)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_planes', p.id)}>Eliminar</button></div></div>)}</div>
         </div>
       )}
 
