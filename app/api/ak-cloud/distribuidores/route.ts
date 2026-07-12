@@ -57,6 +57,7 @@ async function findOrCreateCliente(admin: any, solicitud: any) {
 // POST /api/ak-cloud/distribuidores — aprobar / rechazar / pedir info / suspender / activar
 export async function POST(request: Request) {
   try {
+    await requireStaff()
     const body = await request.json()
     const id = String(body.id || '')
     const action = String(body.action || '')

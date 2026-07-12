@@ -49,7 +49,7 @@ export async function getUsuarioActual() {
 }
 
 /** Roles que se consideran "staff interno" con acceso al ERP. Ajusta según tu operativa real. */
-export const ROLES_STAFF = ['admin', 'desarrollo', 'laboratorio', 'atencion_cliente']
+export const ROLES_STAFF = ['admin', 'desarrollo', 'laboratorio', 'administracion', 'atencion_cliente']
 
 export async function requireStaff() {
   const { user, usuario } = await getUsuarioActual()
