@@ -107,7 +107,11 @@ export default function RegisterPage() {
       toast.success('Solicitud enviada a Autokeys Core')
       router.replace('/solicitud-enviada?estado=pendiente')
     } catch (error: any) {
-      toast.error(error?.message || 'No se pudo enviar la solicitud')
+      if (error?.message?.toLowerCase().includes('rate limit')) {
+        toast.error('Estamos recibiendo muchos registros ahora mismo. Espera unos minutos y vuelve a intentarlo.')
+      } else {
+        toast.error(error?.message || 'No se pudo enviar la solicitud')
+      }
     } finally {
       setLoading(false)
     }
