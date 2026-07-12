@@ -93,25 +93,37 @@ export async function POST(request: Request) {
         if (authError) throw authError
       }
 
-      const { error: distError } = await admin.from('akcloud_distribuidores').upsert(
-        {
-          auth_user_id: solicitud.auth_user_id,
-          solicitud_id: solicitud.id,
-          core_cliente_id: clienteId,
-          plan_id: planId,
-          plan_inicio_at: planId ? ahora.toISOString() : null,
-          plan_expira_at: expira ? expira.toISOString() : null,
-          empresa: solicitud.empresa,
-          nombre_contacto: `${solicitud.nombre} ${solicitud.apellidos || ''}`.trim(),
-          email: solicitud.email,
-          telefono: solicitud.telefono || null,
-          nif: solicitud.nif || null,
-          estado: 'activo',
-          aprobado_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'auth_user_id' }
-      )
+      // Antes de crear, comprueba si ya existe una ficha de distribuidor con
+      // este email (de una cuenta anterior, prueba, etc.) — si la hay, se
+      // actualiza esa misma fila en vez de intentar crear otra con el mismo
+      // email, que rompería la restricción de email único en la base de datos.
+      const { data: existentePorEmail } = await admin
+        .from('akcloud_distribuidores')
+        .select('id')
+        .eq('email', solicitud.email)
+        .maybeSingle()
+
+      const datosDistribuidor = {
+        auth_user_id: solicitud.auth_user_id,
+        solicitud_id: solicitud.id,
+        core_cliente_id: clienteId,
+        plan_id: planId,
+        plan_inicio_at: planId ? ahora.toISOString() : null,
+        plan_expira_at: expira ? expira.toISOString() : null,
+        empresa: solicitud.empresa,
+        nombre_contacto: `${solicitud.nombre} ${solicitud.apellidos || ''}`.trim(),
+        email: solicitud.email,
+        telefono: solicitud.telefono || null,
+        nif: solicitud.nif || null,
+        estado: 'activo',
+        aprobado_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+
+      const { error: distError } = existentePorEmail
+        ? await admin.from('akcloud_distribuidores').update(datosDistribuidor).eq('id', existentePorEmail.id)
+        : await admin.from('akcloud_distribuidores').upsert(datosDistribuidor, { onConflict: 'auth_user_id' })
+
       if (distError) throw distError
 
       if (creditos > 0 && solicitud.auth_user_id) {
