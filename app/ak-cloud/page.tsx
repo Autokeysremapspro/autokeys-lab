@@ -25,6 +25,7 @@ import {
   DownloadCloud,
   ExternalLink,
   Filter,
+  Layers,
   RefreshCw,
   Search,
   Settings,
@@ -135,6 +136,13 @@ export default function AkCloudPage() {
             <div>
               <p className="font-black">Solicitudes</p>
               <p className="text-xs text-zinc-500">Aprobar distribuidores</p>
+            </div>
+          </Link>
+          <Link href="/ak-cloud/planes" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">
+            <Layers className="text-red-400" size={22} />
+            <div>
+              <p className="font-black">Planes AK</p>
+              <p className="text-xs text-zinc-500">Crear planes y precios</p>
             </div>
           </Link>
           <Link href="/ak-cloud/produccion" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">

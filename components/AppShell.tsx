@@ -19,6 +19,7 @@ import {
   Cpu,
   KeyRound,
   ShieldCheck,
+  Layers,
   BarChart3,
   Settings,
   PlusCircle,
@@ -77,6 +78,7 @@ const groups: NavGroup[] = [
     items: [
       { href: '/ak-cloud', label: 'Centro AK Cloud', icon: Cloud },
       { href: '/ak-cloud/solicitudes', label: 'Solicitudes distribuidor', icon: ShieldCheck },
+      { href: '/ak-cloud/planes', label: 'Planes AK', icon: Layers },
       { href: '/ak-cloud/produccion', label: 'Producción', icon: UploadCloud },
       { href: '/ak-cloud/recargas', label: 'Recargas', icon: CreditCard },
       { href: '/ak-cloud/soporte', label: 'Soporte', icon: Bell },
