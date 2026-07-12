@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireStaff } from '@/lib/supabase/server'
+import { sendNotificationEmail } from '@/lib/email'
 
 function adminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -94,12 +95,28 @@ export async function POST(request: Request) {
         mensaje: `Se han añadido ${recarga.creditos} créditos a tu saldo.`,
         tipo: 'success',
       })
+
+      await sendNotificationEmail({
+        to: recarga.email_cliente,
+        subject: 'Recarga de créditos aprobada',
+        title: 'Créditos añadidos a tu cuenta',
+        bodyHtml: `Hola ${recarga.nombre_cliente || ''},<br><br>Tu recarga de <b>${recarga.creditos} créditos</b> ha sido aprobada y ya está disponible en tu saldo.`,
+        ctaHref: process.env.NEXT_PUBLIC_AKCLOUD_URL ? `${process.env.NEXT_PUBLIC_AKCLOUD_URL}/creditos` : undefined,
+        ctaLabel: 'Ver mis créditos',
+      })
     } else if (estado === 'rechazado' && recarga.user_id) {
       await admin.from('file_service_notificaciones').insert({
         user_id: recarga.user_id,
         titulo: 'Recarga de créditos rechazada',
         mensaje: body.notas_admin || 'Tu recarga no ha podido confirmarse. Contacta con soporte si crees que es un error.',
         tipo: 'error',
+      })
+
+      await sendNotificationEmail({
+        to: recarga.email_cliente,
+        subject: 'Tu recarga no ha podido confirmarse',
+        title: 'Recarga rechazada',
+        bodyHtml: `Hola ${recarga.nombre_cliente || ''},<br><br>Tu solicitud de recarga no ha podido confirmarse.${body.notas_admin ? `<br><br><b>Motivo:</b> ${body.notas_admin}` : ''}<br><br>Contacta con soporte si crees que es un error.`,
       })
     }
 

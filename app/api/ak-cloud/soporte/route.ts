@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireStaff } from '@/lib/supabase/server'
+import { sendNotificationEmail } from '@/lib/email'
 
 function adminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -75,6 +76,16 @@ export async function POST(request: Request) {
           titulo: `Respuesta en tu ticket ${ticket.numero || ''}`,
           mensaje: String(body.mensaje).slice(0, 200),
           tipo: 'info',
+        })
+
+        const { data: authUser } = await admin.auth.admin.getUserById(ticket.user_id)
+        await sendNotificationEmail({
+          to: authUser?.user?.email,
+          subject: `Respuesta a tu ticket ${ticket.numero || ''}`,
+          title: 'Nueva respuesta de soporte',
+          bodyHtml: `Has recibido una respuesta en tu ticket <b>${ticket.numero || ''}</b>:<br><br><em>"${String(body.mensaje).slice(0, 300)}"</em>`,
+          ctaHref: process.env.NEXT_PUBLIC_AKCLOUD_URL ? `${process.env.NEXT_PUBLIC_AKCLOUD_URL}/soporte` : undefined,
+          ctaLabel: 'Ver ticket',
         })
       }
     }
