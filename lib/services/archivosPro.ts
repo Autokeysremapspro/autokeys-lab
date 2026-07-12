@@ -45,7 +45,11 @@ export async function subirArchivoPro(file: File, payload: ArchivoProPayload) {
 
   if (upload.error) throw new Error(upload.error.message)
 
-  const { data: publicUrl } = supabase.storage.from(BUCKET).getPublicUrl(path)
+  // Antes se guardaba aquí una URL "pública" permanente con getPublicUrl().
+  // El bucket ahora es privado: esa URL nunca habría funcionado y además
+  // quedaba grabada en la base de datos como si fuera válida para siempre.
+  // La URL de acceso se genera al momento (ver getSignedFileUrl) cuando
+  // alguien quiere ver/descargar el archivo, no se guarda de antemano.
 
   const { data, error } = await supabase
     .from('expediente_archivos_pro')
@@ -57,7 +61,7 @@ export async function subirArchivoPro(file: File, payload: ArchivoProPayload) {
       tamano_bytes: file.size,
       storage_bucket: BUCKET,
       storage_path: path,
-      url_publica: publicUrl?.publicUrl || null,
+      url_publica: null,
       descripcion: payload.descripcion || null,
       notas: payload.notas || null,
       ecu: payload.ecu || null,
