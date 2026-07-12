@@ -90,6 +90,20 @@ export default function RegisterPage() {
       })
       if (requestError) throw requestError
 
+      // Best-effort: si falla, el registro ya se completó igualmente —
+      // no se bloquea al usuario por un aviso interno que no pudo enviarse.
+      fetch('/api/ak-cloud/notificar-solicitud', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          empresa: form.empresa.trim(),
+          nombre: form.nombre.trim(),
+          email: form.email.trim(),
+          ciudad: form.ciudad.trim(),
+          especialidad: form.especialidad,
+        }),
+      }).catch(() => null)
+
       toast.success('Solicitud enviada a Autokeys Core')
       router.replace('/solicitud-enviada?estado=pendiente')
     } catch (error: any) {
