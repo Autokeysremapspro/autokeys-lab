@@ -127,6 +127,37 @@ export default function AkCloudPage() {
           </div>
         </section>
 
+        <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <Link href="/ak-cloud/produccion" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">
+            <UploadCloud className="text-red-400" size={22} />
+            <div>
+              <p className="font-black">Producción</p>
+              <p className="text-xs text-zinc-500">Pedidos en el laboratorio</p>
+            </div>
+          </Link>
+          <Link href="/ak-cloud/recargas" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">
+            <Wallet className="text-red-400" size={22} />
+            <div>
+              <p className="font-black">Recargas</p>
+              <p className="text-xs text-zinc-500">Aprobar créditos</p>
+            </div>
+          </Link>
+          <Link href="/ak-cloud/soporte" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">
+            <Sparkles className="text-red-400" size={22} />
+            <div>
+              <p className="font-black">Soporte</p>
+              <p className="text-xs text-zinc-500">Responder tickets</p>
+            </div>
+          </Link>
+          <Link href="/ak-cloud/facturacion" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">
+            <CreditCard className="text-red-400" size={22} />
+            <div>
+              <p className="font-black">Facturación</p>
+              <p className="text-xs text-zinc-500">Cobros AK Cloud</p>
+            </div>
+          </Link>
+        </section>
+
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-6">
           <Stat title="Pedidos" value={stats?.total || 0} icon={UploadCloud} />
           <Stat title="Pendientes" value={stats?.pendientes || 0} icon={AlertTriangle} tone="amber" />
