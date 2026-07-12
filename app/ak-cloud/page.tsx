@@ -27,6 +27,7 @@ import {
   Filter,
   RefreshCw,
   Search,
+  ShieldCheck,
   Sparkles,
   UploadCloud,
   Wallet,
@@ -127,7 +128,14 @@ export default function AkCloudPage() {
           </div>
         </section>
 
-        <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <section className="grid grid-cols-2 gap-3 md:grid-cols-5">
+          <Link href="/ak-cloud/solicitudes" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">
+            <ShieldCheck className="text-red-400" size={22} />
+            <div>
+              <p className="font-black">Solicitudes</p>
+              <p className="text-xs text-zinc-500">Aprobar distribuidores</p>
+            </div>
+          </Link>
           <Link href="/ak-cloud/produccion" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">
             <UploadCloud className="text-red-400" size={22} />
             <div>
