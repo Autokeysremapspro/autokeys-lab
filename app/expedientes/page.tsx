@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
 import AppShell from '@/components/AppShell'
 import ExpedienteStatusBadge from '@/components/ExpedienteStatusBadge'
@@ -26,9 +27,10 @@ function techIcon(tipo?: string | null) {
   return Cpu
 }
 
-export default function ExpedientesPage() {
+function ExpedientesPageInner() {
   const [items, setItems] = useState<ExpedienteConRelaciones[]>([])
-  const [query, setQuery] = useState('')
+  const searchParams = useSearchParams()
+  const [query, setQuery] = useState(searchParams.get('tipo') || '')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -169,5 +171,13 @@ export default function ExpedientesPage() {
         </div>
       )}
     </AppShell>
+  )
+}
+
+export default function ExpedientesPage() {
+  return (
+    <Suspense fallback={null}>
+      <ExpedientesPageInner />
+    </Suspense>
   )
 }

@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import type { ArchivoExpediente } from '@/types/autokeys'
+import { getSignedFileUrl } from '@/lib/services/storageAccess'
 
 const BUCKET = 'autokeys-expedientes'
 const TABLE = 'archivos_expediente'
@@ -31,7 +32,23 @@ export const ArchivoService = {
 
     const { data, error } = await query
     if (error) throw error
-    return (data || []) as ArchivoExpediente[]
+
+    // El bucket es privado — la URL no se guarda de antemano (caducaría o,
+    // peor, quedaría grabada como si fuera pública para siempre). Se genera
+    // una URL firmada al vuelo cada vez que se listan los archivos.
+    const items = (data || []) as ArchivoExpediente[]
+    const withUrls = await Promise.all(
+      items.map(async (item) => {
+        if (!item.storage_path) return item
+        try {
+          const signedUrl = await getSignedFileUrl(BUCKET, item.storage_path)
+          return { ...item, url: signedUrl }
+        } catch {
+          return item
+        }
+      })
+    )
+    return withUrls
   },
 
   async upload(params: {
@@ -50,13 +67,11 @@ export const ArchivoService = {
 
     if (uploadError) throw uploadError
 
-    const { data: publicData } = supabase.storage.from(BUCKET).getPublicUrl(storagePath)
-
     const record = {
       expediente_id: expedienteId,
       nombre_archivo: file.name,
       tipo,
-      url: publicData.publicUrl,
+      url: null, // se genera bajo demanda con getSignedFileUrl, ver list()
       notas: notas || null,
       storage_path: storagePath,
       mime_type: file.type || null,

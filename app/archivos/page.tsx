@@ -7,6 +7,7 @@ import { Download, FileArchive, FileText, FolderSearch, RefreshCw, Search, Trash
 import AppShell from '@/components/AppShell'
 import { ARCHIVO_CATEGORIAS, type ArchivoGlobal } from '@/types/archivosGlobal'
 import { eliminarArchivoGlobal, filtrarArchivos, formatBytes, getArchivosGlobales } from '@/lib/services/archivosGlobal'
+import { getSignedFileUrl } from '@/lib/services/storageAccess'
 
 function formatDate(date?: string | null) {
   if (!date) return '—'
@@ -64,6 +65,15 @@ export default function ArchivosPage() {
     } finally {
       setDeleting(null)
     }
+  }
+
+  async function descargar(archivo: ArchivoGlobal) {
+    const url = await getSignedFileUrl(archivo.storage_bucket || 'expediente-archivos', archivo.storage_path || '')
+    if (!url) {
+      toast.error('No se pudo generar el enlace de descarga')
+      return
+    }
+    window.open(url, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -151,10 +161,10 @@ export default function ArchivosPage() {
                     Abrir OT
                   </Link>
                 )}
-                {archivo.url_publica && (
-                  <a href={archivo.url_publica} target="_blank" rel="noreferrer" className="btn btn-dark inline-flex items-center gap-2 text-sm">
+                {archivo.storage_path && (
+                  <button onClick={() => descargar(archivo)} className="btn btn-dark inline-flex items-center gap-2 text-sm">
                     <Download size={15} /> Descargar
-                  </a>
+                  </button>
                 )}
                 <button disabled={deleting === archivo.id} onClick={() => deleteFile(archivo)} className="btn btn-dark inline-flex items-center gap-2 text-sm text-red-300 disabled:opacity-50">
                   <Trash2 size={15} /> Eliminar

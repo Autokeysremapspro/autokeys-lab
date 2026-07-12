@@ -447,84 +447,25 @@ export async function convertirAkCloudPedidoEnExpediente(pedidoId: string) {
 }
 
 export async function aprobarRecargaAkCloud(recargaId: string, notasAdmin?: string | null) {
-  const { data: recarga, error: recargaError } = await supabase
-    .from('ak_creditos_recargas')
-    .select('*')
-    .eq('id', recargaId)
-    .single()
-
-  if (recargaError) throw new Error(recargaError.message)
-  if (!recarga) throw new Error('Recarga no encontrada')
-
-  const creditos = Number(recarga.creditos || 0)
-  const userId = recarga.user_id || null
-
-  const { data, error } = await supabase
-    .from('ak_creditos_recargas')
-    .update({
-      estado: 'aprobado',
-      notas_admin: notasAdmin || recarga.notas_admin || null,
-      aprobada_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', recargaId)
-    .select('*')
-    .single()
-
-  if (error) throw new Error(error.message)
-
-  if (userId && creditos > 0) {
-    const { error: movError } = await supabase.from('ak_creditos_movimientos').insert({
-      user_id: userId,
-      tipo: 'recarga',
-      creditos,
-      descripcion: `Recarga aprobada desde Autokeys Core${recarga.referencia_pago ? ` · Ref: ${recarga.referencia_pago}` : ''}`,
-      recarga_id: recargaId,
-    })
-
-    if (movError) console.warn('No se pudo crear movimiento de créditos:', movError.message)
-  }
-
-  await crearNotificacionAkCloud({
-    userId,
-    titulo: 'Recarga aprobada',
-    mensaje: `Tu recarga de ${creditos} créditos ha sido aprobada.`,
-    tipo: 'success',
+  const response = await fetch('/api/ak-cloud/recargas', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: recargaId, estado: 'aprobado', notas_admin: notasAdmin || null }),
   })
-
-  return data as AkCloudRecarga
+  const payload = await response.json()
+  if (!response.ok) throw new Error(payload.error || 'No se pudo aprobar la recarga')
+  return payload
 }
 
 export async function rechazarRecargaAkCloud(recargaId: string, notasAdmin?: string | null) {
-  const { data: recarga, error: readError } = await supabase
-    .from('ak_creditos_recargas')
-    .select('*')
-    .eq('id', recargaId)
-    .single()
-
-  if (readError) throw new Error(readError.message)
-
-  const { data, error } = await supabase
-    .from('ak_creditos_recargas')
-    .update({
-      estado: 'rechazado',
-      notas_admin: notasAdmin || recarga?.notas_admin || null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', recargaId)
-    .select('*')
-    .single()
-
-  if (error) throw new Error(error.message)
-
-  await crearNotificacionAkCloud({
-    userId: recarga?.user_id || null,
-    titulo: 'Recarga revisada',
-    mensaje: 'Tu solicitud de recarga ha sido revisada. Contacta con Autokeys si necesitas más información.',
-    tipo: 'warning',
+  const response = await fetch('/api/ak-cloud/recargas', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: recargaId, estado: 'rechazado', notas_admin: notasAdmin || null }),
   })
-
-  return data as AkCloudRecarga
+  const payload = await response.json()
+  if (!response.ok) throw new Error(payload.error || 'No se pudo rechazar la recarga')
+  return payload
 }
 
 export async function getCreditoActualAkCloud(userId?: string | null) {

@@ -9,6 +9,7 @@ import {
   listarArchivosPro,
   subirArchivoPro,
 } from '@/lib/services/archivosPro'
+import { getSignedFileUrl } from '@/lib/services/storageAccess'
 import type { ArchivoProCategoria, ExpedienteArchivoPro } from '@/types/archivosPro'
 import { ARCHIVO_PRO_CATEGORIAS } from '@/types/archivosPro'
 
@@ -94,6 +95,15 @@ export default function ArchivosProPanel({ expedienteId }: Props) {
     }
   }
 
+  async function descargar(file: ExpedienteArchivoPro) {
+    const url = await getSignedFileUrl(file.storage_bucket || 'expediente-archivos', file.storage_path || '')
+    if (!url) {
+      toast.error('No se pudo generar el enlace de descarga')
+      return
+    }
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <div className="space-y-6">
       <section className="card p-5">
@@ -174,10 +184,10 @@ export default function ArchivosProPanel({ expedienteId }: Props) {
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    {file.url_publica && (
-                      <a href={file.url_publica} target="_blank" rel="noreferrer" className="btn btn-dark inline-flex items-center gap-2 text-sm">
+                    {file.storage_path && (
+                      <button onClick={() => descargar(file)} className="btn btn-dark inline-flex items-center gap-2 text-sm">
                         <Download size={15} /> Descargar
-                      </a>
+                      </button>
                     )}
                     <button onClick={() => remove(file)} className="btn btn-dark inline-flex items-center gap-2 text-sm text-red-300">
                       <Trash2 size={15} /> Eliminar
