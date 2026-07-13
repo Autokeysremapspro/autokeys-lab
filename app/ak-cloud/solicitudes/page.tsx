@@ -72,14 +72,12 @@ export default function AkCloudSolicitudesPage() {
   async function aprobar(solicitud: Solicitud) {
     const planId = planPorSolicitud[solicitud.id] || planes[0]?.id
     if (!planId) return toast.error('No hay ningún plan creado todavía — ve a "Planes AK" y crea al menos uno.')
-    const creditos = prompt('Créditos de bienvenida (0 si no aplica):', '0')
-    if (creditos === null) return
     setWorking(solicitud.id)
     try {
       const res = await fetch('/api/ak-cloud/distribuidores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: solicitud.id, action: 'aprobar', plan_id: planId, creditos_iniciales: Number(creditos) || 0 }),
+        body: JSON.stringify({ id: solicitud.id, action: 'aprobar', plan_id: planId }),
       })
       const payload = await res.json()
       if (!res.ok) throw new Error(payload.error)
