@@ -69,6 +69,18 @@ type Branding = {
   color_principal: string | null
 }
 
+type Novedad = {
+  id?: string
+  titulo: string
+  contenido: string
+  icono: string | null
+  activo: boolean
+  destacado: boolean
+  orden: number
+  publicado_en: string | null
+  created_at?: string
+}
+
 type PlanServicio = {
   id?: string
   plan_id: string
@@ -114,6 +126,16 @@ const emptyMetodo: MetodoPago = {
   orden: 100,
 }
 
+const emptyNovedad: Novedad = {
+  titulo: '',
+  contenido: '',
+  icono: '📣',
+  activo: true,
+  destacado: false,
+  orden: 100,
+  publicado_en: null,
+}
+
 const emptyRegla: ReglaPrecio = {
   nombre: '',
   servicio_principal_slug: '',
@@ -123,6 +145,16 @@ const emptyRegla: ReglaPrecio = {
   activo: true,
   orden: 100,
   nota: '',
+}
+
+const CATEGORIA_LABELS: Record<string, string> = {
+  reprogramacion: 'Reprogramación',
+  anticontaminacion: 'Anticontaminación',
+  opciones: 'Opciones',
+  electronica: 'Electrónica',
+  agricola: 'Agrícola',
+  camion: 'Camión',
+  otros: 'Otros',
 }
 
 function slugify(value: string) {
@@ -156,7 +188,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
 }
 
 export default function AkCloudAdminPage() {
-  const [tab, setTab] = useState<'servicios' | 'reglas' | 'planes' | 'plan-servicios' | 'pagos' | 'branding'>('servicios')
+  const [tab, setTab] = useState<'servicios' | 'reglas' | 'planes' | 'plan-servicios' | 'pagos' | 'novedades' | 'branding'>('servicios')
   const [loading, setLoading] = useState(true)
   const [servicios, setServicios] = useState<Servicio[]>([])
   const [planes, setPlanes] = useState<Plan[]>([])
@@ -167,6 +199,8 @@ export default function AkCloudAdminPage() {
   const [plan, setPlan] = useState<Plan>(emptyPlan)
   const [metodo, setMetodo] = useState<MetodoPago>(emptyMetodo)
   const [regla, setRegla] = useState<ReglaPrecio>(emptyRegla)
+  const [novedades, setNovedades] = useState<Novedad[]>([])
+  const [novedad, setNovedad] = useState<Novedad>(emptyNovedad)
   const [planServicios, setPlanServicios] = useState<PlanServicio[]>([])
   const [planSeleccionado, setPlanSeleccionado] = useState<string>('')
   const [savingPlanServicios, setSavingPlanServicios] = useState(false)
@@ -177,13 +211,14 @@ export default function AkCloudAdminPage() {
 
   async function loadAll() {
     setLoading(true)
-    const [serviciosRes, planesRes, metodosRes, reglasRes, brandingRes, planServiciosRes] = await Promise.all([
+    const [serviciosRes, planesRes, metodosRes, reglasRes, brandingRes, planServiciosRes, novedadesRes] = await Promise.all([
       supabase.from('akcloud_servicios').select('*').order('orden', { ascending: true }),
       supabase.from('akcloud_planes').select('*').order('orden', { ascending: true }),
       supabase.from('akcloud_metodos_pago').select('*').order('orden', { ascending: true }),
       supabase.from('akcloud_reglas_precios').select('*').order('orden', { ascending: true }),
       supabase.from('akcloud_branding').select('*').eq('id', 1).maybeSingle(),
       supabase.from('akcloud_plan_servicios').select('*'),
+      supabase.from('akcloud_novedades').select('*').order('orden', { ascending: true }).order('created_at', { ascending: false }),
     ])
 
     if (serviciosRes.error) toast.error(serviciosRes.error.message)
@@ -191,6 +226,7 @@ export default function AkCloudAdminPage() {
     if (metodosRes.error) toast.error(metodosRes.error.message)
     if (reglasRes.error) toast.error(reglasRes.error.message)
     if (brandingRes.error) toast.error(brandingRes.error.message)
+    if (novedadesRes.error) toast.error(novedadesRes.error.message)
 
     setServicios((serviciosRes.data || []) as Servicio[])
     setPlanes((planesRes.data || []) as Plan[])
@@ -198,6 +234,7 @@ export default function AkCloudAdminPage() {
     setReglas((reglasRes.data || []) as ReglaPrecio[])
     setBranding((brandingRes.data || null) as Branding | null)
     setPlanServicios((planServiciosRes.data || []) as PlanServicio[])
+    setNovedades((novedadesRes.data || []) as Novedad[])
     setLoading(false)
   }
 
@@ -333,6 +370,27 @@ export default function AkCloudAdminPage() {
     loadAll()
   }
 
+  async function saveNovedad() {
+    if (!novedad.titulo.trim()) {
+      toast.error('Ponle un título a la novedad')
+      return
+    }
+    const payload = {
+      ...novedad,
+      contenido: novedad.contenido || '',
+      icono: novedad.icono || '📣',
+      orden: Number(novedad.orden || 100),
+      publicado_en: novedad.publicado_en || null,
+    }
+    const { error } = payload.id
+      ? await supabase.from('akcloud_novedades').update(payload).eq('id', payload.id)
+      : await supabase.from('akcloud_novedades').insert(payload)
+    if (error) return toast.error(error.message)
+    toast.success('Novedad guardada')
+    setNovedad(emptyNovedad)
+    loadAll()
+  }
+
   async function remove(table: string, id?: string) {
     if (!id) return
     if (!confirm('¿Eliminar definitivamente este registro?')) return
@@ -348,7 +406,8 @@ export default function AkCloudAdminPage() {
     pagosActivos: metodos.filter((m) => m.activo).length,
     automaticos: metodos.filter((m) => m.automatico).length,
     reglasActivas: reglas.filter((r) => r.activo).length,
-  }), [servicios, planes, metodos, reglas])
+    novedadesActivas: novedades.filter((n) => n.activo).length,
+  }), [servicios, planes, metodos, reglas, novedades])
 
   return (
     <AppShell>
@@ -367,6 +426,7 @@ export default function AkCloudAdminPage() {
         <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Métodos pago</p><p className="mt-2 text-3xl font-black">{stats.pagosActivos}</p></div>
         <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Automáticos</p><p className="mt-2 text-3xl font-black">{stats.automaticos}</p></div>
         <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Reglas pack</p><p className="mt-2 text-3xl font-black">{stats.reglasActivas}</p></div>
+        <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Novedades activas</p><p className="mt-2 text-3xl font-black">{stats.novedadesActivas}</p></div>
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2">
@@ -376,6 +436,7 @@ export default function AkCloudAdminPage() {
           ['planes', 'Planes'],
           ['plan-servicios', 'Servicios por plan'],
           ['pagos', 'Métodos de pago'],
+          ['novedades', 'Novedades'],
           ['branding', 'Branding'],
         ].map(([key, label]) => (
           <button key={key} onClick={() => setTab(key as any)} className={`btn ${tab === key ? 'btn-red' : 'btn-dark'}`}>{label}</button>
@@ -391,7 +452,7 @@ export default function AkCloudAdminPage() {
             <div className="grid gap-4">
               <Field label="Nombre"><input className="w-full" value={servicio.nombre} onChange={(e) => setServicio({ ...servicio, nombre: e.target.value, slug: servicio.slug || slugify(e.target.value) })} placeholder="Stage 1" /></Field>
               <Field label="Slug"><input className="w-full" value={servicio.slug} onChange={(e) => setServicio({ ...servicio, slug: slugify(e.target.value) })} placeholder="stage-1" /></Field>
-              <Field label="Categoría"><select className="w-full" value={servicio.categoria} onChange={(e) => setServicio({ ...servicio, categoria: e.target.value })}><option value="reprogramacion">Reprogramación</option><option value="anticontaminacion">Anticontaminación</option><option value="opciones">Opciones</option><option value="electronica">Electrónica</option><option value="otros">Otros</option></select></Field>
+              <Field label="Categoría"><select className="w-full" value={servicio.categoria} onChange={(e) => setServicio({ ...servicio, categoria: e.target.value })}><option value="reprogramacion">Reprogramación</option><option value="anticontaminacion">Anticontaminación</option><option value="opciones">Opciones</option><option value="electronica">Electrónica</option><option value="agricola">Agrícola</option><option value="camion">Camión</option><option value="otros">Otros</option></select></Field>
               <Field label="Grupo de facturación (qué plan lo cubre con descuento)"><select className="w-full" value={servicio.grupo_facturacion || ''} onChange={(e) => setServicio({ ...servicio, grupo_facturacion: e.target.value || null })}><option value="">Sin grupo (siempre precio completo)</option><option value="anulacion">Anulación (EGR/DPF/AdBlue/DTC/Flaps OFF)</option><option value="tuning">Tuning (Stage 1/2, Pops & Bangs, Hardcut...)</option></select></Field>
               <div className="grid grid-cols-3 gap-3"><Field label="Icono"><input className="w-full" value={servicio.icono || ''} onChange={(e) => setServicio({ ...servicio, icono: e.target.value })} /></Field><Field label="Precio €"><input type="number" className="w-full" value={servicio.precio} onChange={(e) => setServicio({ ...servicio, precio: Number(e.target.value) })} /></Field><Field label="Créditos"><input type="number" className="w-full" value={servicio.creditos} onChange={(e) => setServicio({ ...servicio, creditos: Number(e.target.value) })} /></Field></div>
               <Field label="Descripción"><textarea className="h-24 w-full" value={servicio.descripcion || ''} onChange={(e) => setServicio({ ...servicio, descripcion: e.target.value })} /></Field>
@@ -405,7 +466,7 @@ export default function AkCloudAdminPage() {
             <div className="overflow-auto">
               <table>
                 <thead><tr><th>Servicio</th><th>Categoría</th><th>Precio</th><th>Créditos</th><th>Estado</th><th>Acciones</th></tr></thead>
-                <tbody>{servicios.map((s) => <tr key={s.id}><td><b>{s.icono} {s.nombre}</b><div className="text-xs text-zinc-500">{s.descripcion}</div></td><td>{s.categoria}{s.grupo_facturacion && <div className="text-xs text-red-300">Grupo: {s.grupo_facturacion}</div>}</td><td>{s.precio} €</td><td>{s.creditos}</td><td><span className={`badge ${s.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{s.activo ? 'Activo' : 'Inactivo'}</span></td><td><div className="flex gap-2"><button className="btn btn-dark" onClick={() => setServicio(s)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_servicios', s.id)}>Eliminar</button></div></td></tr>)}</tbody>
+                <tbody>{servicios.map((s) => <tr key={s.id}><td><b>{s.icono} {s.nombre}</b><div className="text-xs text-zinc-500">{s.descripcion}</div></td><td>{CATEGORIA_LABELS[s.categoria] || s.categoria}{s.grupo_facturacion && <div className="text-xs text-red-300">Grupo: {s.grupo_facturacion}</div>}</td><td>{s.precio} €</td><td>{s.creditos}</td><td><span className={`badge ${s.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{s.activo ? 'Activo' : 'Inactivo'}</span></td><td><div className="flex gap-2"><button className="btn btn-dark" onClick={() => setServicio(s)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_servicios', s.id)}>Eliminar</button></div></td></tr>)}</tbody>
               </table>
             </div>
           </div>
@@ -585,6 +646,39 @@ export default function AkCloudAdminPage() {
             <div className="flex gap-2"><button onClick={saveMetodo} className="btn btn-red flex-1">Guardar método</button><button onClick={() => setMetodo(emptyMetodo)} className="btn btn-dark">Limpiar</button></div>
           </div></div>
           <div className="grid gap-4 md:grid-cols-2">{metodos.map((m) => <div key={m.id} className="card p-5"><div className="flex items-start justify-between"><h3 className="text-xl font-black">{m.nombre}</h3><span className={`badge ${m.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{m.activo ? 'Activo' : 'Oculto'}</span></div><p className="mt-2 text-sm text-zinc-400">{m.descripcion}</p><p className="mt-3 rounded-2xl bg-black/20 p-3 text-sm text-zinc-400">{m.instrucciones || 'Sin instrucciones'}</p><p className="mt-3 text-xs uppercase tracking-wider text-zinc-500">{m.automatico ? 'Activación automática' : 'Activación manual'}</p><div className="mt-5 flex gap-2"><button className="btn btn-dark" onClick={() => setMetodo(m)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_metodos_pago', m.id)}>Eliminar</button></div></div>)}</div>
+        </div>
+      )}
+
+      {!loading && tab === 'novedades' && (
+        <div className="grid gap-6 xl:grid-cols-[420px_1fr]">
+          <div className="card p-5">
+            <h2 className="mb-4 text-xl font-black">{novedad.id ? 'Editar novedad' : 'Nueva novedad'}</h2>
+            <p className="mb-5 text-sm text-zinc-500">Lo que publiques aquí aparecerá en el apartado de novedades del dashboard de AK Cloud.</p>
+            <div className="grid gap-4">
+              <Field label="Título"><input className="w-full" value={novedad.titulo} onChange={(e) => setNovedad({ ...novedad, titulo: e.target.value })} placeholder="Nuevo servicio: Agrícola disponible" /></Field>
+              <Field label="Contenido"><textarea className="h-28 w-full" value={novedad.contenido} onChange={(e) => setNovedad({ ...novedad, contenido: e.target.value })} placeholder="Cuéntale al distribuidor qué ha cambiado o qué es nuevo..." /></Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Icono"><input className="w-full" value={novedad.icono || ''} onChange={(e) => setNovedad({ ...novedad, icono: e.target.value })} /></Field>
+                <Field label="Orden"><input type="number" className="w-full" value={novedad.orden} onChange={(e) => setNovedad({ ...novedad, orden: Number(e.target.value) })} /></Field>
+              </div>
+              <div className="flex gap-3"><Toggle checked={novedad.activo} onChange={(v) => setNovedad({ ...novedad, activo: v })} label="Visible en portal" /><Toggle checked={novedad.destacado} onChange={(v) => setNovedad({ ...novedad, destacado: v })} label="Destacada" /></div>
+              <div className="flex gap-2"><button onClick={saveNovedad} className="btn btn-red flex-1">Guardar novedad</button><button onClick={() => setNovedad(emptyNovedad)} className="btn btn-dark">Limpiar</button></div>
+            </div>
+          </div>
+
+          <div className="card overflow-hidden">
+            <div className="border-b border-zinc-800 p-5">
+              <h2 className="text-xl font-black">Novedades publicadas</h2>
+              <p className="mt-1 text-sm text-zinc-500">Se muestran a los distribuidores ordenadas por "Orden" (menor primero) y luego por fecha.</p>
+            </div>
+            <div className="overflow-auto">
+              <table>
+                <thead><tr><th>Novedad</th><th>Orden</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <tbody>{novedades.map((n) => <tr key={n.id}><td><b>{n.icono} {n.titulo}</b>{n.destacado && <span className="badge ml-2 bg-red-500/10 text-red-300">Destacada</span>}<div className="text-xs text-zinc-500 max-w-md">{n.contenido}</div></td><td>{n.orden}</td><td><span className={`badge ${n.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{n.activo ? 'Visible' : 'Oculta'}</span></td><td><div className="flex gap-2"><button className="btn btn-dark" onClick={() => setNovedad(n)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_novedades', n.id)}>Eliminar</button></div></td></tr>)}</tbody>
+              </table>
+              {novedades.length === 0 && <div className="p-8 text-center text-zinc-500">Aún no has publicado ninguna novedad.</div>}
+            </div>
+          </div>
         </div>
       )}
 
