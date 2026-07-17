@@ -1,13 +1,33 @@
 import { createBrowserClient } from '@supabase/ssr'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+/**
+ * Cliente Supabase del navegador.
+ *
+ * Durante `next build`, Next.js importa los módulos de los Client Components para
+ * prerenderizar rutas. La versión anterior intentaba crear el cliente con cadenas
+ * vacías cuando Vercel no exponía las variables al build, provocando que fallasen
+ * todas las páginas estáticas.
+ *
+ * El fallback solo permite completar el build y mostrar un diagnóstico claro. En
+ * producción deben existir las variables reales en Vercel.
+ */
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
+const supabaseKey = (
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+)?.trim()
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Faltan variables de entorno de Supabase')
+export const hasSupabaseBrowserEnv = Boolean(supabaseUrl && supabaseKey)
+
+if (!hasSupabaseBrowserEnv && typeof window !== 'undefined') {
+  console.error(
+    'AK Core: faltan NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY (o NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY).'
+  )
 }
 
-// createBrowserClient (en vez de createClient) sincroniza la sesión en cookies,
-// que es lo que lee middleware.ts en el servidor. Con createClient normal la
-// sesión solo vivía en localStorage y el middleware nunca la veía.
-export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey)
+const buildSafeUrl = supabaseUrl || 'https://placeholder.supabase.co'
+const buildSafeKey = supabaseKey || 'placeholder-public-key'
+
+// createBrowserClient sincroniza la sesión en cookies, que es lo que lee el
+// middleware. El fallback evita únicamente que el import rompa `next build`.
+export const supabase = createBrowserClient(buildSafeUrl, buildSafeKey)
