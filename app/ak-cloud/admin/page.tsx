@@ -154,6 +154,7 @@ const CATEGORIA_LABELS: Record<string, string> = {
   electronica: 'Electrónica',
   agricola: 'Agrícola',
   camion: 'Camión',
+  dsg: 'DSG',
   otros: 'Otros',
 }
 
@@ -452,7 +453,7 @@ export default function AkCloudAdminPage() {
             <div className="grid gap-4">
               <Field label="Nombre"><input className="w-full" value={servicio.nombre} onChange={(e) => setServicio({ ...servicio, nombre: e.target.value, slug: servicio.slug || slugify(e.target.value) })} placeholder="Stage 1" /></Field>
               <Field label="Slug"><input className="w-full" value={servicio.slug} onChange={(e) => setServicio({ ...servicio, slug: slugify(e.target.value) })} placeholder="stage-1" /></Field>
-              <Field label="Categoría"><select className="w-full" value={servicio.categoria} onChange={(e) => setServicio({ ...servicio, categoria: e.target.value })}><option value="reprogramacion">Reprogramación</option><option value="anticontaminacion">Anticontaminación</option><option value="opciones">Opciones</option><option value="electronica">Electrónica</option><option value="agricola">Agrícola</option><option value="camion">Camión</option><option value="otros">Otros</option></select></Field>
+              <Field label="Categoría"><select className="w-full" value={servicio.categoria} onChange={(e) => setServicio({ ...servicio, categoria: e.target.value })}><option value="reprogramacion">Reprogramación</option><option value="anticontaminacion">Anticontaminación</option><option value="opciones">Opciones</option><option value="electronica">Electrónica</option><option value="agricola">Agrícola</option><option value="camion">Camión</option><option value="dsg">DSG</option><option value="otros">Otros</option></select></Field>
               <Field label="Grupo de facturación (qué plan lo cubre con descuento)"><select className="w-full" value={servicio.grupo_facturacion || ''} onChange={(e) => setServicio({ ...servicio, grupo_facturacion: e.target.value || null })}><option value="">Sin grupo (siempre precio completo)</option><option value="anulacion">Anulación (EGR/DPF/AdBlue/DTC/Flaps OFF)</option><option value="tuning">Tuning (Stage 1/2, Pops & Bangs, Hardcut...)</option></select></Field>
               <div className="grid grid-cols-3 gap-3"><Field label="Icono"><input className="w-full" value={servicio.icono || ''} onChange={(e) => setServicio({ ...servicio, icono: e.target.value })} /></Field><Field label="Precio €"><input type="number" className="w-full" value={servicio.precio} onChange={(e) => setServicio({ ...servicio, precio: Number(e.target.value) })} /></Field><Field label="Créditos"><input type="number" className="w-full" value={servicio.creditos} onChange={(e) => setServicio({ ...servicio, creditos: Number(e.target.value) })} /></Field></div>
               <Field label="Descripción"><textarea className="h-24 w-full" value={servicio.descripcion || ''} onChange={(e) => setServicio({ ...servicio, descripcion: e.target.value })} /></Field>
