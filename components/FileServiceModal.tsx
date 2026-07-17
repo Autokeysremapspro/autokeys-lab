@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import type { FileServiceJob } from '@/types/autokeys'
+import CustomSelect from '@/components/ak/CustomSelect'
 
 type Props = {
   open: boolean
@@ -74,29 +75,29 @@ export default function FileServiceModal({ open, job, onClose, onSubmit }: Props
           <Input label="SW" value={form.sw} onChange={(v) => setField('sw', v)} />
           <label className="space-y-2">
             <span className="text-sm font-bold text-zinc-300">Servicio</span>
-            <select value={form.servicio || 'Stage 1'} onChange={(e) => setField('servicio', e.target.value)} className="w-full rounded-2xl border border-white/10 bg-[#111827] px-4 py-3 outline-none focus:border-red-500">
-              <option>Stage 1</option>
-              <option>Stage 2</option>
-              <option>DPF OFF</option>
-              <option>EGR OFF</option>
-              <option>AdBlue / SCR OFF</option>
-              <option>IMMO OFF</option>
-              <option>Clonación</option>
-              <option>Hardcut</option>
-              <option>Pops & Bangs</option>
-              <option>Otro</option>
-            </select>
+            <CustomSelect
+              value={form.servicio || 'Stage 1'}
+              onChange={(v) => setField('servicio', v)}
+              options={[
+                'Stage 1', 'Stage 2', 'DPF OFF', 'EGR OFF', 'AdBlue / SCR OFF',
+                'IMMO OFF', 'Clonación', 'Hardcut', 'Pops & Bangs', 'Otro',
+              ].map((s) => ({ value: s, label: s }))}
+            />
           </label>
           <label className="space-y-2">
             <span className="text-sm font-bold text-zinc-300">Estado</span>
-            <select value={form.estado || 'pendiente'} onChange={(e) => setField('estado', e.target.value)} className="w-full rounded-2xl border border-white/10 bg-[#111827] px-4 py-3 outline-none focus:border-red-500">
-              <option value="pendiente">Pendiente</option>
-              <option value="en_proceso">En proceso</option>
-              <option value="enviado">Enviado</option>
-              <option value="revision">Revisión</option>
-              <option value="finalizado">Finalizado</option>
-              <option value="cancelado">Cancelado</option>
-            </select>
+            <CustomSelect
+              value={form.estado || 'pendiente'}
+              onChange={(v) => setField('estado', v)}
+              options={[
+                { value: 'pendiente', label: 'Pendiente' },
+                { value: 'en_proceso', label: 'En proceso' },
+                { value: 'enviado', label: 'Enviado' },
+                { value: 'revision', label: 'Revisión' },
+                { value: 'finalizado', label: 'Finalizado' },
+                { value: 'cancelado', label: 'Cancelado' },
+              ]}
+            />
           </label>
           <Input label="Precio" type="number" value={form.precio ?? 0} onChange={(v) => setField('precio', Number(v))} />
           <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#111827] px-4 py-3 mt-7">

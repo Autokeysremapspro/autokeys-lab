@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import AppShell from '@/components/AppShell'
+import CustomSelect from '@/components/ak/CustomSelect'
 import {
   AkCloudMensaje,
   AkCloudPedido,
@@ -342,12 +343,16 @@ export default function AkCloudPedidoPage() {
               <div className="mt-5 space-y-4">
                 <label className="block">
                   <span className="mb-2 block text-sm font-bold text-zinc-400">Estado</span>
-                  <select value={estado} onChange={(e) => setEstado(e.target.value)} className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none">
-                    <option className="bg-[#111827]" value="pendiente">Pendiente</option>
-                    <option className="bg-[#111827]" value="en_proceso">En proceso</option>
-                    <option className="bg-[#111827]" value="finalizado">Finalizado</option>
-                    <option className="bg-[#111827]" value="cancelado">Cancelado</option>
-                  </select>
+                  <CustomSelect
+                    value={estado}
+                    onChange={setEstado}
+                    options={[
+                      { value: 'pendiente', label: 'Pendiente' },
+                      { value: 'en_proceso', label: 'En proceso' },
+                      { value: 'finalizado', label: 'Finalizado' },
+                      { value: 'cancelado', label: 'Cancelado' },
+                    ]}
+                  />
                 </label>
 
                 <label className="block">

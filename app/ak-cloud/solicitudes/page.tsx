@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import AppShell from '@/components/AppShell'
+import CustomSelect from '@/components/ak/CustomSelect'
 import { ArrowLeft, Building2, CheckCircle2, Clock3, RefreshCw, ShieldCheck, XCircle } from 'lucide-react'
 
 type Solicitud = {
@@ -184,16 +185,12 @@ export default function AkCloudSolicitudesPage() {
                   {(s.estado || 'pendiente') === 'pendiente' && (
                     <div className="flex shrink-0 flex-col gap-2">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Plan a asignar</label>
-                      <select
+                      <CustomSelect
                         className="min-w-[180px]"
                         value={planPorSolicitud[s.id] || planes[0]?.id || ''}
-                        onChange={(e) => setPlanPorSolicitud((cur) => ({ ...cur, [s.id]: e.target.value }))}
-                      >
-                        {planes.length === 0 && <option value="">Sin planes creados</option>}
-                        {planes.map((p) => (
-                          <option key={p.id} value={p.id}>{p.nombre}</option>
-                        ))}
-                      </select>
+                        onChange={(v) => setPlanPorSolicitud((cur) => ({ ...cur, [s.id]: v }))}
+                        options={planes.length === 0 ? [{ value: '', label: 'Sin planes creados' }] : planes.map((p) => ({ value: p.id!, label: p.nombre }))}
+                      />
                       <div className="flex gap-2">
                         <button disabled={working === s.id} onClick={() => aprobar(s)} className="btn btn-red inline-flex items-center gap-2 disabled:opacity-50">
                           <CheckCircle2 size={18} /> Aprobar

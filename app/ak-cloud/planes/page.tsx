@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import AppShell from '@/components/AppShell'
+import CustomSelect from '@/components/ak/CustomSelect'
 import { supabase } from '@/lib/supabase'
 import { ArrowLeft, Layers, Plus, Save, Sparkles, Trash2, X } from 'lucide-react'
 
@@ -314,12 +315,13 @@ export default function PlanesAkPage() {
                   <h3 className="mb-4 text-lg font-black">Servicios de este plan</h3>
 
                   <div className="mb-4 flex gap-2">
-                    <select className="flex-1" value={servicioAAgregar} onChange={(e) => setServicioAAgregar(e.target.value)}>
-                      <option value="">Elige un servicio para añadir...</option>
-                      {serviciosDisponibles.map((s) => (
-                        <option key={s.id} value={s.id}>{s.icono} {s.nombre}</option>
-                      ))}
-                    </select>
+                    <CustomSelect
+                      className="flex-1"
+                      value={servicioAAgregar}
+                      onChange={setServicioAAgregar}
+                      placeholder="Elige un servicio para añadir..."
+                      options={serviciosDisponibles.map((s) => ({ value: s.id, label: `${s.icono} ${s.nombre}` }))}
+                    />
                     <button onClick={agregarServicio} disabled={!servicioAAgregar} className="btn btn-red inline-flex items-center gap-2 disabled:opacity-40">
                       <Plus size={16} /> Añadir
                     </button>

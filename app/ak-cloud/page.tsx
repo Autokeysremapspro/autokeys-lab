@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import AppShell from '@/components/AppShell'
+import CustomSelect from '@/components/ak/CustomSelect'
 import {
   AkCloudPedido,
   akCloudEstadoClass,
@@ -22,7 +23,6 @@ import {
   CreditCard,
   DownloadCloud,
   ExternalLink,
-  Filter,
   Layers,
   RefreshCw,
   Search,
@@ -196,12 +196,12 @@ export default function AkCloudPage() {
                   <Search size={17} className="text-zinc-500" />
                   <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar por pedido, ECU, HW, cliente..." className="w-full bg-transparent outline-none" />
                 </div>
-                <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
-                  <Filter size={17} className="text-zinc-500" />
-                  <select value={estado} onChange={(e) => setEstado(e.target.value)} className="bg-transparent outline-none">
-                    {estados.map((item) => <option key={item} value={item} className="bg-[#111827]">{item.replace('_', ' ')}</option>)}
-                  </select>
-                </div>
+                <CustomSelect
+                  className="min-w-[160px]"
+                  value={estado}
+                  onChange={setEstado}
+                  options={estados.map((item) => ({ value: item, label: item.replace('_', ' ') }))}
+                />
               </div>
             </div>
 
