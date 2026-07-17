@@ -59,14 +59,14 @@ create table if not exists akcloud_branding (
 
 insert into akcloud_servicios (nombre, slug, categoria, descripcion, precio, creditos, icono, orden)
 values
-  ('Stage 1', 'stage-1', 'reprogramacion', 'Optimización de potencia segura para uso diario.', 65, 65, '🚀', 10),
-  ('Stage 2', 'stage-2', 'reprogramacion', 'Calibración avanzada para vehículos con hardware modificado.', 95, 95, '🏁', 20),
-  ('DPF OFF', 'dpf-off', 'anticontaminacion', 'Solución para sistema DPF según solicitud del profesional.', 55, 55, '🚫', 30),
-  ('EGR OFF', 'egr-off', 'anticontaminacion', 'Solución para sistema EGR según solicitud del profesional.', 40, 40, '🌿', 40),
-  ('AdBlue OFF', 'adblue-off', 'anticontaminacion', 'Solución para sistema SCR/AdBlue según solicitud del profesional.', 60, 60, '💧', 50),
-  ('IMMO OFF', 'immo-off', 'electronica', 'Solución de inmovilizador para trabajos de laboratorio.', 65, 65, '🔑', 60),
-  ('Pops & Bangs', 'pops-bangs', 'opciones', 'Configuración de petardeo bajo solicitud.', 50, 50, '💥', 70),
-  ('Hardcut', 'hardcut', 'opciones', 'Limitador tipo hardcut según configuración solicitada.', 35, 35, '🍿', 80)
+  ('Stage 1', 'stage-1', 'reprogramacion', 'Optimización de potencia segura para uso diario.', 40, 40, '🚀', 10),
+  ('Stage 2', 'stage-2', 'reprogramacion', 'Calibración avanzada para vehículos con hardware modificado.', 65, 65, '🏁', 20),
+  ('DPF OFF', 'dpf-off', 'anticontaminacion', 'Solución para sistema DPF según solicitud del profesional.', 35, 35, '🚫', 30),
+  ('EGR OFF', 'egr-off', 'anticontaminacion', 'Solución para sistema EGR según solicitud del profesional.', 25, 25, '🌿', 40),
+  ('AdBlue OFF', 'adblue-off', 'anticontaminacion', 'Solución para sistema SCR/AdBlue según solicitud del profesional.', 45, 45, '💧', 50),
+  ('IMMO OFF', 'immo-off', 'electronica', 'Solución de inmovilizador para trabajos de laboratorio.', 50, 50, '🔑', 60),
+  ('Pops & Bangs', 'pops-bangs', 'opciones', 'Configuración de petardeo bajo solicitud.', 30, 30, '💥', 70),
+  ('Hardcut', 'hardcut', 'opciones', 'Limitador tipo hardcut según configuración solicitada.', 25, 25, '🍿', 80)
 on conflict (slug) do nothing;
 
 insert into akcloud_planes (nombre, slug, descripcion, precio_mensual, creditos_mes, ventajas, destacado, orden)

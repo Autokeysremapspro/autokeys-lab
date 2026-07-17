@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import AppShell from '@/components/AppShell'
-import CustomSelect from '@/components/ak/CustomSelect'
 import {
   AkCloudRecargaFactura,
   crearFacturaDesdeRecarga,
@@ -167,17 +166,12 @@ export default function AkCloudFacturacionPage() {
                 <Search size={18} className="text-zinc-500" />
                 <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar distribuidor, email o referencia..." className="w-full min-w-[280px] border-0 bg-transparent p-0" />
               </div>
-              <CustomSelect
-                className="min-w-[180px]"
-                value={estado}
-                onChange={setEstado}
-                options={[
-                  { value: 'todos', label: 'Todos' },
-                  { value: 'pendiente', label: 'Pendientes' },
-                  { value: 'aprobado', label: 'Aprobadas' },
-                  { value: 'rechazado', label: 'Rechazadas' },
-                ]}
-              />
+              <select value={estado} onChange={(e) => setEstado(e.target.value)} className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white">
+                <option value="todos">Todos</option>
+                <option value="pendiente">Pendientes</option>
+                <option value="aprobado">Aprobadas</option>
+                <option value="rechazado">Rechazadas</option>
+              </select>
             </div>
           </div>
 

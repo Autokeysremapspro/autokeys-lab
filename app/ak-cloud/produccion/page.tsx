@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import AppShell from '@/components/AppShell'
-import CustomSelect from '@/components/ak/CustomSelect'
 import {
   AkCloudProduccionPedido,
   PRODUCCION_COLUMNAS,
@@ -246,14 +245,15 @@ function PedidoCard({
 
       <div className="mt-4 flex items-center gap-2 rounded-2xl border border-white/10 bg-black/20 px-3 py-2">
         <UserCog size={15} className="text-zinc-500" />
-        <CustomSelect
-          className="flex-1"
+        <select
           value={pedido.tecnico_asignado || ''}
-          onChange={(v) => onAssign(pedido.id, v)}
+          onChange={(e) => onAssign(pedido.id, e.target.value)}
           disabled={working}
-          placeholder="Sin técnico"
-          options={[{ value: '', label: 'Sin técnico' }, ...tecnicos.map((t) => ({ value: t, label: t }))]}
-        />
+          className="w-full bg-transparent text-sm font-bold outline-none disabled:opacity-50"
+        >
+          <option value="" className="bg-[#111827]">Sin técnico</option>
+          {tecnicos.map((tecnico) => <option key={tecnico} value={tecnico} className="bg-[#111827]">{tecnico}</option>)}
+        </select>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
