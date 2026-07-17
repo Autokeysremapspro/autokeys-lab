@@ -6,12 +6,10 @@ import toast from 'react-hot-toast'
 import AppShell from '@/components/AppShell'
 import {
   AkCloudPedido,
-  AkCloudRecarga,
   akCloudEstadoClass,
   formatPedidoTitle,
   formatServicios,
   getAkCloudPedidos,
-  getAkCloudRecargas,
   getAkCloudStats,
   updateAkCloudPedido,
   type AkCloudStats,
@@ -33,14 +31,12 @@ import {
   Sparkles,
   UploadCloud,
   Users,
-  Wallet,
 } from 'lucide-react'
 
 const estados = ['todos', 'pendiente', 'en_proceso', 'finalizado', 'cancelado']
 
 export default function AkCloudPage() {
   const [pedidos, setPedidos] = useState<AkCloudPedido[]>([])
-  const [recargas, setRecargas] = useState<AkCloudRecarga[]>([])
   const [stats, setStats] = useState<AkCloudStats | null>(null)
   const [query, setQuery] = useState('')
   const [estado, setEstado] = useState('todos')
@@ -50,13 +46,11 @@ export default function AkCloudPage() {
   async function load() {
     setLoading(true)
     try {
-      const [pedidosData, recargasData, statsData] = await Promise.all([
+      const [pedidosData, statsData] = await Promise.all([
         getAkCloudPedidos(),
-        getAkCloudRecargas(),
         getAkCloudStats(),
       ])
       setPedidos(pedidosData)
-      setRecargas(recargasData)
       setStats(statsData)
     } catch (error: any) {
       toast.error(error?.message || 'No se pudo cargar AK Cloud')
@@ -102,7 +96,6 @@ export default function AkCloudPage() {
     }
   }
 
-  const pendientesRecarga = recargas.filter((r) => (r.estado || 'pendiente') === 'pendiente').slice(0, 4)
 
   return (
     <AppShell>
@@ -160,13 +153,6 @@ export default function AkCloudPage() {
               <p className="text-xs text-zinc-500">Pedidos en el laboratorio</p>
             </div>
           </Link>
-          <Link href="/ak-cloud/recargas" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">
-            <Wallet className="text-red-400" size={22} />
-            <div>
-              <p className="font-black">Recargas</p>
-              <p className="text-xs text-zinc-500">Aprobar créditos</p>
-            </div>
-          </Link>
           <Link href="/ak-cloud/soporte" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">
             <Sparkles className="text-red-400" size={22} />
             <div>
@@ -190,12 +176,11 @@ export default function AkCloudPage() {
           </Link>
         </section>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
           <Stat title="Pedidos" value={stats?.total || 0} icon={UploadCloud} />
           <Stat title="Pendientes" value={stats?.pendientes || 0} icon={AlertTriangle} tone="amber" />
           <Stat title="En proceso" value={stats?.enProceso || 0} icon={Sparkles} tone="blue" />
           <Stat title="Finalizados" value={stats?.finalizados || 0} icon={CheckCircle2} tone="emerald" />
-          <Stat title="Recargas" value={stats?.recargasPendientes || 0} icon={Wallet} tone="purple" />
           <Stat title="Importe" value={`${Number(stats?.facturacion || 0).toFixed(0)} €`} icon={CreditCard} />
         </div>
 
@@ -279,21 +264,6 @@ export default function AkCloudPage() {
           </div>
 
           <aside className="space-y-5">
-            <div className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-5">
-              <h3 className="text-xl font-black">Recargas pendientes</h3>
-              <p className="mt-1 text-sm text-zinc-500">Solicitudes de créditos desde AK Cloud.</p>
-              <div className="mt-4 space-y-3">
-                {pendientesRecarga.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-white/10 p-5 text-sm text-zinc-500">Sin recargas pendientes.</div>
-                ) : pendientesRecarga.map((recarga) => (
-                  <div key={recarga.id} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                    <div className="font-black">{recarga.nombre_cliente || recarga.email_cliente || 'Distribuidor'}</div>
-                    <div className="mt-1 text-sm text-zinc-500">{recarga.creditos || 0} créditos · {Number(recarga.importe || 0).toFixed(2)} €</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             <div className="rounded-[2rem] border border-red-500/20 bg-gradient-to-br from-red-500/10 to-transparent p-5">
               <DownloadCloud className="text-red-300" size={28} />
               <h3 className="mt-3 text-xl font-black">Flujo recomendado</h3>
