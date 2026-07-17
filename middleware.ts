@@ -13,15 +13,6 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const { supabase, response } = createMiddlewareSupabaseClient(request)
 
-  // Si faltan variables, no ocultamos el error tras un fallo críptico de Supabase.
-  // Las rutas públicas siguen accesibles y el resto redirige al login con diagnóstico.
-  if (!supabase) {
-    if (isPublicPath(pathname)) return response
-    const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('error', 'supabase_env_missing')
-    return NextResponse.redirect(loginUrl)
-  }
-
   const {
     data: { user },
   } = await supabase.auth.getUser()

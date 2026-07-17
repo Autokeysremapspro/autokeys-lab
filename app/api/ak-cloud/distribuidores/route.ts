@@ -57,6 +57,7 @@ async function findOrCreateCliente(admin: any, solicitud: any) {
 // POST /api/ak-cloud/distribuidores — aprobar / rechazar / pedir info / suspender / activar
 export async function POST(request: Request) {
   try {
+    await requireStaff()
     const body = await request.json()
     const id = String(body.id || '')
     const action = String(body.action || '')
@@ -73,8 +74,11 @@ export async function POST(request: Request) {
       const creditos = Math.max(0, Number(body.creditos_iniciales || 0))
       const clienteId = await findOrCreateCliente(admin, solicitud)
 
+      const planData = planId ? (await admin.from('akcloud_planes').select('slug, nombre, duracion_dias').eq('id', planId).maybeSingle()).data : null
+      const ahora = new Date()
+      const expira = planData?.duracion_dias ? new Date(ahora.getTime() + planData.duracion_dias * 24 * 60 * 60 * 1000) : null
+
       if (solicitud.auth_user_id) {
-        const plan = planId ? (await admin.from('akcloud_planes').select('slug,nombre').eq('id', planId).maybeSingle()).data : null
         const { error: authError } = await admin.auth.admin.updateUserById(solicitud.auth_user_id, {
           email_confirm: true,
           user_metadata: {
@@ -82,47 +86,52 @@ export async function POST(request: Request) {
             nombre: `${solicitud.nombre} ${solicitud.apellidos || ''}`.trim(),
             tipo_usuario: 'distribuidor',
             estado_acceso: 'activo',
-            plan_slug: plan?.slug || null,
+            plan_slug: planData?.slug || null,
           },
           app_metadata: { rol: 'distribuidor', estado_acceso: 'activo' },
         })
         if (authError) throw authError
       }
 
-      const { error: distError } = await admin.from('akcloud_distribuidores').upsert(
-        {
-          auth_user_id: solicitud.auth_user_id,
-          solicitud_id: solicitud.id,
-          core_cliente_id: clienteId,
-          plan_id: planId,
-          empresa: solicitud.empresa,
-          nombre_contacto: `${solicitud.nombre} ${solicitud.apellidos || ''}`.trim(),
-          email: solicitud.email,
-          telefono: solicitud.telefono || null,
-          nif: solicitud.nif || null,
-          estado: 'activo',
-          aprobado_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'auth_user_id' }
-      )
+      // Antes de crear, comprueba si ya existe una ficha de distribuidor con
+      // este email (de una cuenta anterior, prueba, etc.) — si la hay, se
+      // actualiza esa misma fila en vez de intentar crear otra con el mismo
+      // email, que rompería la restricción de email único en la base de datos.
+      const { data: existentePorEmail } = await admin
+        .from('akcloud_distribuidores')
+        .select('id')
+        .eq('email', solicitud.email)
+        .maybeSingle()
+
+      const datosDistribuidor = {
+        auth_user_id: solicitud.auth_user_id,
+        solicitud_id: solicitud.id,
+        core_cliente_id: clienteId,
+        plan_id: planId,
+        plan_inicio_at: planId ? ahora.toISOString() : null,
+        plan_expira_at: expira ? expira.toISOString() : null,
+        empresa: solicitud.empresa,
+        nombre_contacto: `${solicitud.nombre} ${solicitud.apellidos || ''}`.trim(),
+        email: solicitud.email,
+        telefono: solicitud.telefono || null,
+        nif: solicitud.nif || null,
+        estado: 'activo',
+        aprobado_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+
+      const { error: distError } = existentePorEmail
+        ? await admin.from('akcloud_distribuidores').update(datosDistribuidor).eq('id', existentePorEmail.id)
+        : await admin.from('akcloud_distribuidores').upsert(datosDistribuidor, { onConflict: 'auth_user_id' })
+
       if (distError) throw distError
 
       if (creditos > 0 && solicitud.auth_user_id) {
-        const { data: last } = await admin
-          .from('ak_creditos_movimientos')
-          .select('saldo_resultante')
-          .eq('user_id', solicitud.auth_user_id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle()
-        const saldo = Number(last?.saldo_resultante || 0) + creditos
-        await admin.from('ak_creditos_movimientos').insert({
-          user_id: solicitud.auth_user_id,
-          tipo: 'ajuste',
-          concepto: 'Créditos de bienvenida por aprobación',
-          creditos,
-          saldo_resultante: saldo,
+        await admin.rpc('ak_anadir_creditos', {
+          p_user_id: solicitud.auth_user_id,
+          p_creditos: creditos,
+          p_concepto: 'Créditos de bienvenida por aprobación',
+          p_tipo: 'ajuste',
         })
       }
 

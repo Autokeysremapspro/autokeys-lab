@@ -66,7 +66,7 @@ export async function POST(request: Request) {
       .from('file_service_pedidos')
       .update(payload)
       .eq('id', id)
-      .select('id, user_id, numero, estado, cliente_email, cliente_nombre')
+      .select('id, user_id, numero, estado, cliente_email, cliente_nombre, precio')
       .single()
     if (error) throw error
 
@@ -84,22 +84,27 @@ export async function POST(request: Request) {
 
       const creditosADevolver = Math.abs(Number(consumo?.creditos || 0))
       if (creditosADevolver > 0) {
-        const { data: last } = await admin
-          .from('ak_creditos_movimientos')
-          .select('saldo_resultante')
-          .eq('user_id', pedido.user_id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle()
-        const saldoActual = Number(last?.saldo_resultante || 0)
-
-        await admin.from('ak_creditos_movimientos').insert({
-          user_id: pedido.user_id,
-          tipo: 'devolucion',
-          concepto: `Devolución por cancelación de pedido ${pedido.numero || id}`,
-          pedido_id: id,
-          creditos: creditosADevolver,
-          saldo_resultante: saldoActual + creditosADevolver,
+        // Pedido antiguo, pagado con créditos — se devuelven igual que antes.
+        await admin.rpc('ak_anadir_creditos', {
+          p_user_id: pedido.user_id,
+          p_creditos: creditosADevolver,
+          p_concepto: `Devolución por cancelación de pedido ${pedido.numero || id}`,
+          p_tipo: 'devolucion',
+          p_pedido_id: id,
+        })
+      } else if (Number(pedido.precio) > 0) {
+        // Pedido pagado de verdad con PayPal (sin créditos de por medio) —
+        // esto NO se devuelve solo, hay que reembolsar a mano desde el
+        // panel de PayPal. Se avisa al staff para que no se le olvide.
+        await admin.from('notificaciones').insert({
+          usuario_id: null,
+          titulo: 'Reembolso manual pendiente',
+          mensaje: `El pedido ${pedido.numero || id} se canceló pero se había cobrado ${Number(pedido.precio).toFixed(2)} € por PayPal — hay que reembolsarlo a mano desde el panel de PayPal.`,
+          modulo: 'ak_cloud',
+          tipo: 'warning',
+          prioridad: 'alta',
+          href: '/ak-cloud/produccion',
+          accion_texto: 'Ver pedido',
         })
       }
     }

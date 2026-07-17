@@ -1,12 +1,3 @@
-import type { ReactNode } from 'react'
-
-export default function DataTable({ columns, rows }: { columns: string[]; rows: ReactNode[][] }) {
-  return (
-    <div className="table-wrap">
-      <table>
-        <thead><tr>{columns.map((column) => <th key={column}>{column}</th>)}</tr></thead>
-        <tbody>{rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={cellIndex}>{cell}</td>)}</tr>)}</tbody>
-      </table>
-    </div>
-  )
+export default function DataTable({columns, rows}: {columns: string[], rows: React.ReactNode[][]}) {
+  return <div className="table-wrap card"><table><thead><tr>{columns.map(c=><th key={c}>{c}</th>)}</tr></thead><tbody>{rows.map((r,i)=><tr key={i}>{r.map((c,j)=><td key={j}>{c}</td>)}</tr>)}</tbody></table></div>
 }
