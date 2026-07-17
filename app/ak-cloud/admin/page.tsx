@@ -10,7 +10,6 @@ type Servicio = {
   nombre: string
   slug: string
   categoria: string
-  grupo_facturacion?: string | null
   descripcion: string | null
   precio: number
   creditos: number
@@ -72,14 +71,13 @@ type PlanServicio = {
   plan_id: string
   servicio_id: string
   incluido: boolean
-  descuento_pct: number | null
+  precio_override: number | null
 }
 
 const emptyServicio: Servicio = {
   nombre: '',
   slug: '',
   categoria: 'reprogramacion',
-  grupo_facturacion: null,
   descripcion: '',
   precio: 0,
   creditos: 0,
@@ -175,6 +173,7 @@ export default function AkCloudAdminPage() {
   const [novedad, setNovedad] = useState<Novedad>(emptyNovedad)
   const [planServicios, setPlanServicios] = useState<PlanServicio[]>([])
   const [planSeleccionado, setPlanSeleccionado] = useState<string>('')
+  const [filtroCategoriaPlan, setFiltroCategoriaPlan] = useState<string>('todas')
   const [savingPlanServicios, setSavingPlanServicios] = useState(false)
 
   useEffect(() => {
@@ -214,18 +213,18 @@ export default function AkCloudAdminPage() {
       if (existing) {
         return current.map((ps) => (ps === existing ? { ...ps, incluido } : ps))
       }
-      return [...current, { plan_id: planSeleccionado, servicio_id: servicioId, incluido, descuento_pct: null }]
+      return [...current, { plan_id: planSeleccionado, servicio_id: servicioId, incluido, precio_override: null }]
     })
   }
 
-  function setPlanServicioDescuento(servicioId: string, descuento: number | null) {
+  function setPlanServicioPrecio(servicioId: string, precio: number | null) {
     if (!planSeleccionado) return
     setPlanServicios((current) => {
       const existing = current.find((ps) => ps.plan_id === planSeleccionado && ps.servicio_id === servicioId)
       if (existing) {
-        return current.map((ps) => (ps === existing ? { ...ps, descuento_pct: descuento } : ps))
+        return current.map((ps) => (ps === existing ? { ...ps, precio_override: precio } : ps))
       }
-      return [...current, { plan_id: planSeleccionado, servicio_id: servicioId, incluido: true, descuento_pct: descuento }]
+      return [...current, { plan_id: planSeleccionado, servicio_id: servicioId, incluido: true, precio_override: precio }]
     })
   }
 
@@ -234,7 +233,7 @@ export default function AkCloudAdminPage() {
     setSavingPlanServicios(true)
     const filas = planServicios
       .filter((ps) => ps.plan_id === planSeleccionado)
-      .map((ps) => ({ plan_id: ps.plan_id, servicio_id: ps.servicio_id, incluido: ps.incluido, descuento_pct: ps.descuento_pct }))
+      .map((ps) => ({ plan_id: ps.plan_id, servicio_id: ps.servicio_id, incluido: ps.incluido, precio_override: ps.precio_override }))
 
     const { error } = await supabase.from('akcloud_plan_servicios').upsert(filas, { onConflict: 'plan_id,servicio_id' })
     setSavingPlanServicios(false)
@@ -344,6 +343,15 @@ export default function AkCloudAdminPage() {
     novedadesActivas: novedades.filter((n) => n.activo).length,
   }), [servicios, planes, metodos, novedades])
 
+  const categoriasConServicio = useMemo(
+    () => Array.from(new Set(servicios.map((s) => s.categoria))).sort(),
+    [servicios],
+  )
+  const serviciosFiltradosPlan = useMemo(
+    () => (filtroCategoriaPlan === 'todas' ? servicios : servicios.filter((s) => s.categoria === filtroCategoriaPlan)),
+    [servicios, filtroCategoriaPlan],
+  )
+
   return (
     <AppShell>
       <div className="mb-6 flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
@@ -386,7 +394,6 @@ export default function AkCloudAdminPage() {
               <Field label="Nombre"><input className="w-full" value={servicio.nombre} onChange={(e) => setServicio({ ...servicio, nombre: e.target.value, slug: servicio.slug || slugify(e.target.value) })} placeholder="Stage 1" /></Field>
               <Field label="Slug"><input className="w-full" value={servicio.slug} onChange={(e) => setServicio({ ...servicio, slug: slugify(e.target.value) })} placeholder="stage-1" /></Field>
               <Field label="Categoría"><select className="w-full" value={servicio.categoria} onChange={(e) => setServicio({ ...servicio, categoria: e.target.value })}><option value="reprogramacion">Reprogramación</option><option value="anticontaminacion">Anticontaminación</option><option value="opciones">Opciones</option><option value="electronica">Electrónica</option><option value="agricola">Agrícola</option><option value="camion">Camión</option><option value="dsg">DSG</option><option value="otros">Otros</option></select></Field>
-              <Field label="Grupo de facturación (qué plan lo cubre con descuento)"><select className="w-full" value={servicio.grupo_facturacion || ''} onChange={(e) => setServicio({ ...servicio, grupo_facturacion: e.target.value || null })}><option value="">Sin grupo (siempre precio completo)</option><option value="anulacion">Anulación (EGR/DPF/AdBlue/DTC/Flaps OFF)</option><option value="tuning">Tuning (Stage 1/2, Pops & Bangs, Hardcut...)</option></select></Field>
               <div className="grid grid-cols-3 gap-3"><Field label="Icono"><input className="w-full" value={servicio.icono || ''} onChange={(e) => setServicio({ ...servicio, icono: e.target.value })} /></Field><Field label="Precio €"><input type="number" className="w-full" value={servicio.precio} onChange={(e) => setServicio({ ...servicio, precio: Number(e.target.value) })} /></Field><Field label="Créditos"><input type="number" className="w-full" value={servicio.creditos} onChange={(e) => setServicio({ ...servicio, creditos: Number(e.target.value) })} /></Field></div>
               <Field label="Descripción"><textarea className="h-24 w-full" value={servicio.descripcion || ''} onChange={(e) => setServicio({ ...servicio, descripcion: e.target.value })} /></Field>
               <div className="flex gap-3"><Toggle checked={servicio.activo} onChange={(v) => setServicio({ ...servicio, activo: v })} label="Visible en portal" /><Field label="Orden"><input type="number" className="w-24" value={servicio.orden} onChange={(e) => setServicio({ ...servicio, orden: Number(e.target.value) })} /></Field></div>
@@ -399,7 +406,7 @@ export default function AkCloudAdminPage() {
             <div className="overflow-auto">
               <table>
                 <thead><tr><th>Servicio</th><th>Categoría</th><th>Precio</th><th>Créditos</th><th>Estado</th><th>Acciones</th></tr></thead>
-                <tbody>{servicios.map((s) => <tr key={s.id}><td><b>{s.icono} {s.nombre}</b><div className="text-xs text-zinc-500">{s.descripcion}</div></td><td>{CATEGORIA_LABELS[s.categoria] || s.categoria}{s.grupo_facturacion && <div className="text-xs text-red-300">Grupo: {s.grupo_facturacion}</div>}</td><td>{s.precio} €</td><td>{s.creditos}</td><td><span className={`badge ${s.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{s.activo ? 'Activo' : 'Inactivo'}</span></td><td><div className="flex gap-2"><button className="btn btn-dark" onClick={() => setServicio(s)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_servicios', s.id)}>Eliminar</button></div></td></tr>)}</tbody>
+                <tbody>{servicios.map((s) => <tr key={s.id}><td><b>{s.icono} {s.nombre}</b><div className="text-xs text-zinc-500">{s.descripcion}</div></td><td>{CATEGORIA_LABELS[s.categoria] || s.categoria}</td><td>{s.precio} €</td><td>{s.creditos}</td><td><span className={`badge ${s.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{s.activo ? 'Activo' : 'Inactivo'}</span></td><td><div className="flex gap-2"><button className="btn btn-dark" onClick={() => setServicio(s)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_servicios', s.id)}>Eliminar</button></div></td></tr>)}</tbody>
               </table>
             </div>
           </div>
@@ -442,7 +449,7 @@ export default function AkCloudAdminPage() {
             <div className="card p-8 text-center text-zinc-500">Elige un plan arriba para ver y marcar sus servicios.</div>
           ) : (
             <div className="card p-5">
-              <div className="mb-4 flex items-center justify-between">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <p className="text-sm text-zinc-400">
                   Marca qué servicios están incluidos con descuento en <b>{planes.find((p) => p.id === planSeleccionado)?.nombre}</b>. Los que dejes sin marcar se pueden pedir igual, pero al precio completo.
                 </p>
@@ -450,17 +457,33 @@ export default function AkCloudAdminPage() {
                   {savingPlanServicios ? 'Guardando...' : 'Guardar cambios'}
                 </button>
               </div>
+              <div className="mb-4 flex flex-wrap gap-2">
+                <button onClick={() => setFiltroCategoriaPlan('todas')} className={`btn text-xs ${filtroCategoriaPlan === 'todas' ? 'btn-red' : 'btn-dark'}`}>
+                  Todas ({servicios.length})
+                </button>
+                {categoriasConServicio.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setFiltroCategoriaPlan(cat)}
+                    className={`btn text-xs ${filtroCategoriaPlan === cat ? 'btn-red' : 'btn-dark'}`}
+                  >
+                    {CATEGORIA_LABELS[cat] || cat} ({servicios.filter((s) => s.categoria === cat).length})
+                  </button>
+                ))}
+              </div>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-xs uppercase tracking-wider text-zinc-500">
                     <th className="pb-2">Servicio</th>
                     <th className="pb-2">Precio base</th>
                     <th className="pb-2">Incluido en el plan</th>
-                    <th className="pb-2">Descuento propio (%) — vacío = usar el del plan</th>
+                    <th className="pb-2">Precio con descuento (€) — vacío = gratis del todo</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {servicios.map((s) => {
+                  {serviciosFiltradosPlan.length === 0 ? (
+                    <tr><td colSpan={4} className="py-6 text-center text-zinc-500">No hay servicios en esta categoría.</td></tr>
+                  ) : serviciosFiltradosPlan.map((s) => {
                     const fila = planServicios.find((ps) => ps.plan_id === planSeleccionado && ps.servicio_id === s.id)
                     const incluido = fila?.incluido ?? false
                     return (
@@ -475,8 +498,8 @@ export default function AkCloudAdminPage() {
                             type="number"
                             className="w-24"
                             placeholder="—"
-                            value={fila?.descuento_pct ?? ''}
-                            onChange={(e) => setPlanServicioDescuento(s.id!, e.target.value === '' ? null : Number(e.target.value))}
+                            value={fila?.precio_override ?? ''}
+                            onChange={(e) => setPlanServicioPrecio(s.id!, e.target.value === '' ? null : Number(e.target.value))}
                           />
                         </td>
                       </tr>
