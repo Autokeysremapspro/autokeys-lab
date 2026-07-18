@@ -9,6 +9,7 @@ import CustomSelect from '@/components/ak/CustomSelect'
 import {
   AkCloudMensaje,
   AkCloudPedido,
+  AkCloudVersion,
   akCloudEstadoClass,
   convertirAkCloudPedidoEnExpediente,
   crearMensajeAkCloud,
@@ -17,7 +18,11 @@ import {
   getAkCloudPedido,
   getMensajesAkCloud,
   getSignedFileUrl,
-  subirModAkCloud,
+  getVersionesAkCloud,
+  subirVersionAkCloud,
+  marcarVersionFinalAkCloud,
+  finalizarPedidoAkCloud,
+  reabrirPedidoAkCloud,
   updateAkCloudPedido,
 } from '@/lib/services/akCloud'
 import {
@@ -35,12 +40,17 @@ import {
   Send,
   ShieldCheck,
   UploadCloud,
+  Euro,
+  GitBranch,
+  LockKeyhole,
+  RotateCcw,
 } from 'lucide-react'
 
 const timeline = [
   { key: 'pendiente', label: 'Pedido recibido' },
-  { key: 'en_proceso', label: 'Técnico trabajando' },
-  { key: 'finalizado', label: 'Archivo listo' },
+  { key: 'en_proceso', label: 'En proceso' },
+  { key: 'esperando_prueba', label: 'Esperando prueba' },
+  { key: 'finalizado', label: 'Finalizado manualmente' },
 ]
 
 export default function AkCloudPedidoPage() {
@@ -58,6 +68,11 @@ export default function AkCloudPedidoPage() {
   const [estado, setEstado] = useState('pendiente')
   const [mensaje, setMensaje] = useState('')
   const [modFile, setModFile] = useState<File | null>(null)
+  const [versiones, setVersiones] = useState<AkCloudVersion[]>([])
+  const [notaCliente, setNotaCliente] = useState('')
+  const [notaInternaVersion, setNotaInternaVersion] = useState('')
+  const [precioFinal, setPrecioFinal] = useState('')
+  const [precioMotivo, setPrecioMotivo] = useState('')
 
   async function load() {
     if (!id) return
@@ -68,8 +83,11 @@ export default function AkCloudPedidoPage() {
       setNotas(row?.notas_core || '')
       setTecnico(row?.tecnico_asignado || 'Carlos')
       setEstado(row?.estado || 'pendiente')
+      setPrecioFinal(String(row?.precio_final ?? row?.precio ?? ''))
+      setPrecioMotivo(row?.precio_motivo || '')
       if (row?.id) {
         setMensajes(await getMensajesAkCloud(row.id))
+        setVersiones(await getVersionesAkCloud(row.id))
       }
     } catch (error: any) {
       toast.error(error?.message || 'No se pudo cargar el pedido')
@@ -94,6 +112,8 @@ export default function AkCloudPedidoPage() {
         estado,
         tecnico_asignado: tecnico,
         notas_core: notas,
+        precio_final: precioFinal === '' ? null : Number(precioFinal),
+        precio_motivo: precioMotivo || null,
       })
       setPedido(updated)
       toast.success('Pedido actualizado')
@@ -145,26 +165,47 @@ export default function AkCloudPedidoPage() {
   }
 
   async function uploadMod() {
-    if (!pedido) return
-    if (!modFile) {
-      toast.error('Selecciona el archivo MOD')
-      return
-    }
-
+    if (!pedido || !modFile) { toast.error('Selecciona un archivo'); return }
     setWorking('upload-mod')
     try {
-      const updated = await subirModAkCloud(pedido, modFile)
-      setPedido(updated)
-      setEstado(updated.estado || 'finalizado')
-      setModFile(null)
-      if (fileInputRef.current) fileInputRef.current.value = ''
+      await subirVersionAkCloud(pedido, modFile, { notaCliente, notaInterna: notaInternaVersion })
+      setPedido(await getAkCloudPedido(pedido.id))
+      setVersiones(await getVersionesAkCloud(pedido.id))
       setMensajes(await getMensajesAkCloud(pedido.id))
-      toast.success('MOD subido y pedido finalizado')
-    } catch (error: any) {
-      toast.error(error?.message || 'No se pudo subir el MOD')
-    } finally {
-      setWorking(null)
-    }
+      setModFile(null); setNotaCliente(''); setNotaInternaVersion('')
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      toast.success('Nueva versión subida. El pedido sigue abierto.')
+    } catch (error: any) { toast.error(error?.message || 'No se pudo subir la versión') }
+    finally { setWorking(null) }
+  }
+
+  async function setFinalVersion(versionId: string) {
+    if (!pedido) return
+    setWorking(`final-${versionId}`)
+    try { await marcarVersionFinalAkCloud(pedido.id, versionId); await load(); toast.success('Versión final seleccionada') }
+    catch (e:any) { toast.error(e?.message || 'No se pudo marcar') } finally { setWorking(null) }
+  }
+
+  async function finishOrder() {
+    if (!pedido) return
+    const final = versiones.find(v => v.es_final) || versiones[0]
+    if (!final) { toast.error('Sube al menos una versión antes de finalizar'); return }
+    if (!confirm(`¿Finalizar el pedido con V${final.numero_version}?`)) return
+    setWorking('finish')
+    try { await finalizarPedidoAkCloud(pedido, final.id); await load(); toast.success('Pedido finalizado manualmente') }
+    catch (e:any) { toast.error(e?.message || 'No se pudo finalizar') } finally { setWorking(null) }
+  }
+
+  async function reopenOrder() {
+    if (!pedido) return
+    setWorking('reopen')
+    try { await reabrirPedidoAkCloud(pedido); await load(); toast.success('Pedido reabierto') }
+    catch (e:any) { toast.error(e?.message || 'No se pudo reabrir') } finally { setWorking(null) }
+  }
+
+  async function downloadVersion(version: AkCloudVersion) {
+    try { const url = await getSignedFileUrl(version.bucket, version.path); if (url) window.open(url, '_blank') }
+    catch (e:any) { toast.error(e?.message || 'No se pudo descargar') }
   }
 
   async function sendMessage() {
@@ -349,6 +390,8 @@ export default function AkCloudPedidoPage() {
                     options={[
                       { value: 'pendiente', label: 'Pendiente' },
                       { value: 'en_proceso', label: 'En proceso' },
+                      { value: 'esperando_prueba', label: 'Esperando prueba' },
+                      { value: 'revision_solicitada', label: 'Revisión solicitada' },
                       { value: 'finalizado', label: 'Finalizado' },
                       { value: 'cancelado', label: 'Cancelado' },
                     ]}
@@ -359,6 +402,15 @@ export default function AkCloudPedidoPage() {
                   <span className="mb-2 block text-sm font-bold text-zinc-400">Técnico asignado</span>
                   <input value={tecnico} onChange={(e) => setTecnico(e.target.value)} className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none" />
                 </label>
+
+                <div className="rounded-3xl border border-amber-500/20 bg-amber-500/5 p-4">
+                  <div className="mb-3 flex items-center gap-2 font-black text-amber-200"><Euro size={18}/> Precio final editable</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Info label="Precio calculado" value={`${Number(pedido.precio_inicial ?? pedido.precio ?? 0).toFixed(2)} €`} />
+                    <label><span className="mb-2 block text-xs font-bold text-zinc-400">Precio final (€)</span><input type="number" step="0.01" value={precioFinal} onChange={(e)=>setPrecioFinal(e.target.value)} className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none" /></label>
+                  </div>
+                  <label className="mt-3 block"><span className="mb-2 block text-xs font-bold text-zinc-400">Motivo del cambio</span><input value={precioMotivo} onChange={(e)=>setPrecioMotivo(e.target.value)} placeholder="Urgencia, desbloqueo, trabajo especial..." className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none" /></label>
+                </div>
 
                 <label className="block">
                   <span className="mb-2 block text-sm font-bold text-zinc-400">Notas internas</span>
@@ -372,31 +424,27 @@ export default function AkCloudPedidoPage() {
             </section>
 
             <section className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-6">
-              <h2 className="text-2xl font-black">Archivos</h2>
-              <p className="mt-1 text-sm text-zinc-500">Descarga el ORI, sube el MOD y finaliza el pedido.</p>
-
-              <div className="mt-5 grid gap-3">
-                <button onClick={() => downloadFile('ori')} className="btn btn-dark inline-flex items-center justify-center gap-2">
-                  <Download size={17} /> Descargar ORI
-                </button>
-                <button onClick={() => downloadFile('mod')} className="btn btn-dark inline-flex items-center justify-center gap-2">
-                  <Download size={17} /> Descargar MOD
-                </button>
+              <div className="flex items-center gap-3"><GitBranch className="text-red-300"/><div><h2 className="text-2xl font-black">Versiones del archivo</h2><p className="text-sm text-zinc-500">Sube V1, V2, V3… sin cerrar automáticamente el pedido.</p></div></div>
+              <button onClick={() => downloadFile('ori')} className="btn btn-dark mt-5 inline-flex w-full items-center justify-center gap-2"><Download size={17}/> Descargar ORI</button>
+              <div className="mt-4 space-y-3">
+                {versiones.length === 0 ? <div className="rounded-2xl border border-dashed border-white/10 p-5 text-center text-sm text-zinc-500">Aún no hay versiones.</div> : versiones.map(v => (
+                  <div key={v.id} className={`rounded-2xl border p-4 ${v.es_final ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-white/10 bg-black/20'}`}>
+                    <div className="flex items-center justify-between gap-3"><div><div className="font-black">V{v.numero_version} · {v.nombre_archivo}</div><div className="text-xs text-zinc-500">{v.created_at ? new Date(v.created_at).toLocaleString('es-ES') : ''}</div></div>{v.es_final && <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-black text-emerald-300">FINAL</span>}</div>
+                    {v.nota_cliente && <p className="mt-2 text-sm text-zinc-300">{v.nota_cliente}</p>}
+                    <div className="mt-3 flex gap-2"><button onClick={()=>downloadVersion(v)} className="btn btn-dark flex-1">Descargar</button><button onClick={()=>setFinalVersion(v.id)} disabled={!!v.es_final} className="btn btn-dark flex-1 disabled:opacity-40">Marcar final</button></div>
+                  </div>
+                ))}
               </div>
-
               <div className="mt-5 rounded-3xl border border-dashed border-red-500/30 bg-red-500/5 p-4">
-                <div className="text-sm font-black text-red-200">Subir MOD final</div>
-                <p className="mt-1 text-xs text-zinc-500">Al subirlo se cambia el estado a finalizado y el distribuidor podrá descargarlo.</p>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  onChange={(e) => setModFile(e.target.files?.[0] || null)}
-                  className="mt-4 w-full rounded-2xl border border-white/10 bg-black/30 p-3 text-sm"
-                />
-                {modFile && <div className="mt-2 truncate text-xs text-zinc-400">Seleccionado: {modFile.name}</div>}
-                <button onClick={uploadMod} disabled={working === 'upload-mod'} className="btn btn-red mt-4 inline-flex w-full items-center justify-center gap-2 disabled:opacity-50">
-                  {working === 'upload-mod' ? <Loader2 className="animate-spin" size={17} /> : <UploadCloud size={17} />} Subir MOD y finalizar
-                </button>
+                <div className="font-black text-red-200">+ Subir nueva versión</div>
+                <input ref={fileInputRef} type="file" onChange={(e)=>setModFile(e.target.files?.[0] || null)} className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 p-3 text-sm"/>
+                <input value={notaCliente} onChange={(e)=>setNotaCliente(e.target.value)} placeholder="Nota visible para el cliente" className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm"/>
+                <input value={notaInternaVersion} onChange={(e)=>setNotaInternaVersion(e.target.value)} placeholder="Nota interna (solo laboratorio)" className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm"/>
+                <button onClick={uploadMod} disabled={working === 'upload-mod'} className="btn btn-red mt-3 inline-flex w-full items-center justify-center gap-2 disabled:opacity-50"><UploadCloud size={17}/> Subir versión (mantener abierto)</button>
+              </div>
+              <div className="mt-5 border-t border-white/10 pt-5">
+                {pedido.estado === 'finalizado' ? <button onClick={reopenOrder} className="btn btn-dark inline-flex w-full items-center justify-center gap-2"><RotateCcw size={17}/> Reabrir pedido</button> : <button onClick={finishOrder} disabled={working === 'finish'} className="btn btn-red inline-flex w-full items-center justify-center gap-2"><LockKeyhole size={17}/> Marcar pedido como finalizado</button>}
+                <p className="mt-2 text-center text-xs text-zinc-500">Ninguna subida finaliza el pedido automáticamente.</p>
               </div>
             </section>
 

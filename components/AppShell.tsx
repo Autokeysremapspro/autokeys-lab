@@ -204,8 +204,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   if (checkingSession || !authorized) {
     return (
-      <main className="min-h-screen grid place-items-center bg-[#07090d] text-zinc-100 p-6">
-        <div className="card max-w-md w-full p-9 text-center overflow-hidden">
+      <main className="min-h-screen grid place-items-center bg-[#111827] text-zinc-100 p-6">
+        <div className="card max-w-md w-full p-8 text-center">
           <div className="text-3xl font-black tracking-tight">
             AUTOKEYS <span className="text-red-500">CORE</span>
           </div>
@@ -216,23 +216,23 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen flex bg-transparent text-zinc-100">
-      <aside className="w-[300px] shrink-0 border-r border-white/[0.07] bg-[#090c12]/95 p-5 hidden lg:flex flex-col shadow-[24px_0_70px_rgba(0,0,0,.24)] backdrop-blur-xl">
-        <div className="mb-7 rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4 shadow-inner">
-          <div className="text-[22px] font-black tracking-[-0.035em]">
+    <div className="min-h-screen flex bg-[#111827] text-zinc-100">
+      <aside className="w-80 bg-[#0B1220] border-r border-white/10 p-5 hidden lg:flex flex-col">
+        <div className="mb-6">
+          <div className="text-2xl font-black tracking-tight">
             AUTOKEYS <span className="text-red-500">CORE</span>
           </div>
-          <div className="text-[10px] uppercase tracking-[0.18em] text-zinc-600 mt-1.5">Laboratory Management System</div>
+          <div className="text-xs text-zinc-500 mt-1">Laboratory Management System</div>
         </div>
 
-        <Link href="/expedientes/nueva" className="btn btn-red mb-6 flex items-center justify-center gap-2 py-3">
+        <Link href="/expedientes/nueva" className="btn btn-red mb-5 flex items-center justify-center gap-2 shadow-lg shadow-red-950/40">
           <PlusCircle size={18} /> Nueva OT
         </Link>
 
-        <nav className="space-y-6 flex-1 overflow-auto pr-1 -mr-1">
+        <nav className="space-y-5 flex-1 overflow-auto pr-1">
           {groups.map((group) => (
             <section key={group.title}>
-              <div className="flex items-center justify-between px-3 mb-2.5 text-[9px] font-black uppercase tracking-[0.24em] text-zinc-600">
+              <div className="flex items-center justify-between px-3 mb-2 text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">
                 <span>{group.title}</span>
                 <ChevronDown size={13} />
               </div>
@@ -246,14 +246,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                     <Link
                       key={`${group.title}-${item.href}-${item.label}`}
                       href={item.href}
-                      className={`group flex items-center gap-3 px-3.5 py-2.5 rounded-xl border transition-all duration-200 ${
+                      className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition ${
                         active
-                          ? 'border-red-500/30 bg-gradient-to-r from-red-600 to-red-700 text-white shadow-[0_10px_25px_rgba(184,15,33,.22)]'
-                          : 'border-transparent hover:border-white/[0.06] hover:bg-white/[0.04] text-zinc-400 hover:text-zinc-100'
+                          ? 'bg-red-600 text-white shadow-lg shadow-red-950/40'
+                          : 'hover:bg-white/5 text-zinc-300'
                       }`}
                     >
-                      <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg border ${active ? 'border-white/15 bg-white/10' : 'border-white/[0.05] bg-white/[0.025] group-hover:bg-white/[0.05]'}`}><Icon size={16} /></span>
-                      <span className="font-semibold text-[13px] leading-tight">{item.label}</span>
+                      <Icon size={18} />
+                      <span className="font-semibold">{item.label}</span>
                     </Link>
                   )
                 })}
@@ -262,20 +262,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
-        <button onClick={logout} className="mt-6 flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent hover:border-white/[0.06] hover:bg-white/[0.04] text-zinc-500 hover:text-zinc-200 w-full transition">
+        <button onClick={logout} className="mt-6 flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-white/5 text-zinc-400 w-full">
           <LogOut size={18} /> Salir
         </button>
       </aside>
 
-      <main className="relative flex-1 w-full min-w-0 p-4 lg:p-8 xl:p-10">
-        <div className="sticky top-0 z-20 -mx-4 -mt-4 mb-8 flex flex-col gap-4 border-b border-white/[0.06] bg-[#07090d]/88 px-4 py-5 backdrop-blur-xl lg:-mx-8 lg:-mt-8 lg:px-8 xl:-mx-10 xl:-mt-10 xl:flex-row xl:items-center xl:justify-between xl:px-10">
+      <main className="flex-1 p-4 lg:p-8 max-w-[1700px] mx-auto w-full">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-8 gap-4">
           <div>
-            <p className="text-[10px] text-red-400 font-black uppercase tracking-[0.24em]">Centro de operaciones</p>
-            <h1 className="text-2xl lg:text-3xl font-black tracking-[-0.04em] mt-1">Autokeys Core</h1>
-            <p className="text-xs text-zinc-600 mt-1.5">ERP · LMS · File Service · Gestión técnica del laboratorio</p>
+            <p className="text-sm text-red-400 font-bold uppercase tracking-[0.2em]">Centro de operaciones</p>
+            <h1 className="text-3xl lg:text-5xl font-black mt-1">Autokeys Core</h1>
+            <p className="text-zinc-500 mt-2">ERP · LMS · File Service · Gestión técnica del laboratorio</p>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             <UniversalSearch />
             <NotificationCenter />
           </div>

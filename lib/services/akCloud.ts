@@ -27,6 +27,11 @@ export type AkCloudPedido = {
   mod_bucket?: string | null
   mod_path?: string | null
   precio?: number | null
+  precio_inicial?: number | null
+  precio_final?: number | null
+  precio_motivo?: string | null
+  version_final_id?: string | null
+  finalizado_at?: string | null
   pagado?: boolean | null
   creditos_coste?: number | null
   core_cliente_id?: string | null
@@ -37,6 +42,108 @@ export type AkCloudPedido = {
   convertido_at?: string | null
   created_at?: string | null
   updated_at?: string | null
+}
+
+
+export type AkCloudVersion = {
+  id: string
+  pedido_id: string
+  numero_version: number
+  nombre_archivo: string
+  bucket: string
+  path: string
+  size_bytes?: number | null
+  nota_cliente?: string | null
+  nota_interna?: string | null
+  es_final?: boolean | null
+  estado?: string | null
+  created_by?: string | null
+  created_at?: string | null
+}
+
+export async function getVersionesAkCloud(pedidoId: string): Promise<AkCloudVersion[]> {
+  const { data, error } = await supabase
+    .from('file_service_versiones')
+    .select('*')
+    .eq('pedido_id', pedidoId)
+    .order('numero_version', { ascending: false })
+  if (error) {
+    console.warn('No se pudieron cargar versiones AK Cloud:', error.message)
+    return []
+  }
+  return (data || []) as AkCloudVersion[]
+}
+
+export async function subirVersionAkCloud(
+  pedido: AkCloudPedido,
+  file: File,
+  payload: { notaCliente?: string; notaInterna?: string } = {},
+) {
+  const existentes = await getVersionesAkCloud(pedido.id)
+  const numero = Math.max(0, ...existentes.map((v) => Number(v.numero_version || 0))) + 1
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+  const base = pedido.numero || pedido.id
+  const path = `versiones/${base}/v${numero}-${Date.now()}-${safeName}`
+  const bucket = 'file-service'
+
+  const { error: uploadError } = await supabase.storage.from(bucket).upload(path, file, { upsert: false })
+  if (uploadError) throw new Error(uploadError.message)
+
+  const { data, error } = await supabase
+    .from('file_service_versiones')
+    .insert({
+      pedido_id: pedido.id,
+      numero_version: numero,
+      nombre_archivo: file.name,
+      bucket,
+      path,
+      size_bytes: file.size,
+      nota_cliente: payload.notaCliente || null,
+      nota_interna: payload.notaInterna || null,
+      estado: 'disponible_prueba',
+      created_by: 'Autokeys Core',
+    })
+    .select('*')
+    .single()
+  if (error) throw new Error(error.message)
+
+  await updateAkCloudPedido(pedido.id, {
+    estado: 'esperando_prueba',
+    mod_bucket: bucket,
+    mod_path: path,
+    mod_nombre: file.name,
+  })
+  await crearMensajeAkCloud({
+    pedidoId: pedido.id, userId: pedido.user_id || null, autorNombre: 'Autokeys Core', autorTipo: 'admin',
+    mensaje: `Versión V${numero} disponible para probar: ${file.name}${payload.notaCliente ? `\n${payload.notaCliente}` : ''}`,
+  })
+  await crearNotificacionAkCloud({
+    userId: pedido.user_id || null, pedidoId: pedido.id, titulo: `Nueva versión V${numero} disponible`,
+    mensaje: 'El pedido sigue abierto hasta que el laboratorio lo marque como finalizado.', tipo: 'info',
+  })
+  return data as AkCloudVersion
+}
+
+export async function marcarVersionFinalAkCloud(pedidoId: string, versionId: string) {
+  await supabase.from('file_service_versiones').update({ es_final: false }).eq('pedido_id', pedidoId)
+  const { data, error } = await supabase.from('file_service_versiones').update({ es_final: true, estado: 'final' }).eq('id', versionId).select('*').single()
+  if (error) throw new Error(error.message)
+  await updateAkCloudPedido(pedidoId, { version_final_id: versionId })
+  return data as AkCloudVersion
+}
+
+export async function finalizarPedidoAkCloud(pedido: AkCloudPedido, versionId?: string | null) {
+  if (versionId) await marcarVersionFinalAkCloud(pedido.id, versionId)
+  const updated = await updateAkCloudPedido(pedido.id, { estado: 'finalizado', finalizado_at: new Date().toISOString() })
+  await crearMensajeAkCloud({ pedidoId: pedido.id, userId: pedido.user_id || null, autorNombre: 'Autokeys Core', autorTipo: 'admin', mensaje: 'Pedido marcado como finalizado por el laboratorio.' })
+  await crearNotificacionAkCloud({ userId: pedido.user_id || null, pedidoId: pedido.id, titulo: 'Pedido finalizado', mensaje: `${pedido.numero || 'Tu pedido'} ha sido finalizado por Autokeys.`, tipo: 'success' })
+  return updated
+}
+
+export async function reabrirPedidoAkCloud(pedido: AkCloudPedido) {
+  const updated = await updateAkCloudPedido(pedido.id, { estado: 'en_proceso', finalizado_at: null })
+  await crearMensajeAkCloud({ pedidoId: pedido.id, userId: pedido.user_id || null, autorNombre: 'Autokeys Core', autorTipo: 'admin', mensaje: 'El laboratorio ha reabierto el pedido.' })
+  return updated
 }
 
 export type AkCloudMensaje = {
@@ -82,6 +189,8 @@ export function akCloudEstadoClass(estado?: string | null) {
     case 'pendiente':
       return 'border-amber-500/30 bg-amber-500/10 text-amber-300'
     case 'en_proceso':
+    case 'esperando_prueba':
+    case 'revision_solicitada':
       return 'border-blue-500/30 bg-blue-500/10 text-blue-300'
     case 'finalizado':
       return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
@@ -174,50 +283,12 @@ export async function getSignedFileUrl(bucket?: string | null, path?: string | n
 }
 
 export async function subirModAkCloud(pedido: AkCloudPedido, file: File) {
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
-  const base = pedido.numero || pedido.id
-  const path = `mod/${base}/${Date.now()}-${safeName}`
-  const bucket = 'file-service'
-
-  const { error: uploadError } = await supabase.storage
-    .from(bucket)
-    .upload(path, file, { upsert: true })
-
-  if (uploadError) throw new Error(uploadError.message)
-
-  const updated = await updateAkCloudPedido(pedido.id, {
-    estado: 'finalizado',
-    mod_bucket: bucket,
-    mod_path: path,
-    mod_nombre: file.name,
+  // Compatibilidad con llamadas antiguas: una subida nunca cierra el pedido.
+  // Se registra como una nueva versión y queda esperando la prueba del cliente.
+  return subirVersionAkCloud(pedido, file, {
+    notaCliente: 'Nueva versión disponible para probar.',
+    notaInterna: 'Subida mediante el flujo compatible de archivo MOD.',
   })
-
-  await crearMensajeAkCloud({
-    pedidoId: pedido.id,
-    userId: pedido.user_id || null,
-    autorNombre: 'Autokeys Core',
-    autorTipo: 'admin',
-    mensaje: `Archivo MOD listo para descargar: ${file.name}`,
-  })
-
-  await crearNotificacionAkCloud({
-    userId: pedido.user_id || null,
-    pedidoId: pedido.id,
-    titulo: 'Archivo MOD listo',
-    mensaje: `${pedido.numero || 'Tu pedido'} ya está finalizado y disponible para descargar.`,
-    tipo: 'success',
-  })
-
-  if (pedido.core_expediente_id) {
-    await supabase.from('expediente_historial').insert({
-      expediente_id: pedido.core_expediente_id,
-      evento: 'MOD subido desde AK Cloud',
-      descripcion: `Archivo finalizado: ${file.name}`,
-      usuario: 'Autokeys Core',
-    })
-  }
-
-  return updated
 }
 
 export async function getMensajesAkCloud(pedidoId: string): Promise<AkCloudMensaje[]> {
