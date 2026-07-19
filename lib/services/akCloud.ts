@@ -23,6 +23,7 @@ export type AkCloudPedido = {
   ori_bucket?: string | null
   ori_path?: string | null
   ori_size?: number | null
+  ori_sha256?: string | null
   mod_nombre?: string | null
   mod_bucket?: string | null
   mod_path?: string | null
