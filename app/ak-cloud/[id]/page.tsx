@@ -73,6 +73,9 @@ export default function AkCloudPedidoPage() {
   const [notaInternaVersion, setNotaInternaVersion] = useState('')
   const [precioFinal, setPrecioFinal] = useState('')
   const [precioMotivo, setPrecioMotivo] = useState('')
+  const [ecuConfirm, setEcuConfirm] = useState('')
+  const [hwConfirm, setHwConfirm] = useState('')
+  const [swConfirm, setSwConfirm] = useState('')
 
   async function load() {
     if (!id) return
@@ -85,6 +88,9 @@ export default function AkCloudPedidoPage() {
       setEstado(row?.estado || 'pendiente')
       setPrecioFinal(String(row?.precio_final ?? row?.precio ?? ''))
       setPrecioMotivo(row?.precio_motivo || '')
+      setEcuConfirm(row?.ecu || '')
+      setHwConfirm(row?.hw || '')
+      setSwConfirm(row?.sw || '')
       if (row?.id) {
         setMensajes(await getMensajesAkCloud(row.id))
         setVersiones(await getVersionesAkCloud(row.id))
@@ -161,6 +167,59 @@ export default function AkCloudPedidoPage() {
       if (url) window.open(url, '_blank')
     } catch (error: any) {
       toast.error(error?.message || 'No se pudo abrir el archivo')
+    }
+  }
+
+  async function confirmarEcu() {
+    if (!pedido) return
+    if (!pedido.ori_bucket || !pedido.ori_path) {
+      toast.error('Este pedido no tiene archivo ORI para calcular su huella')
+      return
+    }
+    if (!ecuConfirm.trim()) {
+      toast.error('Escribe la ECU real antes de confirmar')
+      return
+    }
+    setWorking('confirm-ecu')
+    try {
+      // Si el pedido ya nació con su huella (subido después de este cambio),
+      // no hace falta descargar el archivo entero otra vez.
+      let sha256 = pedido.ori_sha256 || ''
+      let fileSize = pedido.ori_size || 0
+      if (!sha256) {
+        const url = await getSignedFileUrl(pedido.ori_bucket, pedido.ori_path)
+        if (!url) throw new Error('No se pudo obtener el archivo ORI')
+        const response = await fetch(url)
+        const buffer = await response.arrayBuffer()
+        const hashBuffer = await crypto.subtle.digest('SHA-256', buffer)
+        sha256 = Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, '0')).join('')
+        fileSize = buffer.byteLength
+      }
+
+      const res = await fetch('/api/ak-cloud/ecu-confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sha256,
+          pedido_id: pedido.id,
+          ecu: ecuConfirm.trim(),
+          hw: hwConfirm.trim() || null,
+          sw: swConfirm.trim() || null,
+          file_size: fileSize,
+          vehiculo: [pedido.marca, pedido.modelo].filter(Boolean).join(' ') || null,
+          marca: pedido.marca || null,
+          modelo: pedido.modelo || null,
+          motor: pedido.motor || null,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'No se pudo confirmar')
+
+      toast.success(data.signature_updated ? 'ECU confirmada — detector actualizado' : 'ECU confirmada (guarda HW y SW para que la firma cuente para el detector)')
+    } catch (error: any) {
+      toast.error(error?.message || 'No se pudo confirmar la ECU')
+    } finally {
+      setWorking(null)
     }
   }
 
@@ -322,6 +381,41 @@ export default function AkCloudPedidoPage() {
                 <Info label="SW" value={pedido.sw || '—'} />
                 <Info label="Cambio" value={pedido.cambio || '—'} />
               </div>
+
+              <div className="mt-4 rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+                <div className="flex items-center gap-2 font-black text-emerald-200">
+                  <ShieldCheck size={18} /> Confirmar y enseñar al detector
+                </div>
+                <p className="mt-1 text-xs text-zinc-400">
+                  Cuando confirmes la ECU real de este archivo, el detector la recuerda para identificar
+                  automáticamente los próximos archivos idénticos o con la misma HW + SW. Revisa los datos
+                  antes de confirmar — lo que pongas aquí es lo que aprende.
+                </p>
+                <div className="mt-4 grid gap-3 md:grid-cols-3">
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-bold text-zinc-400">ECU real</span>
+                    <input value={ecuConfirm} onChange={(e) => setEcuConfirm(e.target.value)} placeholder="Ej: Bosch EDC17C64" className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm outline-none" />
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-bold text-zinc-400">HW</span>
+                    <input value={hwConfirm} onChange={(e) => setHwConfirm(e.target.value)} className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm outline-none" />
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-bold text-zinc-400">SW</span>
+                    <input value={swConfirm} onChange={(e) => setSwConfirm(e.target.value)} className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm outline-none" />
+                  </label>
+                </div>
+                <button
+                  onClick={confirmarEcu}
+                  disabled={working === 'confirm-ecu' || !pedido.ori_bucket || !pedido.ori_path}
+                  className="btn btn-red mt-4 inline-flex w-full items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {working === 'confirm-ecu' ? <Loader2 className="animate-spin" size={17} /> : <ShieldCheck size={17} />}
+                  Confirmar identificación y enseñar
+                </button>
+                {!pedido.ori_bucket && <p className="mt-2 text-center text-xs text-amber-400">No hay archivo ORI en este pedido — no se puede calcular su huella.</p>}
+              </div>
+
               <div className="mt-4 rounded-2xl border border-white/5 bg-black/20 p-4">
                 <div className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">Servicios</div>
                 <div className="mt-2 text-xl font-black text-red-200">{formatServicios(pedido.servicios)}</div>
