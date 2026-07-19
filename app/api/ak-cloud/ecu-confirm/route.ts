@@ -26,7 +26,7 @@ function normalize(value: unknown) {
 // hasta alcanzar el mínimo de confirmaciones definido en el detector.
 export async function POST(request: Request) {
   try {
-    const { usuario } = await requireStaff()
+    const { user, usuario } = await requireStaff()
     const body = await request.json()
     const sha256 = String(body.sha256 || '').toLowerCase()
     const ecu = String(body.ecu || '').trim()
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
         sw: body.sw || null,
         file_size: fileSize || null,
         pedido_id: body.pedido_id || null,
-        confirmado_por: usuario.id,
+        confirmado_por: user.id,
         updated_at: now,
       },
       { onConflict: 'sha256' }
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
             modelo: body.modelo || null,
             motor: body.motor || null,
             updated_at: now,
-            ultima_confirmacion_por: usuario.id,
+            ultima_confirmacion_por: user.id,
           })
           .eq('id', existing.id)
         if (error) throw error
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
           motor: body.motor || null,
           confirmaciones: 1,
           activo: true,
-          ultima_confirmacion_por: usuario.id,
+          ultima_confirmacion_por: user.id,
         })
         if (error && error.code !== '42P01') throw error
       }
