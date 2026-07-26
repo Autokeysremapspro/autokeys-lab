@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -28,6 +28,7 @@ import {
   Globe2,
   FolderTree,
   ChevronDown,
+  ChevronRight,
   CalendarDays,
   History,
   Bell,
@@ -149,11 +150,25 @@ function isActive(pathname: string, href: string, label: string) {
   return pathname.startsWith(`${href}/`) && activeLabels.includes(label)
 }
 
+// Deriva el título y el grupo de la página actual a partir de la ruta —
+// así la cabecera dice de verdad dónde estás, en vez de mostrar siempre
+// "Autokeys Core" sin importar la pantalla.
+function currentPage(pathname: string) {
+  for (const group of groups) {
+    const item = group.items.find((i) => isActive(pathname, i.href, i.label))
+    if (item) return { title: item.label, group: group.title }
+  }
+  return { title: 'Autokeys Core', group: 'Centro de operaciones' }
+}
+
+const COLLAPSE_KEY = 'ak-core-nav-collapsed'
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const [checkingSession, setCheckingSession] = useState(true)
   const [authorized, setAuthorized] = useState(false)
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     let alive = true
@@ -197,6 +212,27 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     }
   }, [pathname, router])
 
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(COLLAPSE_KEY)
+      if (stored) setCollapsed(JSON.parse(stored))
+    } catch {
+      // localStorage puede fallar en modo privado — no pasa nada, se queda todo expandido.
+    }
+  }, [])
+
+  function toggleGroup(title: string) {
+    setCollapsed((current) => {
+      const next = { ...current, [title]: !current[title] }
+      try {
+        window.localStorage.setItem(COLLAPSE_KEY, JSON.stringify(next))
+      } catch {
+        // ver arriba
+      }
+      return next
+    })
+  }
+
   async function logout() {
     await supabase.auth.signOut()
     router.push('/login')
@@ -204,10 +240,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   if (checkingSession || !authorized) {
     return (
-      <main className="min-h-screen grid place-items-center bg-[#111827] text-zinc-100 p-6">
+      <main className="min-h-screen grid place-items-center bg-[#0a0d12] text-zinc-100 p-6">
         <div className="card max-w-md w-full p-8 text-center">
-          <div className="text-3xl font-black tracking-tight">
-            AUTOKEYS <span className="text-red-500">CORE</span>
+          <div className="font-display text-3xl font-bold tracking-tight">
+            AUTOKEYS <span className="text-[#ffb870]">CORE</span>
           </div>
           <p className="text-zinc-500 mt-3">Comprobando sesión segura...</p>
         </div>
@@ -215,51 +251,63 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     )
   }
 
-  return (
-    <div className="min-h-screen flex bg-[#111827] text-zinc-100">
-      <aside className="w-80 bg-[#0B1220] border-r border-white/10 p-5 hidden lg:flex flex-col">
-        <div className="mb-6">
-          <div className="text-2xl font-black tracking-tight">
-            AUTOKEYS <span className="text-red-500">CORE</span>
-          </div>
-          <div className="text-xs text-zinc-500 mt-1">Laboratory Management System</div>
-        </div>
+  const page = currentPage(pathname || '/')
 
-        <Link href="/expedientes/nueva" className="btn btn-red mb-5 flex items-center justify-center gap-2 shadow-lg shadow-red-950/40">
+  return (
+    <div className="min-h-screen flex bg-[#0a0d12] text-zinc-100">
+      <aside className="w-80 bg-[#0c0f16] border-r border-white/10 p-5 hidden lg:flex flex-col">
+        <Link href="/" className="mb-4 block">
+          <div className="font-display text-2xl font-bold tracking-tight">
+            AUTOKEYS <span className="text-[#ffb870]">CORE</span>
+          </div>
+          <div className="ak-mono text-[10px] text-zinc-500 mt-1 uppercase tracking-[.14em]">Laboratory Management System</div>
+        </Link>
+        <div className="ak-pinrow mb-5" style={{ ['--ak-pin-pos' as any]: '20%' }} />
+
+        <Link href="/expedientes/nueva" className="btn btn-red mb-5 flex items-center justify-center gap-2 shadow-lg shadow-black/40">
           <PlusCircle size={18} /> Nueva OT
         </Link>
 
-        <nav className="space-y-5 flex-1 overflow-auto pr-1">
-          {groups.map((group) => (
-            <section key={group.title}>
-              <div className="flex items-center justify-between px-3 mb-2 text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">
-                <span>{group.title}</span>
-                <ChevronDown size={13} />
-              </div>
+        <nav className="space-y-4 flex-1 overflow-auto pr-1">
+          {groups.map((group) => {
+            const isCollapsed = Boolean(collapsed[group.title])
+            return (
+              <section key={group.title}>
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(group.title)}
+                  className="w-full flex items-center justify-between px-3 mb-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-600 hover:text-zinc-400"
+                >
+                  <span>{group.title}</span>
+                  <ChevronDown size={13} className={`transition-transform ${isCollapsed ? '-rotate-90' : ''}`} />
+                </button>
 
-              <div className="space-y-1">
-                {group.items.map((item) => {
-                  const Icon = item.icon
-                  const active = isActive(pathname, item.href, item.label)
+                {!isCollapsed && (
+                  <div className="space-y-1">
+                    {group.items.map((item) => {
+                      const Icon = item.icon
+                      const active = isActive(pathname || '', item.href, item.label)
 
-                  return (
-                    <Link
-                      key={`${group.title}-${item.href}-${item.label}`}
-                      href={item.href}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition ${
-                        active
-                          ? 'bg-red-600 text-white shadow-lg shadow-red-950/40'
-                          : 'hover:bg-white/5 text-zinc-300'
-                      }`}
-                    >
-                      <Icon size={18} />
-                      <span className="font-semibold">{item.label}</span>
-                    </Link>
-                  )
-                })}
-              </div>
-            </section>
-          ))}
+                      return (
+                        <Link
+                          key={`${group.title}-${item.href}-${item.label}`}
+                          href={item.href}
+                          className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition ${
+                            active
+                              ? 'bg-gradient-to-r from-[#8a4a1f] to-[#e2954d] text-[#0a0d12] shadow-lg shadow-black/40'
+                              : 'hover:bg-white/5 text-zinc-300'
+                          }`}
+                        >
+                          <Icon size={18} />
+                          <span className="font-semibold">{item.label}</span>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
+              </section>
+            )
+          })}
         </nav>
 
         <button onClick={logout} className="mt-6 flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-white/5 text-zinc-400 w-full">
@@ -270,9 +318,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <main className="flex-1 p-4 lg:p-8 max-w-[1700px] mx-auto w-full">
         <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-8 gap-4">
           <div>
-            <p className="text-sm text-red-400 font-bold uppercase tracking-[0.2em]">Centro de operaciones</p>
-            <h1 className="text-3xl lg:text-5xl font-black mt-1">Autokeys Core</h1>
-            <p className="text-zinc-500 mt-2">ERP · LMS · File Service · Gestión técnica del laboratorio</p>
+            <p className="ak-mono text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em] flex items-center gap-1.5">
+              {page.group}
+              {page.title !== page.group && <ChevronRight size={14} className="text-zinc-600" />}
+            </p>
+            <h1 className="font-display text-3xl lg:text-5xl font-bold mt-1">{page.title}</h1>
           </div>
 
           <div className="flex items-center gap-3">

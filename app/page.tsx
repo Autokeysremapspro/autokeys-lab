@@ -53,10 +53,10 @@ export default function Dashboard() {
 
   return (
     <AppShell>
-      <div className="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 card p-5 border-red-900/30">
+      <div className="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 card p-5 border-[#e2954d]/25">
         <div>
-          <p className="text-sm text-red-300 font-black uppercase tracking-[0.18em]">Autokeys Core v1.2</p>
-          <h2 className="text-2xl font-black mt-1">Panel conectado a datos reales</h2>
+          <p className="ak-mono text-sm text-[#ffb870] font-bold uppercase tracking-[0.18em]">Autokeys Core v1.2</p>
+          <h2 className="text-2xl font-bold mt-1">Panel conectado a datos reales</h2>
           <p className="text-zinc-500 mt-1">Clientes, vehículos, OT, facturación, stock y File Service desde Supabase.</p>
         </div>
         <button onClick={load} disabled={loading} className="btn btn-dark flex items-center justify-center gap-2">
@@ -71,7 +71,7 @@ export default function Dashboard() {
       )}
 
       <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
-        <StatCard title="OT abiertas" value={stats.otAbiertas} subtitle="Trabajos activos" icon={<ClipboardList size={20} />} tone="red" />
+        <StatCard title="OT abiertas" value={stats.otAbiertas} subtitle="Trabajos activos" icon={<ClipboardList size={20} />} tone="copper" />
         <StatCard title="Terminadas hoy" value={stats.terminadasHoy} subtitle="Listas para entrega" icon={<Car size={20} />} tone="green" />
         <StatCard title="Facturación hoy" value={money(stats.facturacionHoy)} subtitle={`Mes: ${money(stats.facturacionMes)}`} icon={<Euro size={20} />} tone="blue" />
         <StatCard title="File Service" value={stats.fileServiceActivos} subtitle="Archivos activos" icon={<UploadCloud size={20} />} tone="amber" />
@@ -85,12 +85,12 @@ export default function Dashboard() {
         <div className="xl:col-span-2 card p-5">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-xl font-black">Últimos expedientes</h2>
+              <h2 className="text-xl font-bold">Últimos expedientes</h2>
               <p className="text-sm text-zinc-500">Actividad reciente del laboratorio</p>
             </div>
           </div>
           <DataTable columns={['OT', 'Cliente', 'Vehículo', 'Trabajo', 'Estado', 'Importe']} rows={overview.ultimosExpedientes.map((o: any) => [
-            <a href={`/expedientes/${o.id}`} className="font-black hover:text-red-400">{o.numero_ot}</a>,
+            <a href={`/expedientes/${o.id}`} className="font-bold hover:text-[#ffb870]">{o.numero_ot}</a>,
             o.cliente?.nombre || '-',
             `${o.vehiculo?.marca || ''} ${o.vehiculo?.modelo || ''} ${o.vehiculo?.matricula || ''}`.trim() || '-',
             o.tipo_trabajo,
@@ -102,7 +102,7 @@ export default function Dashboard() {
 
         <div className="space-y-6">
           <div className="card p-5">
-            <h2 className="text-xl font-black">Acciones rápidas</h2>
+            <h2 className="text-xl font-bold">Acciones rápidas</h2>
             <p className="text-sm text-zinc-500 mb-4">Crear trabajo, cliente o material</p>
             <div className="space-y-3">
               <QuickAction href="/expedientes/nueva" icon={<PlusCircle size={19} />} title="Nueva OT" description="Crear expediente de trabajo" />
@@ -113,9 +113,9 @@ export default function Dashboard() {
           </div>
 
           <div className="card p-5">
-            <h2 className="text-xl font-black mb-4">Actividad de OT</h2>
+            <h2 className="text-xl font-bold mb-4">Actividad de OT</h2>
             <div className="h-40 flex items-end gap-2">
-              {overview.actividad.map((h, i) => <div key={i} className="flex-1 rounded-t-xl bg-gradient-to-t from-red-900 to-red-500/80 transition-all" style={{ height: `${h}%` }} />)}
+              {overview.actividad.map((h, i) => <div key={i} className="flex-1 rounded-t-xl bg-gradient-to-t from-[#8a4a1f] to-[#e2954d]/80 transition-all" style={{ height: `${h}%` }} />)}
             </div>
             <p className="text-xs text-zinc-500 mt-3">Últimos 12 días según expedientes creados.</p>
           </div>
