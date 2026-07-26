@@ -78,7 +78,7 @@ type PlanServicio = {
 const emptyServicio: Servicio = {
   nombre: '',
   slug: '',
-  categoria: 'reprogramacion',
+  categoria: 'coches',
   descripcion: '',
   precio: 0,
   creditos: 0,
@@ -120,14 +120,11 @@ const emptyNovedad: Novedad = {
 }
 
 const CATEGORIA_LABELS: Record<string, string> = {
-  reprogramacion: 'Reprogramación',
-  anticontaminacion: 'Anticontaminación',
-  opciones: 'Opciones',
-  electronica: 'Electrónica',
+  coches: 'Coches',
+  motos: 'Motos',
   agricola: 'Agrícola',
   camion: 'Camión',
-  dsg: 'DSG',
-  otros: 'Otros',
+  especiales: 'Servicios especiales',
 }
 
 function slugify(value: string) {
@@ -359,7 +356,7 @@ export default function AkCloudAdminPage() {
         <div>
           <div className="mb-2 inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-black uppercase tracking-[0.22em] text-red-300">AK Cloud Admin</div>
           <h1 className="text-3xl font-black tracking-tight">Centro de control AK Cloud</h1>
-          <p className="mt-1 text-zinc-500">Configura desde Core lo que verán los distribuidores en el portal: soluciones, precios, planes, pagos y branding.</p>
+          <p className="mt-1 text-zinc-500">Configura desde Core lo que verán los distribuidores en el portal: catálogo y precio por archivo, métodos de pago, novedades y branding.</p>
         </div>
         <button onClick={loadAll} className="btn btn-dark">Actualizar</button>
       </div>
@@ -374,12 +371,12 @@ export default function AkCloudAdminPage() {
 
       <div className="mb-6 flex flex-wrap gap-2">
         {[
-          ['servicios', 'Soluciones / Servicios'],
-          ['planes', 'Planes'],
-          ['plan-servicios', 'Servicios por plan'],
+          ['servicios', 'Catálogo / Precios por archivo'],
           ['pagos', 'Métodos de pago'],
           ['novedades', 'Novedades'],
           ['branding', 'Branding'],
+          ['planes', 'Planes (histórico, descontinuado)'],
+          ['plan-servicios', 'Servicios por plan (histórico)'],
         ].map(([key, label]) => (
           <button key={key} onClick={() => setTab(key as any)} className={`btn ${tab === key ? 'btn-red' : 'btn-dark'}`}>{label}</button>
         ))}

@@ -23,14 +23,12 @@ import {
   CreditCard,
   DownloadCloud,
   ExternalLink,
-  Layers,
   RefreshCw,
   Search,
   Settings,
   ShieldCheck,
   Sparkles,
   UploadCloud,
-  Users,
 } from 'lucide-react'
 
 const estados = ['todos', 'pendiente', 'en_proceso', 'finalizado', 'cancelado']
@@ -110,7 +108,7 @@ export default function AkCloudPage() {
               </div>
               <h1 className="text-4xl font-black tracking-tight lg:text-6xl">Centro AK Cloud</h1>
               <p className="mt-3 max-w-3xl text-zinc-400">
-                Gestión interna de pedidos, créditos y sincronización con Autokeys Core. Los distribuidores trabajan en AK Cloud; tú lo controlas desde aquí.
+                Gestión interna de pedidos, pagos y sincronización con Autokeys Core. Los distribuidores trabajan en AK Cloud; tú lo controlas desde aquí.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -130,20 +128,6 @@ export default function AkCloudPage() {
             <div>
               <p className="font-black">Solicitudes</p>
               <p className="text-xs text-zinc-500">Aprobar distribuidores</p>
-            </div>
-          </Link>
-          <Link href="/ak-cloud/planes" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">
-            <Layers className="text-red-400" size={22} />
-            <div>
-              <p className="font-black">Planes AK</p>
-              <p className="text-xs text-zinc-500">Crear planes y precios</p>
-            </div>
-          </Link>
-          <Link href="/ak-cloud/distribuidores" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">
-            <Users className="text-red-400" size={22} />
-            <div>
-              <p className="font-black">Renovaciones</p>
-              <p className="text-xs text-zinc-500">Confirmar planes caducados</p>
             </div>
           </Link>
           <Link href="/ak-cloud/produccion" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">
@@ -170,8 +154,8 @@ export default function AkCloudPage() {
           <Link href="/ak-cloud/admin" className="card flex items-center gap-3 p-4 transition hover:border-red-400/30">
             <Settings className="text-red-400" size={22} />
             <div>
-              <p className="font-black">Planes y servicios</p>
-              <p className="text-xs text-zinc-500">Precios, catálogo, branding</p>
+              <p className="font-black">Catálogo y precios</p>
+              <p className="text-xs text-zinc-500">Categorías, precio por archivo, branding</p>
             </div>
           </Link>
         </section>

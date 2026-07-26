@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import AppShell from '@/components/AppShell'
-import CustomSelect from '@/components/ak/CustomSelect'
 import { ArrowLeft, Building2, CheckCircle2, Clock3, RefreshCw, ShieldCheck, XCircle } from 'lucide-react'
 
 type Solicitud = {
@@ -22,8 +21,6 @@ type Solicitud = {
   created_at: string
 }
 
-type Plan = { id: string; nombre: string; slug: string; creditos_mes?: number }
-
 function estadoClass(estado?: string) {
   switch (estado) {
     case 'aprobada': return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
@@ -40,11 +37,9 @@ function formatDate(date?: string) {
 
 export default function AkCloudSolicitudesPage() {
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([])
-  const [planes, setPlanes] = useState<Plan[]>([])
   const [loading, setLoading] = useState(true)
   const [estado, setEstado] = useState('pendiente')
   const [working, setWorking] = useState<string | null>(null)
-  const [planPorSolicitud, setPlanPorSolicitud] = useState<Record<string, string>>({})
 
   async function load() {
     setLoading(true)
@@ -53,7 +48,6 @@ export default function AkCloudSolicitudesPage() {
       const payload = await res.json()
       if (!res.ok) throw new Error(payload.error)
       setSolicitudes(payload.solicitudes || [])
-      setPlanes(payload.planes || [])
     } catch (error: any) {
       toast.error(error?.message || 'No se pudieron cargar las solicitudes')
     } finally {
@@ -71,19 +65,16 @@ export default function AkCloudSolicitudesPage() {
   )
 
   async function aprobar(solicitud: Solicitud) {
-    const planId = planPorSolicitud[solicitud.id] || planes[0]?.id
-    if (!planId) return toast.error('No hay ningún plan creado todavía — ve a "Planes AK" y crea al menos uno.')
     setWorking(solicitud.id)
     try {
       const res = await fetch('/api/ak-cloud/distribuidores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: solicitud.id, action: 'aprobar', plan_id: planId }),
+        body: JSON.stringify({ id: solicitud.id, action: 'aprobar', plan_id: null }),
       })
       const payload = await res.json()
       if (!res.ok) throw new Error(payload.error)
-      const nombrePlan = planes.find((p) => p.id === planId)?.nombre || 'plan'
-      toast.success(`${solicitud.empresa} aprobado como distribuidor · ${nombrePlan}`)
+      toast.success(`${solicitud.empresa} aprobado como distribuidor · pago por archivo`)
       await load()
     } catch (error: any) {
       toast.error(error?.message || 'No se pudo aprobar')
@@ -184,13 +175,6 @@ export default function AkCloudSolicitudesPage() {
                   </div>
                   {(s.estado || 'pendiente') === 'pendiente' && (
                     <div className="flex shrink-0 flex-col gap-2">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Plan a asignar</label>
-                      <CustomSelect
-                        className="min-w-[180px]"
-                        value={planPorSolicitud[s.id] || planes[0]?.id || ''}
-                        onChange={(v) => setPlanPorSolicitud((cur) => ({ ...cur, [s.id]: v }))}
-                        options={planes.length === 0 ? [{ value: '', label: 'Sin planes creados' }] : planes.map((p) => ({ value: p.id!, label: p.nombre }))}
-                      />
                       <div className="flex gap-2">
                         <button disabled={working === s.id} onClick={() => aprobar(s)} className="btn btn-red inline-flex items-center gap-2 disabled:opacity-50">
                           <CheckCircle2 size={18} /> Aprobar

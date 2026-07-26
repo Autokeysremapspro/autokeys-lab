@@ -78,8 +78,6 @@ const groups: NavGroup[] = [
     items: [
       { href: '/ak-cloud', label: 'Centro AK Cloud', icon: Cloud },
       { href: '/ak-cloud/solicitudes', label: 'Solicitudes distribuidor', icon: ShieldCheck },
-      { href: '/ak-cloud/distribuidores', label: 'Renovaciones', icon: Users },
-      { href: '/ak-cloud/planes', label: 'Planes AK', icon: Layers },
       { href: '/ak-cloud/produccion', label: 'Producción', icon: UploadCloud },
       { href: '/ak-cloud/soporte', label: 'Soporte', icon: Bell },
       { href: '/ak-cloud/facturacion', label: 'Facturación AK Cloud', icon: FileText },
@@ -92,6 +90,8 @@ const groups: NavGroup[] = [
     items: [
       { href: '/file-service', label: 'File Service (histórico pre-AK Cloud)', icon: UploadCloud },
       { href: '/ak-cloud/recargas', label: 'Recargas (histórico, sistema de créditos descontinuado)', icon: CreditCard },
+      { href: '/ak-cloud/planes', label: 'Planes AK (histórico, se cobra por archivo)', icon: Layers },
+      { href: '/ak-cloud/distribuidores', label: 'Renovaciones (histórico, ya no hay planes)', icon: Users },
     ],
   },
   {
