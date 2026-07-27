@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import UniversalSearch from '@/components/UniversalSearch'
 import NotificationCenter from '@/components/NotificationCenter'
+import ChatInterno from '@/components/ChatInterno'
 import {
   LayoutDashboard,
   Users,
@@ -333,6 +334,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         {children}
       </main>
+      <ChatInterno />
     </div>
   )
 }
