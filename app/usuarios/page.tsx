@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import AppShell from '@/components/AppShell'
+import ConfirmModal from '@/components/ConfirmModal'
 import FormModal from '@/components/FormModal'
 import { UsuariosService, type UsuarioApp, type UsuarioRol } from '@/lib/services/usuarios'
 import toast from 'react-hot-toast'
@@ -26,7 +27,7 @@ const emptyForm = {
 
 function roleBadge(rol: string) {
   const base = 'badge '
-  if (rol === 'admin') return base + 'bg-red-600/20 text-red-300 border border-red-500/30'
+  if (rol === 'admin') return base + 'bg-[#e2954d]/20 text-[#ffb870] border border-[#e2954d]/30'
   if (rol === 'laboratorio') return base + 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
   if (rol === 'administracion') return base + 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30'
   return base + 'bg-purple-600/20 text-purple-300 border border-purple-500/30'
@@ -142,14 +143,25 @@ export default function UsuariosPage() {
     }
   }
 
-  async function remove(user: UsuarioApp) {
-    if (!confirm(`¿Eliminar el usuario ${user.nombre}? También se intentará eliminar su acceso de Supabase Auth.`)) return
+  const [pendingDelete, setPendingDelete] = useState<UsuarioApp | null>(null)
+  const [deletingUser, setDeletingUser] = useState(false)
+
+  function remove(user: UsuarioApp) {
+    setPendingDelete(user)
+  }
+
+  async function confirmRemove() {
+    if (!pendingDelete) return
+    setDeletingUser(true)
     try {
-      await UsuariosService.remove(user.id)
+      await UsuariosService.remove(pendingDelete.id)
       toast.success('Usuario eliminado')
+      setPendingDelete(null)
       await load()
     } catch (error: any) {
       toast.error(error.message || 'No se pudo eliminar')
+    } finally {
+      setDeletingUser(false)
     }
   }
 
@@ -157,8 +169,8 @@ export default function UsuariosPage() {
     <AppShell>
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
         <div>
-          <p className="text-sm text-red-400 font-bold uppercase tracking-[0.2em]">Seguridad y acceso</p>
-          <h2 className="text-3xl font-black mt-1">Usuarios</h2>
+          <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Seguridad y acceso</p>
+          <h2 className="text-3xl font-bold mt-1">Usuarios</h2>
           <p className="text-zinc-500 mt-2">Crea usuarios, asigna roles y define la contraseña inicial de acceso.</p>
         </div>
         <button onClick={newUser} className="btn btn-red flex items-center gap-2 justify-center">
@@ -173,10 +185,10 @@ export default function UsuariosPage() {
           return (
             <div key={r.value} className="card p-5">
               <div className="flex items-center justify-between">
-                <Icon size={22} className="text-red-400" />
-                <span className="text-2xl font-black">{count}</span>
+                <Icon size={22} className="text-[#ffb870]" />
+                <span className="text-2xl font-bold">{count}</span>
               </div>
-              <div className="font-black mt-4">{r.label}</div>
+              <div className="font-bold mt-4">{r.label}</div>
               <div className="text-sm text-zinc-500 mt-1">{r.desc}</div>
             </div>
           )
@@ -187,7 +199,7 @@ export default function UsuariosPage() {
         <div className="flex gap-3">
           <ShieldCheck className="text-emerald-300 shrink-0" />
           <div>
-            <div className="font-black text-emerald-100">Acceso con Supabase Auth</div>
+            <div className="font-bold text-emerald-100">Acceso con Supabase Auth</div>
             <p className="text-sm text-zinc-400 mt-1">
               Al crear un usuario se genera también su cuenta de acceso con email y contraseña. Para que funcione, añade en Vercel la variable <b>SUPABASE_SERVICE_ROLE_KEY</b> con la Secret Key de Supabase.
             </p>
@@ -198,8 +210,8 @@ export default function UsuariosPage() {
       <div className="card p-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-3">
-            <Users className="text-red-400" />
-            <h3 className="text-xl font-black">Usuarios internos</h3>
+            <Users className="text-[#ffb870]" />
+            <h3 className="text-xl font-bold">Usuarios internos</h3>
           </div>
           <input
             value={query}
@@ -264,7 +276,7 @@ export default function UsuariosPage() {
           </select>
           <div className="md:col-span-2 grid md:grid-cols-2 gap-3 rounded-2xl border border-white/10 p-4 bg-black/20">
             <div className="md:col-span-2 flex items-center gap-2 text-sm font-bold text-zinc-300">
-              <KeyRound size={16} className="text-red-400" /> {editing ? (editing.auth_user_id ? 'Cambiar contraseña opcional' : 'Crear acceso Auth con contraseña') : 'Contraseña de acceso'}
+              <KeyRound size={16} className="text-[#ffb870]" /> {editing ? (editing.auth_user_id ? 'Cambiar contraseña opcional' : 'Crear acceso Auth con contraseña') : 'Contraseña de acceso'}
             </div>
             <input
               type="password"
@@ -285,6 +297,16 @@ export default function UsuariosPage() {
           <button disabled={saving} className="btn btn-red md:col-span-2 disabled:opacity-50">{saving ? 'Guardando...' : editing ? 'Guardar cambios' : 'Crear usuario con acceso'}</button>
         </form>
       </FormModal>
+      <ConfirmModal
+        open={Boolean(pendingDelete)}
+        title={`Eliminar a ${pendingDelete?.nombre || 'este usuario'}`}
+        description="También se intentará eliminar su acceso de Supabase Auth. Esta acción no se puede deshacer."
+        confirmLabel="Sí, eliminar"
+        danger
+        loading={deletingUser}
+        onConfirm={confirmRemove}
+        onCancel={() => setPendingDelete(null)}
+      />
     </AppShell>
   )
 }

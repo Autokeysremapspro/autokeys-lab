@@ -10,5 +10,5 @@ export default function AKBadge({ children, tone = 'neutral' }: { children: Reac
     danger: 'border-red-500/25 bg-red-500/10 text-red-300',
     info: 'border-blue-500/25 bg-blue-500/10 text-blue-300',
   }
-  return <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-black ${tones[tone]}`}>{children}</span>
+  return <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${tones[tone]}`}>{children}</span>
 }

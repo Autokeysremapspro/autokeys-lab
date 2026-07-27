@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import ConfirmModal from '@/components/ConfirmModal'
 import {
   AlertTriangle,
   CheckCircle2,
@@ -67,7 +68,7 @@ function statusClass(estado?: string | null) {
   if (estado === 'en_proceso') return 'bg-yellow-500/15 text-yellow-300 border-yellow-500/20'
   if (estado === 'cancelado') return 'bg-zinc-500/15 text-zinc-300 border-zinc-500/20'
   if (estado === 'revision') return 'bg-purple-500/15 text-purple-300 border-purple-500/20'
-  return 'bg-red-500/15 text-red-300 border-red-500/20'
+  return 'bg-[#e2954d]/15 text-[#ffb870] border-[#e2954d]/20'
 }
 
 export default function PortalDistribuidores() {
@@ -164,10 +165,20 @@ export default function PortalDistribuidores() {
     await loadAll()
   }
 
-  async function removeSolicitud(id: string) {
-    if (!confirm('¿Eliminar esta solicitud de File Service?')) return
-    await eliminarSolicitudDistribuidor(id)
-    if (selected?.id === id) setSelected(null)
+  const [pendingDeleteSolicitud, setPendingDeleteSolicitud] = useState<string | null>(null)
+  const [deletingSolicitud, setDeletingSolicitud] = useState(false)
+
+  function removeSolicitud(id: string) {
+    setPendingDeleteSolicitud(id)
+  }
+
+  async function confirmRemoveSolicitud() {
+    if (!pendingDeleteSolicitud) return
+    setDeletingSolicitud(true)
+    await eliminarSolicitudDistribuidor(pendingDeleteSolicitud)
+    if (selected?.id === pendingDeleteSolicitud) setSelected(null)
+    setDeletingSolicitud(false)
+    setPendingDeleteSolicitud(null)
     await loadAll()
   }
 
@@ -207,18 +218,18 @@ export default function PortalDistribuidores() {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">Solicitudes</p><p className="mt-2 text-3xl font-black text-white">{stats.total}</p></div>
-        <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">Pendientes</p><p className="mt-2 text-3xl font-black text-red-300">{stats.pendientes}</p></div>
-        <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">En proceso</p><p className="mt-2 text-3xl font-black text-yellow-300">{stats.proceso}</p></div>
-        <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">Finalizadas</p><p className="mt-2 text-3xl font-black text-emerald-300">{stats.finalizados}</p></div>
-        <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">Pendiente cobro</p><p className="mt-2 text-3xl font-black text-white">{money(stats.pendienteCobro)}</p></div>
+        <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">Solicitudes</p><p className="mt-2 text-3xl font-bold text-white">{stats.total}</p></div>
+        <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">Pendientes</p><p className="mt-2 text-3xl font-bold text-[#ffb870]">{stats.pendientes}</p></div>
+        <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">En proceso</p><p className="mt-2 text-3xl font-bold text-yellow-300">{stats.proceso}</p></div>
+        <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">Finalizadas</p><p className="mt-2 text-3xl font-bold text-emerald-300">{stats.finalizados}</p></div>
+        <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">Pendiente cobro</p><p className="mt-2 text-3xl font-bold text-white">{money(stats.pendienteCobro)}</p></div>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.45fr_0.8fr]">
         <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5 shadow-2xl">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="text-2xl font-black text-white">Solicitudes de distribuidores</h2>
+              <h2 className="text-2xl font-bold text-white">Solicitudes de distribuidores</h2>
               <p className="text-sm text-slate-400">File service asociado a distribuidores y colaboradores.</p>
             </div>
             <button onClick={startCreate} className="btn btn-red flex items-center gap-2"><Plus size={18} /> Nueva solicitud</button>
@@ -233,22 +244,22 @@ export default function PortalDistribuidores() {
             {loading && <div className="rounded-2xl border border-white/10 p-4 text-slate-400">Cargando...</div>}
             {!loading && filtered.length === 0 && <div className="rounded-2xl border border-white/10 p-4 text-slate-400">No hay solicitudes.</div>}
             {filtered.map((s) => (
-              <div key={s.id} className="rounded-3xl border border-white/10 bg-[#0B1220] p-4 transition hover:border-red-500/30">
+              <div key={s.id} className="rounded-3xl border border-white/10 bg-[#0B1220] p-4 transition hover:border-[#e2954d]/30">
                 <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                   <button onClick={() => setSelected(s)} className="text-left">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={`rounded-full border px-3 py-1 text-xs font-black uppercase ${statusClass(s.estado)}`}>{s.estado || 'pendiente'}</span>
+                      <span className={`rounded-full border px-3 py-1 text-xs font-bold uppercase ${statusClass(s.estado)}`}>{s.estado || 'pendiente'}</span>
                       <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-slate-300">{s.prioridad || 'normal'}</span>
-                      {!s.pagado && <span className="rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs font-bold text-red-300">Pendiente cobro</span>}
+                      {!s.pagado && <span className="rounded-full border border-[#e2954d]/20 bg-[#e2954d]/10 px-3 py-1 text-xs font-bold text-[#ffb870]">Pendiente cobro</span>}
                     </div>
-                    <h3 className="mt-3 text-xl font-black text-white">{s.usuarios?.nombre || s.taller || 'Distribuidor sin asignar'}</h3>
+                    <h3 className="mt-3 text-xl font-bold text-white">{s.usuarios?.nombre || s.taller || 'Distribuidor sin asignar'}</h3>
                     <p className="mt-1 text-sm text-slate-400">{[s.marca, s.modelo, s.motor, s.matricula].filter(Boolean).join(' · ') || 'Vehículo sin definir'}</p>
                     <p className="mt-1 text-sm text-slate-500">{[s.ecu, s.hw, s.sw].filter(Boolean).join(' · ') || 'ECU/HW/SW pendiente'}</p>
                   </button>
                   <div className="flex items-center gap-2">
-                    <div className="mr-2 text-right"><p className="text-lg font-black text-white">{money(s.precio)}</p><p className="text-xs text-slate-500">{s.servicio}</p></div>
+                    <div className="mr-2 text-right"><p className="text-lg font-bold text-white">{money(s.precio)}</p><p className="text-xs text-slate-500">{s.servicio}</p></div>
                     <button onClick={() => startEdit(s)} className="rounded-2xl border border-white/10 p-3 text-slate-300 hover:bg-white/5"><Edit3 size={17} /></button>
-                    <button onClick={() => removeSolicitud(s.id)} className="rounded-2xl border border-red-500/20 p-3 text-red-300 hover:bg-red-500/10"><Trash2 size={17} /></button>
+                    <button onClick={() => removeSolicitud(s.id)} className="rounded-2xl border border-red-500/20 p-3 text-red-400 hover:bg-red-500/10"><Trash2 size={17} /></button>
                   </div>
                 </div>
               </div>
@@ -259,19 +270,19 @@ export default function PortalDistribuidores() {
         <div className="space-y-6">
           <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5 shadow-2xl">
             <div className="flex items-center gap-3">
-              <Users className="text-red-400" />
+              <Users className="text-[#ffb870]" />
               <div>
-                <h2 className="text-xl font-black text-white">Distribuidores</h2>
+                <h2 className="text-xl font-bold text-white">Distribuidores</h2>
                 <p className="text-sm text-slate-400">Usuarios con rol distribuidor.</p>
               </div>
             </div>
             <div className="mt-5 space-y-3">
               {distribuidores.length === 0 && <p className="text-sm text-slate-400">Crea usuarios con rol distribuidor en Usuarios.</p>}
               {distribuidores.map((u) => (
-                <button key={u.id} onClick={() => openPerfil(u)} className="w-full rounded-2xl border border-white/10 bg-black/20 p-4 text-left hover:border-red-500/30">
+                <button key={u.id} onClick={() => openPerfil(u)} className="w-full rounded-2xl border border-white/10 bg-black/20 p-4 text-left hover:border-[#e2954d]/30">
                   <div className="flex items-center justify-between gap-3">
-                    <div><p className="font-black text-white">{u.nombre}</p><p className="text-xs text-slate-500">{u.email}</p></div>
-                    {u.activo !== false ? <CheckCircle2 className="text-emerald-400" size={18} /> : <AlertTriangle className="text-red-400" size={18} />}
+                    <div><p className="font-bold text-white">{u.nombre}</p><p className="text-xs text-slate-500">{u.email}</p></div>
+                    {u.activo !== false ? <CheckCircle2 className="text-emerald-400" size={18} /> : <AlertTriangle className="text-[#ffb870]" size={18} />}
                   </div>
                 </button>
               ))}
@@ -280,9 +291,9 @@ export default function PortalDistribuidores() {
 
           <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5 shadow-2xl">
             <div className="flex items-center gap-3">
-              <MessageSquare className="text-red-400" />
+              <MessageSquare className="text-[#ffb870]" />
               <div>
-                <h2 className="text-xl font-black text-white">Mensajes</h2>
+                <h2 className="text-xl font-bold text-white">Mensajes</h2>
                 <p className="text-sm text-slate-400">Comunicación visible en el portal.</p>
               </div>
             </div>
@@ -298,14 +309,14 @@ export default function PortalDistribuidores() {
                   {mensajes.length === 0 && <p className="text-sm text-slate-500">Sin mensajes todavía.</p>}
                   {mensajes.map((m) => (
                     <div key={m.id} className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                      <div className="flex items-center justify-between gap-3"><p className="text-xs font-black uppercase text-red-300">{m.autor}</p><p className="text-xs text-slate-600">{m.created_at ? new Date(m.created_at).toLocaleString('es-ES') : ''}</p></div>
+                      <div className="flex items-center justify-between gap-3"><p className="text-xs font-bold uppercase text-[#ffb870]">{m.autor}</p><p className="text-xs text-slate-600">{m.created_at ? new Date(m.created_at).toLocaleString('es-ES') : ''}</p></div>
                       <p className="mt-2 text-sm text-slate-300">{m.mensaje}</p>
                     </div>
                   ))}
                 </div>
                 <div className="flex gap-2">
                   <input value={mensaje} onChange={(e) => setMensaje(e.target.value)} placeholder="Escribir mensaje..." className="flex-1 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none" />
-                  <button onClick={sendMensaje} className="rounded-2xl bg-red-600 px-4 text-white hover:bg-red-500"><Send size={18} /></button>
+                  <button onClick={sendMensaje} className="rounded-2xl bg-[#e2954d] px-4 text-[#0a0d12] hover:bg-[#ffb870]"><Send size={18} /></button>
                 </div>
               </div>
             )}
@@ -317,7 +328,7 @@ export default function PortalDistribuidores() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
           <form onSubmit={submitSolicitud} className="max-h-[92vh] w-full max-w-4xl overflow-auto rounded-3xl border border-white/10 bg-slate-950 p-6 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
-              <div><h2 className="text-2xl font-black text-white">{editing ? 'Editar solicitud' : 'Nueva solicitud'}</h2><p className="text-sm text-slate-400">File service para distribuidor.</p></div>
+              <div><h2 className="text-2xl font-bold text-white">{editing ? 'Editar solicitud' : 'Nueva solicitud'}</h2><p className="text-sm text-slate-400">File service para distribuidor.</p></div>
               <button type="button" onClick={() => setOpenForm(false)} className="rounded-2xl border border-white/10 p-3 text-slate-400 hover:bg-white/5"><X size={18} /></button>
             </div>
             <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -346,7 +357,7 @@ export default function PortalDistribuidores() {
       {perfilDraft && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
           <form onSubmit={savePerfil} className="w-full max-w-3xl rounded-3xl border border-white/10 bg-slate-950 p-6 shadow-2xl">
-            <div className="flex items-start justify-between gap-4"><div><h2 className="text-2xl font-black text-white">Perfil de distribuidor</h2><p className="text-sm text-slate-400">Datos comerciales y facturación.</p></div><button type="button" onClick={() => setPerfilDraft(null)} className="rounded-2xl border border-white/10 p-3 text-slate-400 hover:bg-white/5"><X size={18} /></button></div>
+            <div className="flex items-start justify-between gap-4"><div><h2 className="text-2xl font-bold text-white">Perfil de distribuidor</h2><p className="text-sm text-slate-400">Datos comerciales y facturación.</p></div><button type="button" onClick={() => setPerfilDraft(null)} className="rounded-2xl border border-white/10 p-3 text-slate-400 hover:bg-white/5"><X size={18} /></button></div>
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               <label className="space-y-2"><span className="text-xs font-bold uppercase text-slate-500">Nombre comercial</span><input value={perfilDraft.nombre_comercial || ''} onChange={(e) => setPerfilDraft({ ...perfilDraft, nombre_comercial: e.target.value })} className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white" /></label>
               <label className="space-y-2"><span className="text-xs font-bold uppercase text-slate-500">CIF</span><input value={perfilDraft.cif || ''} onChange={(e) => setPerfilDraft({ ...perfilDraft, cif: e.target.value })} className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white" /></label>
@@ -360,6 +371,16 @@ export default function PortalDistribuidores() {
           </form>
         </div>
       )}
+      <ConfirmModal
+        open={Boolean(pendingDeleteSolicitud)}
+        title="Eliminar esta solicitud"
+        description="Se eliminará la solicitud de File Service definitivamente."
+        confirmLabel="Sí, eliminar"
+        danger
+        loading={deletingSolicitud}
+        onConfirm={confirmRemoveSolicitud}
+        onCancel={() => setPendingDeleteSolicitud(null)}
+      />
     </div>
   )
 }

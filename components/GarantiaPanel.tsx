@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
+import ConfirmModal from '@/components/ConfirmModal'
 import {
   ExternalLink,
   FileSignature,
@@ -118,16 +119,27 @@ export default function GarantiaPanel({
     }
   }
 
-  async function eliminarGarantia(garantia: GarantiaExpediente) {
-    if (!confirm('¿Eliminar esta garantía del expediente?')) return
+  const [pendingDelete, setPendingDelete] = useState<GarantiaExpediente | null>(null)
+  const [deletingGarantia, setDeletingGarantia] = useState(false)
 
+  function eliminarGarantia(garantia: GarantiaExpediente) {
+    setPendingDelete(garantia)
+  }
+
+  async function confirmEliminarGarantia() {
+    if (!pendingDelete) return
+    const garantia = pendingDelete
+    setDeletingGarantia(true)
     try {
       await GarantiaService.eliminarGarantia(garantia.id)
       toast.success('Garantía eliminada')
       setGarantias((current) => current.filter((item) => item.id !== garantia.id))
       await onEvent?.('Garantía eliminada', garantia.titulo || 'Garantía eliminada desde ERP')
+      setPendingDelete(null)
     } catch (error: any) {
       toast.error(error?.message || 'No se pudo eliminar la garantía')
+    } finally {
+      setDeletingGarantia(false)
     }
   }
 
@@ -136,10 +148,10 @@ export default function GarantiaPanel({
       <div className="card p-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-red-400">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">
               <ShieldCheck size={14} /> Garantía ERP
             </div>
-            <h3 className="text-2xl font-black">Garantías y justificantes</h3>
+            <h3 className="text-2xl font-bold">Garantías y justificantes</h3>
             <p className="mt-1 text-zinc-500">
               Genera, imprime y guarda garantías directamente dentro de este expediente.
             </p>
@@ -155,8 +167,8 @@ export default function GarantiaPanel({
 
         {showForm && (
           <div className="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-5">
-            <div className="mb-5 flex items-center gap-2 text-lg font-black">
-              <FileSignature className="text-red-300" /> Nueva garantía
+            <div className="mb-5 flex items-center gap-2 text-lg font-bold">
+              <FileSignature className="text-[#ffb870]" /> Nueva garantía
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -220,7 +232,7 @@ export default function GarantiaPanel({
         <div className="border-b border-zinc-800 px-5 py-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h3 className="font-black">Garantías generadas</h3>
+              <h3 className="font-bold">Garantías generadas</h3>
               <p className="text-sm text-zinc-500">Documentos vinculados a esta OT.</p>
             </div>
             <button onClick={load} className="btn btn-dark inline-flex items-center gap-2 text-sm">
@@ -242,7 +254,7 @@ export default function GarantiaPanel({
             {garantias.map((garantia) => (
               <div key={garantia.id} className="flex flex-col gap-4 p-5 xl:flex-row xl:items-center xl:justify-between">
                 <div>
-                  <p className="text-lg font-black text-white">{garantia.titulo || 'Garantía de servicio'}</p>
+                  <p className="text-lg font-bold text-white">{garantia.titulo || 'Garantía de servicio'}</p>
                   <p className="mt-1 text-sm text-zinc-500">
                     {formatDate(garantia.generado_at || garantia.created_at)} · {garantia.receptor_nombre || 'Sin receptor'}
                   </p>
@@ -268,7 +280,7 @@ export default function GarantiaPanel({
                   </a>
                   <button
                     onClick={() => eliminarGarantia(garantia)}
-                    className="btn btn-dark inline-flex items-center gap-2 text-sm text-red-300"
+                    className="btn btn-dark inline-flex items-center gap-2 text-sm text-red-400"
                   >
                     <Trash2 size={15} /> Eliminar
                   </button>
@@ -278,6 +290,16 @@ export default function GarantiaPanel({
           </div>
         )}
       </div>
+      <ConfirmModal
+        open={Boolean(pendingDelete)}
+        title="Eliminar esta garantía"
+        description="Se eliminará la garantía del expediente definitivamente."
+        confirmLabel="Sí, eliminar"
+        danger
+        loading={deletingGarantia}
+        onConfirm={confirmEliminarGarantia}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   )
 }
@@ -297,7 +319,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-xs font-black uppercase tracking-wider text-zinc-400">
+      <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-400">
         {label}
       </span>
       {textarea ? (
@@ -306,14 +328,14 @@ function Field({
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
           rows={4}
-          className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-zinc-600 focus:border-red-500"
+          className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-zinc-600 focus:border-[#e2954d]"
         />
       ) : (
         <input
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-zinc-600 focus:border-red-500"
+          className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-zinc-600 focus:border-[#e2954d]"
         />
       )}
     </label>

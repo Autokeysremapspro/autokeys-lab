@@ -112,14 +112,14 @@ export default function ProduccionAkCloudPage() {
     <AppShell>
       <div className="space-y-7">
         <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#080b10] via-[#101827] to-[#21040b] p-7 shadow-2xl shadow-black/40">
-          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-red-600/20 blur-3xl" />
+          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#e2954d]/20 blur-3xl" />
           <div className="absolute bottom-[-120px] left-[20%] h-72 w-72 rounded-full bg-blue-600/10 blur-3xl" />
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-red-300">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ffb870]">
                 <Factory size={16} /> Centro de producción
               </div>
-              <h1 className="text-4xl font-black tracking-tight lg:text-6xl">AK Cloud Producción</h1>
+              <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">AK Cloud Producción</h1>
               <p className="mt-3 max-w-3xl text-zinc-400">
                 Controla la cola de trabajos de File Service desde Autokeys Core. Cambia estados, asigna técnico y mantén informado al distribuidor sin WhatsApp.
               </p>
@@ -147,7 +147,7 @@ export default function ProduccionAkCloudPage() {
         <section className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-5">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div>
-              <h2 className="text-2xl font-black">Cola de producción</h2>
+              <h2 className="text-2xl font-bold">Cola de producción</h2>
               <p className="mt-1 text-sm text-zinc-500">Vista tipo Kanban para organizar trabajos y actualizar estados en AK Cloud.</p>
             </div>
             <div className="flex flex-col gap-3 md:flex-row">
@@ -172,10 +172,10 @@ export default function ProduccionAkCloudPage() {
                 <section key={columna.estado} className="min-h-[520px] rounded-[2rem] border border-white/10 bg-[#080d16] p-4">
                   <div className="mb-4 flex items-start justify-between gap-3">
                     <div>
-                      <h3 className="text-lg font-black">{columna.titulo}</h3>
+                      <h3 className="text-lg font-bold">{columna.titulo}</h3>
                       <p className="mt-1 text-xs text-zinc-500">{columna.descripcion}</p>
                     </div>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-black">{items.length}</span>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold">{items.length}</span>
                   </div>
 
                   <div className="space-y-3">
@@ -217,20 +217,20 @@ function PedidoCard({
   const urgente = pedido.urgente || pedido.prioridad === 'urgente'
 
   return (
-    <article className="rounded-3xl border border-white/10 bg-[#111827] p-4 shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:border-red-500/35">
+    <article className="rounded-3xl border border-white/10 bg-[#111827] p-4 shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:border-[#e2954d]/35">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="font-mono text-xs font-black text-red-300">{pedido.numero || 'FS-SIN-NUM'}</div>
-          <h4 className="mt-1 text-base font-black leading-tight">{tituloPedido(pedido)}</h4>
+          <div className="font-mono text-xs font-bold text-[#ffb870]">{pedido.numero || 'FS-SIN-NUM'}</div>
+          <h4 className="mt-1 text-base font-bold leading-tight">{tituloPedido(pedido)}</h4>
           <p className="mt-1 text-xs text-zinc-500">{pedido.cliente_nombre || pedido.cliente_email || 'Distribuidor'}</p>
         </div>
-        <span className={`rounded-full border px-2.5 py-1 text-[10px] font-black uppercase ${estadoClass(estado)}`}>{estadoLabel(estado)}</span>
+        <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase ${estadoClass(estado)}`}>{estadoLabel(estado)}</span>
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        {urgente && <span className="rounded-full border border-red-500/30 bg-red-500/10 px-2 py-1 text-[10px] font-black uppercase text-red-300">Urgente</span>}
-        {pedido.core_expediente_id && <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[10px] font-black uppercase text-emerald-300">Expediente</span>}
-        <span className="rounded-full border border-white/10 bg-black/20 px-2 py-1 text-[10px] font-black uppercase text-zinc-400">{tiempoHumano(minutos)}</span>
+        {urgente && <span className="rounded-full border border-red-500/30 bg-red-500/10 px-2 py-1 text-[10px] font-bold uppercase text-red-300">Urgente</span>}
+        {pedido.core_expediente_id && <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[10px] font-bold uppercase text-emerald-300">Expediente</span>}
+        <span className="rounded-full border border-white/10 bg-black/20 px-2 py-1 text-[10px] font-bold uppercase text-zinc-400">{tiempoHumano(minutos)}</span>
       </div>
 
       <div className="mt-4 grid gap-2 text-xs">
@@ -240,8 +240,8 @@ function PedidoCard({
       </div>
 
       <div className="mt-3 rounded-2xl border border-white/5 bg-black/20 p-3">
-        <div className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">Servicios</div>
-        <div className="mt-1 text-sm font-black text-red-200">{serviciosTexto(pedido.servicios)}</div>
+        <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Servicios</div>
+        <div className="mt-1 text-sm font-bold text-[#ffb870]">{serviciosTexto(pedido.servicios)}</div>
       </div>
 
       <div className="mt-4 flex items-center gap-2 rounded-2xl border border-white/10 bg-black/20 px-3 py-2">
@@ -262,14 +262,14 @@ function PedidoCard({
             key={columna.estado}
             onClick={() => onMove(pedido.id, columna.estado)}
             disabled={working}
-            className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] font-black uppercase text-zinc-300 hover:border-red-500/40 hover:text-white disabled:opacity-50"
+            className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] font-bold uppercase text-zinc-300 hover:border-[#e2954d]/40 hover:text-white disabled:opacity-50"
           >
             {columna.titulo}
           </button>
         ))}
       </div>
 
-      <Link href={`/ak-cloud/${pedido.id}`} className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-4 py-3 text-sm font-black text-white shadow-lg shadow-red-950/30 hover:bg-red-500">
+      <Link href={`/ak-cloud/${pedido.id}`} className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-[#e2954d] px-4 py-3 text-sm font-bold text-[#0a0d12] shadow-lg shadow-[#8a4a1f]/30 hover:bg-[#ffb870]">
         Abrir pedido <ArrowRight size={15} />
       </Link>
     </article>
@@ -279,7 +279,7 @@ function PedidoCard({
 function Mini({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-2 rounded-xl bg-white/[0.03] px-3 py-2">
-      <span className="text-[10px] font-black uppercase tracking-wide text-zinc-500">{label}</span>
+      <span className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">{label}</span>
       <span className="truncate text-right font-bold text-zinc-200">{value}</span>
     </div>
   )
@@ -287,7 +287,7 @@ function Mini({ label, value }: { label: string; value: string }) {
 
 function Stat({ title, value, icon: Icon, tone = 'red' }: { title: string; value: any; icon: any; tone?: string }) {
   const colors: Record<string, string> = {
-    red: 'text-red-300 bg-red-500/10 border-red-500/20',
+    red: 'text-[#ffb870] bg-[#e2954d]/10 border-[#e2954d]/20',
     amber: 'text-amber-300 bg-amber-500/10 border-amber-500/20',
     cyan: 'text-cyan-300 bg-cyan-500/10 border-cyan-500/20',
     blue: 'text-blue-300 bg-blue-500/10 border-blue-500/20',
@@ -297,10 +297,10 @@ function Stat({ title, value, icon: Icon, tone = 'red' }: { title: string; value
   return (
     <div className="rounded-[1.6rem] border border-white/10 bg-[#0B1220] p-5">
       <div className="flex items-center justify-between">
-        <div className="text-xs font-black uppercase tracking-[0.18em] text-zinc-500">{title}</div>
+        <div className="text-xs font-bold uppercase tracking-[0.18em] text-zinc-500">{title}</div>
         <div className={`rounded-2xl border p-2 ${colors[tone] || colors.red}`}><Icon size={18} /></div>
       </div>
-      <div className="mt-4 text-3xl font-black">{value}</div>
+      <div className="mt-4 text-3xl font-bold">{value}</div>
     </div>
   )
 }

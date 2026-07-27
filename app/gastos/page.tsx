@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import AppShell from '@/components/AppShell'
+import ConfirmModal from '@/components/ConfirmModal'
 import { money } from '@/lib/status'
 import {
   CATEGORIAS_GASTO,
@@ -91,8 +92,8 @@ function GastoModal({
       <div className="card w-full max-w-5xl p-6 max-h-[92vh] overflow-auto">
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <p className="text-sm text-red-400 font-bold uppercase tracking-[0.2em]">Gastos / Compras</p>
-            <h2 className="text-2xl font-black mt-1">{editing ? 'Editar gasto' : 'Nuevo gasto'}</h2>
+            <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Gastos / Compras</p>
+            <h2 className="text-2xl font-bold mt-1">{editing ? 'Editar gasto' : 'Nuevo gasto'}</h2>
             <p className="text-zinc-500 mt-1">Registra compras, herramientas, licencias y gastos fijos del negocio.</p>
           </div>
           <button type="button" onClick={onClose} className="btn btn-dark flex items-center gap-2">
@@ -142,12 +143,12 @@ function GastoModal({
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
             <div className="text-zinc-500 text-sm">IVA soportado</div>
-            <div className="text-2xl font-black mt-1 text-blue-300">{money(ivaImporte)}</div>
+            <div className="text-2xl font-bold mt-1 text-blue-300">{money(ivaImporte)}</div>
           </div>
 
-          <div className="rounded-3xl border border-red-500/20 bg-red-950/10 p-5">
+          <div className="rounded-3xl border border-red-500/20 bg-red-950/20 p-5">
             <div className="text-zinc-500 text-sm">Total gasto</div>
-            <div className="text-2xl font-black mt-1 text-red-300">{money(total)}</div>
+            <div className="text-2xl font-bold mt-1 text-red-400">{money(total)}</div>
           </div>
 
           <label className="space-y-2">
@@ -281,14 +282,25 @@ export default function GastosPage() {
     }
   }
 
-  async function borrar(id: string) {
-    if (!confirm('¿Eliminar este gasto?')) return
+  const [pendingDeleteGasto, setPendingDeleteGasto] = useState<string | null>(null)
+  const [deletingGasto, setDeletingGasto] = useState(false)
+
+  function askBorrar(id: string) {
+    setPendingDeleteGasto(id)
+  }
+
+  async function borrar() {
+    if (!pendingDeleteGasto) return
+    setDeletingGasto(true)
     try {
-      await eliminarGasto(id)
+      await eliminarGasto(pendingDeleteGasto)
       toast.success('Gasto eliminado')
+      setPendingDeleteGasto(null)
       await load()
     } catch (error: any) {
       toast.error(error.message || 'No se pudo eliminar el gasto')
+    } finally {
+      setDeletingGasto(false)
     }
   }
 
@@ -296,8 +308,8 @@ export default function GastosPage() {
     <AppShell>
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
         <div>
-          <p className="text-sm text-red-400 font-bold uppercase tracking-[0.2em]">Finanzas</p>
-          <h2 className="text-3xl font-black mt-1">Gastos / Compras</h2>
+          <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Finanzas</p>
+          <h2 className="text-3xl font-bold mt-1">Gastos / Compras</h2>
           <p className="text-zinc-500 mt-2">Controla compras, licencias, herramientas, gastos fijos e IVA soportado.</p>
         </div>
         <button onClick={nuevoGasto} className="btn btn-red flex items-center gap-2 justify-center">
@@ -311,43 +323,43 @@ export default function GastosPage() {
             <span className="text-sm font-bold uppercase tracking-wider">Gastos mes</span>
             <TrendingDown size={20} />
           </div>
-          <div className="text-2xl font-black mt-3 text-red-300">{money(resumen.totalMes)}</div>
+          <div className="text-2xl font-bold mt-3 text-red-400">{money(resumen.totalMes)}</div>
         </div>
         <div className="card p-5">
           <div className="flex items-center justify-between text-zinc-400">
             <span className="text-sm font-bold uppercase tracking-wider">Gastos año</span>
             <CalendarDays size={20} />
           </div>
-          <div className="text-2xl font-black mt-3">{money(resumen.totalAnio)}</div>
+          <div className="text-2xl font-bold mt-3">{money(resumen.totalAnio)}</div>
         </div>
         <div className="card p-5 border border-blue-500/20">
           <div className="flex items-center justify-between text-blue-400">
             <span className="text-sm font-bold uppercase tracking-wider">IVA soportado</span>
             <ReceiptText size={20} />
           </div>
-          <div className="text-2xl font-black mt-3 text-blue-300">{money(resumen.ivaSoportadoMes)}</div>
+          <div className="text-2xl font-bold mt-3 text-blue-300">{money(resumen.ivaSoportadoMes)}</div>
         </div>
         <div className="card p-5 border border-emerald-500/20">
           <div className="flex items-center justify-between text-emerald-400">
             <span className="text-sm font-bold uppercase tracking-wider">Ingresos mes</span>
             <TrendingUp size={20} />
           </div>
-          <div className="text-2xl font-black mt-3 text-emerald-300">{money(ingresosMes)}</div>
+          <div className="text-2xl font-bold mt-3 text-emerald-300">{money(ingresosMes)}</div>
         </div>
         <div className="card p-5 border border-amber-500/20">
           <div className="flex items-center justify-between text-amber-400">
             <span className="text-sm font-bold uppercase tracking-wider">Beneficio bruto</span>
             <Wallet size={20} />
           </div>
-          <div className={`text-2xl font-black mt-3 ${resumen.beneficioMes >= 0 ? 'text-emerald-300' : 'text-red-300'}`}>{money(resumen.beneficioMes)}</div>
+          <div className={`text-2xl font-bold mt-3 ${resumen.beneficioMes >= 0 ? 'text-emerald-300' : 'text-red-400'}`}>{money(resumen.beneficioMes)}</div>
         </div>
       </div>
 
       <div className="card p-5 mb-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-3">
-            <Banknote className="text-red-400" />
-            <h3 className="text-xl font-black">Listado de gastos</h3>
+            <Banknote className="text-[#ffb870]" />
+            <h3 className="text-xl font-bold">Listado de gastos</h3>
           </div>
           <div className="flex flex-col md:flex-row gap-3 w-full lg:w-auto">
             <div className="flex items-center gap-2 bg-[#0B1220] border border-white/10 rounded-2xl px-4 py-3 w-full md:w-96">
@@ -402,14 +414,14 @@ export default function GastosPage() {
                     <td>{gasto.proveedor || <span className="text-zinc-600">—</span>}</td>
                     <td>{money(gasto.base_imponible)}</td>
                     <td className="text-blue-300 font-bold">{money(gasto.iva_importe)}</td>
-                    <td className="text-red-300 font-black">{money(gasto.total)}</td>
+                    <td className="text-red-400 font-bold">{money(gasto.total)}</td>
                     <td><span className={estadoBadge(gasto.estado)}>{gasto.estado}</span></td>
                     <td>
                       <div className="flex flex-wrap gap-2">
                         <button onClick={() => editarGasto(gasto)} className="btn btn-dark flex items-center gap-2">
                           <Edit3 size={15} /> Editar
                         </button>
-                        <button onClick={() => borrar(gasto.id)} className="btn btn-dark text-red-300 flex items-center gap-2">
+                        <button onClick={() => askBorrar(gasto.id)} className="btn btn-dark text-red-300 flex items-center gap-2">
                           <Trash2 size={15} /> Eliminar
                         </button>
                       </div>
@@ -434,6 +446,17 @@ export default function GastosPage() {
           setForm(emptyForm)
         }}
         onSubmit={guardar}
+      />
+
+      <ConfirmModal
+        open={Boolean(pendingDeleteGasto)}
+        title="Eliminar este gasto"
+        description="Se eliminará el registro del gasto definitivamente, junto con su importe de IVA soportado asociado."
+        confirmLabel="Sí, eliminar"
+        danger
+        loading={deletingGasto}
+        onConfirm={borrar}
+        onCancel={() => setPendingDeleteGasto(null)}
       />
     </AppShell>
   )

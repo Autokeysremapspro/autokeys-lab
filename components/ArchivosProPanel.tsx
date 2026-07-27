@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
+import ConfirmModal from '@/components/ConfirmModal'
 import { Download, FileArchive, FileText, Loader2, Search, Trash2, UploadCloud } from 'lucide-react'
 import {
   eliminarArchivoPro,
@@ -84,14 +85,25 @@ export default function ArchivosProPanel({ expedienteId }: Props) {
     }
   }
 
-  async function remove(file: ExpedienteArchivoPro) {
-    if (!confirm(`¿Eliminar ${file.nombre}?`)) return
+  const [pendingDelete, setPendingDelete] = useState<ExpedienteArchivoPro | null>(null)
+  const [deleting, setDeleting] = useState(false)
+
+  function remove(file: ExpedienteArchivoPro) {
+    setPendingDelete(file)
+  }
+
+  async function confirmRemove() {
+    if (!pendingDelete) return
+    setDeleting(true)
     try {
-      await eliminarArchivoPro(file)
+      await eliminarArchivoPro(pendingDelete)
       toast.success('Archivo eliminado')
+      setPendingDelete(null)
       await load()
     } catch (err: any) {
       toast.error(err?.message || 'No se pudo eliminar el archivo')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -109,10 +121,10 @@ export default function ArchivosProPanel({ expedienteId }: Props) {
       <section className="card p-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-red-400">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">
               <FileArchive size={14} /> Archivos Pro
             </div>
-            <h3 className="mt-2 text-2xl font-black">Gestor técnico de archivos</h3>
+            <h3 className="mt-2 text-2xl font-bold">Gestor técnico de archivos</h3>
             <p className="mt-1 text-sm text-zinc-500">ORI, MOD, FLASH, EEPROM, MICRO, OTP, PDF, fotos y notas técnicas.</p>
           </div>
           <button onClick={() => fileRef.current?.click()} disabled={uploading} className="btn btn-red inline-flex items-center gap-2 disabled:opacity-50">
@@ -135,7 +147,7 @@ export default function ArchivosProPanel({ expedienteId }: Props) {
             e.preventDefault()
             handleFiles(e.dataTransfer.files)
           }}
-          className="mt-5 rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-6 text-center text-zinc-400 hover:border-red-500/40"
+          className="mt-5 rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-6 text-center text-zinc-400 hover:border-[#e2954d]/40"
         >
           Arrastra aquí BIN, EEPROM, FLASH, PDF o fotos del expediente.
         </div>
@@ -173,10 +185,10 @@ export default function ArchivosProPanel({ expedienteId }: Props) {
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-red-500/10 px-3 py-1 text-xs font-black text-red-300">{file.categoria}</span>
+                      <span className="rounded-full bg-[#e2954d]/10 px-3 py-1 text-xs font-bold text-[#ffb870]">{file.categoria}</span>
                       <span className="text-xs text-zinc-500">{formatBytes(file.tamano_bytes)}</span>
                     </div>
-                    <h4 className="mt-2 truncate text-lg font-black">{file.nombre}</h4>
+                    <h4 className="mt-2 truncate text-lg font-bold">{file.nombre}</h4>
                     <p className="mt-1 text-sm text-zinc-500">{file.descripcion || file.notas || 'Sin descripción'}</p>
                     <p className="mt-2 text-xs text-zinc-500">
                       {[file.ecu, file.hw, file.sw, file.vin].filter(Boolean).join(' · ') || 'Sin metadatos técnicos'}
@@ -189,7 +201,7 @@ export default function ArchivosProPanel({ expedienteId }: Props) {
                         <Download size={15} /> Descargar
                       </button>
                     )}
-                    <button onClick={() => remove(file)} className="btn btn-dark inline-flex items-center gap-2 text-sm text-red-300">
+                    <button onClick={() => remove(file)} className="btn btn-dark inline-flex items-center gap-2 text-sm text-red-400">
                       <Trash2 size={15} /> Eliminar
                     </button>
                   </div>
@@ -199,6 +211,16 @@ export default function ArchivosProPanel({ expedienteId }: Props) {
           </div>
         )}
       </section>
+      <ConfirmModal
+        open={Boolean(pendingDelete)}
+        title={`Eliminar ${pendingDelete?.nombre || 'este archivo'}`}
+        description="Se eliminará definitivamente del expediente."
+        confirmLabel="Sí, eliminar"
+        danger
+        loading={deleting}
+        onConfirm={confirmRemove}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   )
 }

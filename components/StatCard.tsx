@@ -23,7 +23,7 @@ export default function StatCard({ title, value, subtitle, icon, tone = 'zinc' }
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm text-zinc-400 font-semibold">{title}</p>
-          <div className="text-3xl font-black mt-2 text-white">{value}</div>
+          <div className="text-3xl font-bold mt-2 text-white">{value}</div>
           {subtitle && <p className="text-xs text-zinc-500 mt-2">{subtitle}</p>}
         </div>
         {icon && <div className="h-11 w-11 rounded-2xl bg-white/5 border border-white/10 grid place-items-center">{icon}</div>}

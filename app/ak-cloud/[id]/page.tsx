@@ -316,11 +316,11 @@ export default function AkCloudPedidoPage() {
               <ArrowLeft size={16} /> Volver a AK Cloud
             </Link>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-sm font-black text-red-300">{pedido.numero || 'FS-SIN-NUM'}</span>
-              <span className={`rounded-full border px-3 py-1 text-[11px] font-black uppercase tracking-wide ${akCloudEstadoClass(pedido.estado)}`}>{(pedido.estado || 'pendiente').replace('_', ' ')}</span>
-              {pedido.core_expediente_id && <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-black uppercase text-emerald-300">Con expediente</span>}
+              <span className="font-mono text-sm font-bold text-[#ffb870]">{pedido.numero || 'FS-SIN-NUM'}</span>
+              <span className={`rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${akCloudEstadoClass(pedido.estado)}`}>{(pedido.estado || 'pendiente').replace('_', ' ')}</span>
+              {pedido.core_expediente_id && <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-bold uppercase text-emerald-300">Con expediente</span>}
             </div>
-            <h1 className="mt-2 text-4xl font-black lg:text-5xl">{formatPedidoTitle(pedido)}</h1>
+            <h1 className="mt-2 text-4xl font-bold lg:text-5xl">{formatPedidoTitle(pedido)}</h1>
             <p className="mt-2 text-zinc-500">{pedido.cliente_nombre || pedido.cliente_email || 'Distribuidor sin identificar'}</p>
           </div>
 
@@ -342,9 +342,9 @@ export default function AkCloudPedidoPage() {
           <main className="space-y-6">
             <section className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0B1220] to-[#111827] p-6">
               <div className="mb-5 flex items-center gap-3">
-                <Cloud className="text-red-300" />
+                <Cloud className="text-[#ffb870]" />
                 <div>
-                  <h2 className="text-2xl font-black">Timeline AK Cloud</h2>
+                  <h2 className="text-2xl font-bold">Timeline AK Cloud</h2>
                   <p className="text-sm text-zinc-500">Estado visible para el distribuidor.</p>
                 </div>
               </div>
@@ -355,7 +355,7 @@ export default function AkCloudPedidoPage() {
                     <div key={item.key} className={`rounded-3xl border p-4 ${done ? 'border-emerald-500/25 bg-emerald-500/10' : 'border-white/10 bg-black/20'}`}>
                       <div className="flex items-center gap-2">
                         <CheckCircle2 size={18} className={done ? 'text-emerald-300' : 'text-zinc-600'} />
-                        <span className="font-black">{item.label}</span>
+                        <span className="font-bold">{item.label}</span>
                       </div>
                     </div>
                   )
@@ -365,9 +365,9 @@ export default function AkCloudPedidoPage() {
 
             <section className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-6">
               <div className="mb-5 flex items-center gap-3">
-                <FileCode2 className="text-red-300" />
+                <FileCode2 className="text-[#ffb870]" />
                 <div>
-                  <h2 className="text-2xl font-black">Ficha técnica</h2>
+                  <h2 className="text-2xl font-bold">Ficha técnica</h2>
                   <p className="text-sm text-zinc-500">Datos recibidos desde el portal AK Cloud.</p>
                 </div>
               </div>
@@ -383,7 +383,7 @@ export default function AkCloudPedidoPage() {
               </div>
 
               <div className="mt-4 rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-4">
-                <div className="flex items-center gap-2 font-black text-emerald-200">
+                <div className="flex items-center gap-2 font-bold text-emerald-200">
                   <ShieldCheck size={18} /> Confirmar y enseñar al detector
                 </div>
                 <p className="mt-1 text-xs text-zinc-400">
@@ -417,12 +417,12 @@ export default function AkCloudPedidoPage() {
               </div>
 
               <div className="mt-4 rounded-2xl border border-white/5 bg-black/20 p-4">
-                <div className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">Servicios</div>
-                <div className="mt-2 text-xl font-black text-red-200">{formatServicios(pedido.servicios)}</div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Servicios</div>
+                <div className="mt-2 text-xl font-bold text-[#ffb870]">{formatServicios(pedido.servicios)}</div>
               </div>
               {pedido.observaciones && (
                 <div className="mt-4 rounded-2xl border border-white/5 bg-black/20 p-4">
-                  <div className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">Observaciones del distribuidor</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Observaciones del distribuidor</div>
                   <p className="mt-2 whitespace-pre-wrap text-zinc-300">{pedido.observaciones}</p>
                 </div>
               )}
@@ -430,9 +430,9 @@ export default function AkCloudPedidoPage() {
 
             <section className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-6">
               <div className="mb-5 flex items-center gap-3">
-                <MessageCircle className="text-red-300" />
+                <MessageCircle className="text-[#ffb870]" />
                 <div>
-                  <h2 className="text-2xl font-black">Chat con distribuidor</h2>
+                  <h2 className="text-2xl font-bold">Chat con distribuidor</h2>
                   <p className="text-sm text-zinc-500">Mensajes visibles en AK Cloud.</p>
                 </div>
               </div>
@@ -445,8 +445,8 @@ export default function AkCloudPedidoPage() {
                     const admin = item.autor_tipo === 'admin'
                     return (
                       <div key={item.id} className={`flex ${admin ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[82%] rounded-3xl border px-4 py-3 ${admin ? 'border-red-500/25 bg-red-500/10' : 'border-white/10 bg-white/[0.04]'}`}>
-                          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">{item.autor_nombre || (admin ? 'Autokeys' : 'Distribuidor')}</div>
+                        <div className={`max-w-[82%] rounded-3xl border px-4 py-3 ${admin ? 'border-[#e2954d]/25 bg-[#e2954d]/10' : 'border-white/10 bg-white/[0.04]'}`}>
+                          <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">{item.autor_nombre || (admin ? 'Autokeys' : 'Distribuidor')}</div>
                           <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-200">{item.mensaje}</p>
                           <div className="mt-2 text-[10px] text-zinc-600">{item.created_at ? new Date(item.created_at).toLocaleString('es-ES') : ''}</div>
                         </div>
@@ -461,7 +461,7 @@ export default function AkCloudPedidoPage() {
                   value={mensaje}
                   onChange={(e) => setMensaje(e.target.value)}
                   placeholder="Escribe un mensaje para el distribuidor..."
-                  className="flex-1 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-red-500/50"
+                  className="flex-1 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#e2954d]/50"
                 />
                 <button onClick={sendMessage} disabled={working === 'message'} className="btn btn-red inline-flex items-center gap-2 disabled:opacity-50">
                   {working === 'message' ? <Loader2 className="animate-spin" size={17} /> : <Send size={17} />} Enviar
@@ -472,7 +472,7 @@ export default function AkCloudPedidoPage() {
 
           <aside className="space-y-6">
             <section className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-6">
-              <h2 className="text-2xl font-black">Control interno</h2>
+              <h2 className="text-2xl font-bold">Control interno</h2>
               <p className="mt-1 text-sm text-zinc-500">Datos solo visibles en Autokeys Core.</p>
 
               <div className="mt-5 space-y-4">
@@ -498,7 +498,7 @@ export default function AkCloudPedidoPage() {
                 </label>
 
                 <div className="rounded-3xl border border-amber-500/20 bg-amber-500/5 p-4">
-                  <div className="mb-3 flex items-center gap-2 font-black text-amber-200"><Euro size={18}/> Precio final editable</div>
+                  <div className="mb-3 flex items-center gap-2 font-bold text-amber-200"><Euro size={18}/> Precio final editable</div>
                   <div className="grid grid-cols-2 gap-3">
                     <Info label="Precio calculado" value={`${Number(pedido.precio_inicial ?? pedido.precio ?? 0).toFixed(2)} €`} />
                     <label><span className="mb-2 block text-xs font-bold text-zinc-400">Precio final (€)</span><input type="number" step="0.01" value={precioFinal} onChange={(e)=>setPrecioFinal(e.target.value)} className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none" /></label>
@@ -518,19 +518,19 @@ export default function AkCloudPedidoPage() {
             </section>
 
             <section className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-6">
-              <div className="flex items-center gap-3"><GitBranch className="text-red-300"/><div><h2 className="text-2xl font-black">Versiones del archivo</h2><p className="text-sm text-zinc-500">Sube V1, V2, V3… sin cerrar automáticamente el pedido.</p></div></div>
+              <div className="flex items-center gap-3"><GitBranch className="text-[#ffb870]"/><div><h2 className="text-2xl font-bold">Versiones del archivo</h2><p className="text-sm text-zinc-500">Sube V1, V2, V3… sin cerrar automáticamente el pedido.</p></div></div>
               <button onClick={() => downloadFile('ori')} className="btn btn-dark mt-5 inline-flex w-full items-center justify-center gap-2"><Download size={17}/> Descargar ORI</button>
               <div className="mt-4 space-y-3">
                 {versiones.length === 0 ? <div className="rounded-2xl border border-dashed border-white/10 p-5 text-center text-sm text-zinc-500">Aún no hay versiones.</div> : versiones.map(v => (
                   <div key={v.id} className={`rounded-2xl border p-4 ${v.es_final ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-white/10 bg-black/20'}`}>
-                    <div className="flex items-center justify-between gap-3"><div><div className="font-black">V{v.numero_version} · {v.nombre_archivo}</div><div className="text-xs text-zinc-500">{v.created_at ? new Date(v.created_at).toLocaleString('es-ES') : ''}</div></div>{v.es_final && <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-black text-emerald-300">FINAL</span>}</div>
+                    <div className="flex items-center justify-between gap-3"><div><div className="font-bold">V{v.numero_version} · {v.nombre_archivo}</div><div className="text-xs text-zinc-500">{v.created_at ? new Date(v.created_at).toLocaleString('es-ES') : ''}</div></div>{v.es_final && <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-300">FINAL</span>}</div>
                     {v.nota_cliente && <p className="mt-2 text-sm text-zinc-300">{v.nota_cliente}</p>}
                     <div className="mt-3 flex gap-2"><button onClick={()=>downloadVersion(v)} className="btn btn-dark flex-1">Descargar</button><button onClick={()=>setFinalVersion(v.id)} disabled={!!v.es_final} className="btn btn-dark flex-1 disabled:opacity-40">Marcar final</button></div>
                   </div>
                 ))}
               </div>
-              <div className="mt-5 rounded-3xl border border-dashed border-red-500/30 bg-red-500/5 p-4">
-                <div className="font-black text-red-200">+ Subir nueva versión</div>
+              <div className="mt-5 rounded-3xl border border-dashed border-[#e2954d]/30 bg-[#e2954d]/5 p-4">
+                <div className="font-bold text-[#ffb870]">+ Subir nueva versión</div>
                 <input ref={fileInputRef} type="file" onChange={(e)=>setModFile(e.target.files?.[0] || null)} className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 p-3 text-sm"/>
                 <input value={notaCliente} onChange={(e)=>setNotaCliente(e.target.value)} placeholder="Nota visible para el cliente" className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm"/>
                 <input value={notaInternaVersion} onChange={(e)=>setNotaInternaVersion(e.target.value)} placeholder="Nota interna (solo laboratorio)" className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm"/>
@@ -544,7 +544,7 @@ export default function AkCloudPedidoPage() {
 
             <section className="rounded-[2rem] border border-emerald-500/20 bg-emerald-500/10 p-6">
               <ShieldCheck className="text-emerald-300" />
-              <h3 className="mt-3 text-xl font-black">Sincronización Core</h3>
+              <h3 className="mt-3 text-xl font-bold">Sincronización Core</h3>
               <p className="mt-2 text-sm text-zinc-400">Desde esta ficha puedes convertir el pedido en expediente, responder al distribuidor y entregar el archivo final.</p>
             </section>
           </aside>
@@ -557,8 +557,8 @@ export default function AkCloudPedidoPage() {
 function Info({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
-      <div className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">{label}</div>
-      <div className="mt-1 truncate text-lg font-black">{value}</div>
+      <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">{label}</div>
+      <div className="mt-1 truncate text-lg font-bold">{value}</div>
     </div>
   )
 }

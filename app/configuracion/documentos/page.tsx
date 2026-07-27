@@ -102,8 +102,8 @@ export default function PlantillasDocumentosPage() {
       <div className="space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <div className="text-sm uppercase tracking-widest text-red-400 font-black">Configuración</div>
-            <h1 className="text-4xl font-black mt-2">Plantillas de documentos</h1>
+            <div className="text-sm uppercase tracking-widest text-[#ffb870] font-bold">Configuración</div>
+            <h1 className="text-4xl font-bold mt-2">Plantillas de documentos</h1>
             <p className="text-zinc-500 mt-2 max-w-3xl">
               Personaliza cómo salen facturas, presupuestos, albaranes y tickets: logo, colores, textos legales, garantía y observaciones por defecto.
             </p>
@@ -119,7 +119,7 @@ export default function PlantillasDocumentosPage() {
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <aside className="card p-4 xl:col-span-1">
-            <div className="font-black text-lg mb-4 flex items-center gap-2"><FileText className="text-red-400" /> Documentos</div>
+            <div className="font-bold text-lg mb-4 flex items-center gap-2"><FileText className="text-[#ffb870]" /> Documentos</div>
             {loading ? (
               <div className="text-zinc-500 flex items-center gap-2"><Loader2 className="animate-spin" size={18} /> Cargando...</div>
             ) : (
@@ -128,9 +128,9 @@ export default function PlantillasDocumentosPage() {
                   <button
                     key={item.id}
                     onClick={() => selectPlantilla(item)}
-                    className={`w-full text-left rounded-2xl px-4 py-3 border transition ${selectedId === item.id ? 'border-red-500/50 bg-red-500/10' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]'}`}
+                    className={`w-full text-left rounded-2xl px-4 py-3 border transition ${selectedId === item.id ? 'border-[#e2954d]/50 bg-[#e2954d]/10' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]'}`}
                   >
-                    <div className="font-black">{nombreTipoDocumento(item.tipo_documento)}</div>
+                    <div className="font-bold">{nombreTipoDocumento(item.tipo_documento)}</div>
                     <div className="text-xs text-zinc-500 mt-1">{item.nombre}</div>
                   </button>
                 ))}
@@ -162,12 +162,12 @@ export default function PlantillasDocumentosPage() {
 
               <label className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 flex items-center justify-between gap-3">
                 <span className="font-bold">Mostrar logo</span>
-                <input type="checkbox" checked={!!form.mostrar_logo} onChange={(e) => setField('mostrar_logo', e.target.checked)} className="h-5 w-5 accent-red-600" />
+                <input type="checkbox" checked={!!form.mostrar_logo} onChange={(e) => setField('mostrar_logo', e.target.checked)} className="h-5 w-5 accent-[#e2954d]" />
               </label>
 
               <label className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 flex items-center justify-between gap-3">
                 <span className="font-bold">Mostrar sello</span>
-                <input type="checkbox" checked={!!form.mostrar_sello} onChange={(e) => setField('mostrar_sello', e.target.checked)} className="h-5 w-5 accent-red-600" />
+                <input type="checkbox" checked={!!form.mostrar_sello} onChange={(e) => setField('mostrar_sello', e.target.checked)} className="h-5 w-5 accent-[#e2954d]" />
               </label>
             </div>
 
@@ -198,16 +198,16 @@ export default function PlantillasDocumentosPage() {
           </section>
 
           <aside className="card p-6 xl:col-span-1">
-            <div className="flex items-center gap-2 text-emerald-400 font-black mb-4"><ShieldCheck /> Vista de uso</div>
+            <div className="flex items-center gap-2 text-emerald-400 font-bold mb-4"><ShieldCheck /> Vista de uso</div>
             <div className="rounded-3xl bg-white text-zinc-950 p-5 shadow-2xl">
               <div className="flex items-start justify-between border-b pb-4" style={{ borderColor: form.color_principal || '#DC2626' }}>
                 <div>
                   <div className="text-xs uppercase tracking-widest text-zinc-500">Autokeys Lab</div>
-                  <div className="font-black text-2xl" style={{ color: form.color_principal || '#DC2626' }}>
+                  <div className="font-bold text-2xl" style={{ color: form.color_principal || '#DC2626' }}>
                     {nombreTipoDocumento(form.tipo_documento)}
                   </div>
                 </div>
-                {form.mostrar_logo && <div className="font-black text-xs border rounded-xl px-3 py-2">LOGO</div>}
+                {form.mostrar_logo && <div className="font-bold text-xs border rounded-xl px-3 py-2">LOGO</div>}
               </div>
               <p className="text-sm mt-4 whitespace-pre-line">{form.texto_cabecera || 'Cabecera del documento...'}</p>
               <div className="my-5 rounded-xl border p-3 text-sm">
@@ -216,7 +216,7 @@ export default function PlantillasDocumentosPage() {
                 <div className="flex justify-between mt-3 pt-3 border-t text-lg"><span>Total</span><strong>181,50 €</strong></div>
               </div>
               <p className="text-xs text-zinc-500 whitespace-pre-line">{form.texto_pie || 'Pie del documento...'}</p>
-              {form.mostrar_sello && <div className="mt-4 border rounded-xl text-center text-xs font-black py-3">SELLO</div>}
+              {form.mostrar_sello && <div className="mt-4 border rounded-xl text-center text-xs font-bold py-3">SELLO</div>}
             </div>
           </aside>
         </div>

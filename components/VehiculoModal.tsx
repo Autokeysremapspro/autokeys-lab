@@ -119,7 +119,7 @@ export default function VehiculoModal({
       <div className="w-full max-w-5xl rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-black text-white">{heading}</h2>
+            <h2 className="text-2xl font-bold text-white">{heading}</h2>
             <p className="text-sm text-slate-400">Ficha base del vehículo.</p>
           </div>
           <button
@@ -139,7 +139,7 @@ export default function VehiculoModal({
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, cliente_id: e.target.value || null }))
               }
-              className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-500"
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-[#e2954d]"
             >
               <option value="">Sin asignar</option>
               {clientes.map((cliente) => (
@@ -165,7 +165,7 @@ export default function VehiculoModal({
             <textarea
               value={form.notas || ''}
               onChange={(e) => setField('notas', e.target.value)}
-              className="h-28 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-500"
+              className="h-28 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-[#e2954d]"
             />
           </label>
         </div>
@@ -182,7 +182,7 @@ export default function VehiculoModal({
             type="button"
             onClick={submit}
             disabled={isSaving}
-            className="rounded-xl bg-red-600 px-5 py-3 font-black text-white shadow-lg shadow-red-950/40 hover:bg-red-500 disabled:opacity-60"
+            className="rounded-xl bg-[#e2954d] px-5 py-3 font-bold text-[#0a0d12] shadow-lg shadow-[#8a4a1f]/40 hover:bg-[#ffb870] disabled:opacity-60"
           >
             {isSaving ? 'Guardando...' : 'Guardar vehículo'}
           </button>
@@ -207,7 +207,7 @@ function Field({
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-500"
+        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-[#e2954d]"
       />
     </label>
   )

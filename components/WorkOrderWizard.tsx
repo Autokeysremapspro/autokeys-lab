@@ -278,7 +278,7 @@ export default function WorkOrderWizard() {
                 <div className="space-y-3 mt-4">
                   {filteredClientes.map((c) => (
                     <button key={c.id} onClick={() => setSelectedCliente(c)} className={cx('selection-card w-full text-left', selectedCliente?.id === c.id && 'selection-card-active')}>
-                      <p className="font-black">{c.nombre}</p>
+                      <p className="font-bold">{c.nombre}</p>
                       <p className="text-sm text-zinc-500">{c.telefono || c.email || c.nif || 'Sin datos de contacto'}</p>
                     </button>
                   ))}
@@ -287,7 +287,7 @@ export default function WorkOrderWizard() {
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-5">
-                <h3 className="font-black text-lg mb-4">Crear cliente rápido</h3>
+                <h3 className="font-bold text-lg mb-4">Crear cliente rápido</h3>
                 <div className="grid gap-3">
                   <input placeholder="Nombre / Razón social" value={newCliente.nombre} onChange={(e) => setNewCliente({ ...newCliente, nombre: e.target.value })} />
                   <div className="grid md:grid-cols-2 gap-3">
@@ -316,7 +316,7 @@ export default function WorkOrderWizard() {
                 <div className="space-y-3 mt-4">
                   {filteredVehiculos.map((v) => (
                     <button key={v.id} onClick={() => setSelectedVehiculo(v)} className={cx('selection-card w-full text-left', selectedVehiculo?.id === v.id && 'selection-card-active')}>
-                      <p className="font-black">{v.marca || 'Vehículo'} {v.modelo || ''}</p>
+                      <p className="font-bold">{v.marca || 'Vehículo'} {v.modelo || ''}</p>
                       <p className="text-sm text-zinc-500">{v.matricula || 'Sin matrícula'} · {v.motor || 'Motor no indicado'} · {v.ecu || 'ECU no indicada'}</p>
                     </button>
                   ))}
@@ -325,7 +325,7 @@ export default function WorkOrderWizard() {
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-5">
-                <h3 className="font-black text-lg mb-4">Crear vehículo rápido</h3>
+                <h3 className="font-bold text-lg mb-4">Crear vehículo rápido</h3>
                 <div className="grid gap-3">
                   <div className="grid md:grid-cols-2 gap-3">
                     <input placeholder="Marca" value={newVehiculo.marca} onChange={(e) => setNewVehiculo({ ...newVehiculo, marca: e.target.value })} />
@@ -356,8 +356,8 @@ export default function WorkOrderWizard() {
                 return (
                   <button key={w.id} onClick={() => setSelectedWork(w)} className={cx('work-card text-left', selectedWork.id === w.id && 'work-card-active')}>
                     <div className="flex items-center gap-3 mb-3">
-                      <span className="rounded-2xl bg-red-500/10 border border-red-500/20 p-3 text-red-300"><Icon size={20} /></span>
-                      <span className="font-black">{w.label}</span>
+                      <span className="rounded-2xl bg-[#e2954d]/10 border border-[#e2954d]/20 p-3 text-[#ffb870]"><Icon size={20} /></span>
+                      <span className="font-bold">{w.label}</span>
                     </div>
                     <p className="text-sm text-zinc-500 leading-relaxed">{w.description}</p>
                   </button>
@@ -400,11 +400,11 @@ export default function WorkOrderWizard() {
 
       <aside className="space-y-6">
         <div className="card p-5">
-          <h3 className="font-black text-lg mb-4">OT inteligente</h3>
+          <h3 className="font-bold text-lg mb-4">OT inteligente</h3>
           <p className="text-sm text-zinc-500 leading-relaxed">El asistente crea la OT y prepara automáticamente la ficha técnica de ECU, llaves o IMMO según el tipo de trabajo.</p>
         </div>
         <div className="card p-5 space-y-4">
-          <h3 className="font-black text-lg">Selección actual</h3>
+          <h3 className="font-bold text-lg">Selección actual</h3>
           <SummaryRow label="Cliente" value={selectedCliente?.nombre || 'Sin seleccionar'} />
           <SummaryRow label="Vehículo" value={selectedVehiculo ? `${selectedVehiculo.marca || ''} ${selectedVehiculo.modelo || ''} ${selectedVehiculo.matricula || ''}` : 'Sin seleccionar'} />
           <SummaryRow label="Trabajo" value={selectedWork.label} />
@@ -422,8 +422,8 @@ function Stepper({ step }: { step: number }) {
       {labels.map((label, i) => {
         const n = i + 1
         return (
-          <div key={label} className={cx('rounded-2xl border p-3', step >= n ? 'border-red-500/50 bg-red-500/10 text-white' : 'border-white/10 bg-white/[0.02] text-zinc-500')}>
-            <p className="text-xs font-black uppercase tracking-widest">Paso {n}</p>
+          <div key={label} className={cx('rounded-2xl border p-3', step >= n ? 'border-[#e2954d]/50 bg-[#e2954d]/10 text-[#0a0d12]' : 'border-white/10 bg-white/[0.02] text-zinc-500')}>
+            <p className="text-xs font-bold uppercase tracking-widest">Paso {n}</p>
             <p className="font-bold mt-1">{label}</p>
           </div>
         )
@@ -435,9 +435,9 @@ function Stepper({ step }: { step: number }) {
 function SectionTitle({ icon, title, subtitle }: { icon: React.ReactNode, title: string, subtitle: string }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="rounded-2xl bg-red-500/10 border border-red-500/20 p-3 text-red-300">{icon}</span>
+      <span className="rounded-2xl bg-[#e2954d]/10 border border-[#e2954d]/20 p-3 text-[#ffb870]">{icon}</span>
       <div>
-        <h2 className="text-2xl font-black">{title}</h2>
+        <h2 className="text-2xl font-bold">{title}</h2>
         <p className="text-zinc-500 text-sm mt-1">{subtitle}</p>
       </div>
     </div>
@@ -457,7 +457,7 @@ function SummaryRow({ label, value }: { label: string, value: string }) {
   return (
     <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-3 last:border-b-0 last:pb-0">
       <span className="text-sm text-zinc-500">{label}</span>
-      <span className="font-black text-right">{value}</span>
+      <span className="font-bold text-right">{value}</span>
     </div>
   )
 }

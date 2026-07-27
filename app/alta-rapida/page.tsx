@@ -64,10 +64,10 @@ export default function AltaRapidaPage() {
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-red-400">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">
               <Smartphone size={14} /> Modo móvil
             </div>
-            <h2 className="text-3xl font-black tracking-tight">Alta rápida de vehículo</h2>
+            <h2 className="text-3xl font-bold tracking-tight">Alta rápida de vehículo</h2>
             <p className="mt-1 text-zinc-500">Para usar desde el móvil cuando entra un coche o estás en un taller.</p>
           </div>
 
@@ -79,11 +79,11 @@ export default function AltaRapidaPage() {
         <form onSubmit={submit} className="space-y-5">
           <section className="card p-5">
             <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-600/15 text-red-400">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#e2954d]/15 text-[#ffb870]">
                 <ClipboardList size={22} />
               </div>
               <div>
-                <h3 className="text-xl font-black">Datos mínimos</h3>
+                <h3 className="text-xl font-bold">Datos mínimos</h3>
                 <p className="text-sm text-zinc-500">Con esto se crea cliente, vehículo y expediente.</p>
               </div>
             </div>
@@ -109,7 +109,7 @@ export default function AltaRapidaPage() {
           </section>
 
           <section className="card p-5">
-            <h3 className="mb-4 text-xl font-black">Vehículo</h3>
+            <h3 className="mb-4 text-xl font-bold">Vehículo</h3>
             <div className="grid gap-4 md:grid-cols-2">
               <input value={form.marca} onChange={(e) => update('marca', e.target.value)} placeholder="Marca" />
               <input value={form.modelo} onChange={(e) => update('modelo', e.target.value)} placeholder="Modelo" />
@@ -119,7 +119,7 @@ export default function AltaRapidaPage() {
           </section>
 
           <section className="card p-5">
-            <h3 className="mb-4 text-xl font-black">Servicio</h3>
+            <h3 className="mb-4 text-xl font-bold">Servicio</h3>
             <div className="grid gap-4 md:grid-cols-2">
               <label className="space-y-2">
                 <span className="text-sm font-bold text-zinc-300">Tipo de servicio *</span>
@@ -157,7 +157,7 @@ export default function AltaRapidaPage() {
           </button>
 
           <div className="rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-emerald-200">
-            <div className="mb-1 flex items-center gap-2 font-black"><CheckCircle2 size={18} /> Flujo recomendado</div>
+            <div className="mb-1 flex items-center gap-2 font-bold"><CheckCircle2 size={18} /> Flujo recomendado</div>
             Usar esta pantalla desde el iPhone para dar de alta el coche en segundos y completar los datos técnicos después desde el PC del laboratorio.
           </div>
         </form>

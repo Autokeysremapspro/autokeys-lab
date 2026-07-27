@@ -84,7 +84,7 @@ export default function CasoTecnicoModal({
       <form onSubmit={submit} className="w-full max-w-6xl max-h-[92vh] overflow-y-auto rounded-3xl border border-white/10 bg-[#111827] shadow-2xl p-6">
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-2xl font-black">{title}</h2>
+            <h2 className="text-2xl font-bold">{title}</h2>
             <p className="text-zinc-500 mt-1">Guarda síntomas, diagnóstico, solución y datos técnicos para reutilizar el conocimiento.</p>
           </div>
           <button type="button" onClick={onClose} className="rounded-2xl border border-white/10 px-4 py-2 font-bold hover:bg-white/5">Cerrar</button>
@@ -95,7 +95,7 @@ export default function CasoTecnicoModal({
         <div className="grid md:grid-cols-3 gap-4">
           <Field className="md:col-span-2" label="Título *" value={form.titulo || ''} onChange={v => set('titulo', v as any)} placeholder="Ej: Opel Combo MD1CS003 no arranca tras campaña" />
           <label className="space-y-2">
-            <span className="text-xs font-black uppercase text-zinc-400">Categoría</span>
+            <span className="text-xs font-bold uppercase text-zinc-400">Categoría</span>
             <select value={form.categoria || 'averia'} onChange={e => set('categoria', e.target.value as any)}>
               {categorias.map(c => <option key={c} value={c}>{c.replaceAll('_', ' ')}</option>)}
             </select>
@@ -132,7 +132,7 @@ export default function CasoTecnicoModal({
           </label>
         </div>
 
-        <button disabled={saving} className="w-full rounded-2xl bg-red-600 px-5 py-4 font-black text-white hover:bg-red-500 mt-6">
+        <button disabled={saving} className="w-full rounded-2xl bg-[#e2954d] px-5 py-4 font-bold text-[#0a0d12] hover:bg-[#ffb870] mt-6">
           {saving ? 'Guardando...' : 'Guardar caso técnico'}
         </button>
       </form>
@@ -143,7 +143,7 @@ export default function CasoTecnicoModal({
 function Field({ label, value, onChange, placeholder, textarea, type = 'text', className = '' }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; textarea?: boolean; type?: string; className?: string }) {
   return (
     <label className={`space-y-2 ${className}`}>
-      <span className="text-xs font-black uppercase text-zinc-400">{label}</span>
+      <span className="text-xs font-bold uppercase text-zinc-400">{label}</span>
       {textarea ? (
         <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={4} />
       ) : (

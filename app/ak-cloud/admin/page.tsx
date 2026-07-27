@@ -139,7 +139,7 @@ function slugify(value: string) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-zinc-500">{label}</span>
+      <span className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-zinc-500">{label}</span>
       {children}
     </label>
   )
@@ -150,7 +150,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={`rounded-2xl border px-4 py-3 text-sm font-black transition ${checked ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-zinc-800 bg-black/20 text-zinc-400'}`}
+      className={`rounded-2xl border px-4 py-3 text-sm font-bold transition ${checked ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-zinc-800 bg-black/20 text-zinc-400'}`}
     >
       {checked ? 'Activo' : 'Inactivo'} · {label}
     </button>
@@ -354,19 +354,19 @@ export default function AkCloudAdminPage() {
     <AppShell>
       <div className="mb-6 flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
         <div>
-          <div className="mb-2 inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-black uppercase tracking-[0.22em] text-red-300">AK Cloud Admin</div>
-          <h1 className="text-3xl font-black tracking-tight">Centro de control AK Cloud</h1>
+          <div className="mb-2 inline-flex rounded-full border border-[#e2954d]/30 bg-[#e2954d]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-[#ffb870]">AK Cloud Admin</div>
+          <h1 className="text-3xl font-bold tracking-tight">Centro de control AK Cloud</h1>
           <p className="mt-1 text-zinc-500">Configura desde Core lo que verán los distribuidores en el portal: catálogo y precio por archivo, métodos de pago, novedades y branding.</p>
         </div>
         <button onClick={loadAll} className="btn btn-dark">Actualizar</button>
       </div>
 
       <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Servicios activos</p><p className="mt-2 text-3xl font-black">{stats.serviciosActivos}</p></div>
-        <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Planes activos</p><p className="mt-2 text-3xl font-black">{stats.planesActivos}</p></div>
-        <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Métodos pago</p><p className="mt-2 text-3xl font-black">{stats.pagosActivos}</p></div>
-        <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Automáticos</p><p className="mt-2 text-3xl font-black">{stats.automaticos}</p></div>
-        <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Novedades activas</p><p className="mt-2 text-3xl font-black">{stats.novedadesActivas}</p></div>
+        <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Servicios activos</p><p className="mt-2 text-3xl font-bold">{stats.serviciosActivos}</p></div>
+        <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Planes activos</p><p className="mt-2 text-3xl font-bold">{stats.planesActivos}</p></div>
+        <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Métodos pago</p><p className="mt-2 text-3xl font-bold">{stats.pagosActivos}</p></div>
+        <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Automáticos</p><p className="mt-2 text-3xl font-bold">{stats.automaticos}</p></div>
+        <div className="card p-5"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Novedades activas</p><p className="mt-2 text-3xl font-bold">{stats.novedadesActivas}</p></div>
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2">
@@ -387,7 +387,7 @@ export default function AkCloudAdminPage() {
       {!loading && tab === 'servicios' && (
         <div className="grid gap-6 xl:grid-cols-[420px_1fr]">
           <div className="card p-5">
-            <h2 className="mb-4 text-xl font-black">{servicio.id ? 'Editar servicio' : 'Nuevo servicio'}</h2>
+            <h2 className="mb-4 text-xl font-bold">{servicio.id ? 'Editar servicio' : 'Nuevo servicio'}</h2>
             <div className="grid gap-4">
               <Field label="Nombre"><input className="w-full" value={servicio.nombre} onChange={(e) => setServicio({ ...servicio, nombre: e.target.value, slug: servicio.slug || slugify(e.target.value) })} placeholder="Stage 1" /></Field>
               <Field label="Slug"><input className="w-full" value={servicio.slug} onChange={(e) => setServicio({ ...servicio, slug: slugify(e.target.value) })} placeholder="stage-1" /></Field>
@@ -406,7 +406,7 @@ export default function AkCloudAdminPage() {
           </div>
 
           <div className="card overflow-hidden">
-            <div className="border-b border-zinc-800 p-5"><h2 className="text-xl font-black">Servicios publicados</h2></div>
+            <div className="border-b border-zinc-800 p-5"><h2 className="text-xl font-bold">Servicios publicados</h2></div>
             <div className="overflow-auto">
               <table>
                 <thead><tr><th>Servicio</th><th>Categoría</th><th>Precio</th><th>Créditos</th><th>Estado</th><th>Acciones</th></tr></thead>
@@ -419,7 +419,7 @@ export default function AkCloudAdminPage() {
 
       {!loading && tab === 'planes' && (
         <div className="grid gap-6 xl:grid-cols-[420px_1fr]">
-          <div className="card p-5"><h2 className="mb-4 text-xl font-black">{plan.id ? 'Editar plan' : 'Nuevo plan'}</h2><div className="grid gap-4">
+          <div className="card p-5"><h2 className="mb-4 text-xl font-bold">{plan.id ? 'Editar plan' : 'Nuevo plan'}</h2><div className="grid gap-4">
             <Field label="Nombre"><input className="w-full" value={plan.nombre} onChange={(e) => setPlan({ ...plan, nombre: e.target.value, slug: plan.slug || slugify(e.target.value) })} /></Field>
             <Field label="Slug"><input className="w-full" value={plan.slug} onChange={(e) => setPlan({ ...plan, slug: slugify(e.target.value) })} /></Field>
             <div className="grid grid-cols-2 gap-3"><Field label="Precio mensual"><input type="number" className="w-full" value={plan.precio_mensual} onChange={(e) => setPlan({ ...plan, precio_mensual: Number(e.target.value) })} /></Field><Field label="Créditos / mes"><input type="number" className="w-full" value={plan.creditos_mes} onChange={(e) => setPlan({ ...plan, creditos_mes: Number(e.target.value) })} /></Field></div>
@@ -428,7 +428,7 @@ export default function AkCloudAdminPage() {
             <div className="flex gap-2"><Toggle checked={plan.activo} onChange={(v) => setPlan({ ...plan, activo: v })} label="Plan activo" /><Toggle checked={plan.destacado} onChange={(v) => setPlan({ ...plan, destacado: v })} label="Destacado" /></div>
             <div className="flex gap-2"><button onClick={savePlan} className="btn btn-red flex-1">Guardar plan</button><button onClick={() => setPlan(emptyPlan)} className="btn btn-dark">Limpiar</button></div>
           </div></div>
-          <div className="grid gap-4 md:grid-cols-2">{planes.map((p) => <div key={p.id} className="card p-5"><div className="flex justify-between"><h3 className="text-xl font-black">{p.nombre}</h3><span className="badge bg-red-500/10 text-red-300">{p.precio_mensual} €/mes</span></div><p className="mt-2 text-sm text-zinc-400">{p.descripcion}</p><p className="mt-4 text-3xl font-black">{p.creditos_mes} créditos</p><p className="mt-2 text-xs text-zinc-500">Qué servicios cubre gratis → pestaña "Servicios por plan"</p><ul className="mt-4 space-y-1 text-sm text-zinc-400">{(p.ventajas || []).map((v) => <li key={v}>✓ {v}</li>)}</ul><div className="mt-5 flex gap-2"><button className="btn btn-dark" onClick={() => setPlan(p)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_planes', p.id)}>Eliminar</button></div></div>)}</div>
+          <div className="grid gap-4 md:grid-cols-2">{planes.map((p) => <div key={p.id} className="card p-5"><div className="flex justify-between"><h3 className="text-xl font-bold">{p.nombre}</h3><span className="badge bg-red-500/10 text-red-300">{p.precio_mensual} €/mes</span></div><p className="mt-2 text-sm text-zinc-400">{p.descripcion}</p><p className="mt-4 text-3xl font-bold">{p.creditos_mes} créditos</p><p className="mt-2 text-xs text-zinc-500">Qué servicios cubre gratis → pestaña "Servicios por plan"</p><ul className="mt-4 space-y-1 text-sm text-zinc-400">{(p.ventajas || []).map((v) => <li key={v}>✓ {v}</li>)}</ul><div className="mt-5 flex gap-2"><button className="btn btn-dark" onClick={() => setPlan(p)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_planes', p.id)}>Eliminar</button></div></div>)}</div>
         </div>
       )}
 
@@ -518,7 +518,7 @@ export default function AkCloudAdminPage() {
 
       {!loading && tab === 'pagos' && (
         <div className="grid gap-6 xl:grid-cols-[420px_1fr]">
-          <div className="card p-5"><h2 className="mb-4 text-xl font-black">{metodo.id ? 'Editar método' : 'Nuevo método'}</h2><div className="grid gap-4">
+          <div className="card p-5"><h2 className="mb-4 text-xl font-bold">{metodo.id ? 'Editar método' : 'Nuevo método'}</h2><div className="grid gap-4">
             <Field label="Nombre"><input className="w-full" value={metodo.nombre} onChange={(e) => setMetodo({ ...metodo, nombre: e.target.value, codigo: metodo.codigo || slugify(e.target.value) })} /></Field>
             <Field label="Código"><input className="w-full" value={metodo.codigo} onChange={(e) => setMetodo({ ...metodo, codigo: slugify(e.target.value) })} /></Field>
             <Field label="Descripción"><textarea className="h-20 w-full" value={metodo.descripcion || ''} onChange={(e) => setMetodo({ ...metodo, descripcion: e.target.value })} /></Field>
@@ -526,14 +526,14 @@ export default function AkCloudAdminPage() {
             <div className="flex gap-2"><Toggle checked={metodo.activo} onChange={(v) => setMetodo({ ...metodo, activo: v })} label="Visible" /><Toggle checked={metodo.automatico} onChange={(v) => setMetodo({ ...metodo, automatico: v })} label="Automático" /></div>
             <div className="flex gap-2"><button onClick={saveMetodo} className="btn btn-red flex-1">Guardar método</button><button onClick={() => setMetodo(emptyMetodo)} className="btn btn-dark">Limpiar</button></div>
           </div></div>
-          <div className="grid gap-4 md:grid-cols-2">{metodos.map((m) => <div key={m.id} className="card p-5"><div className="flex items-start justify-between"><h3 className="text-xl font-black">{m.nombre}</h3><span className={`badge ${m.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{m.activo ? 'Activo' : 'Oculto'}</span></div><p className="mt-2 text-sm text-zinc-400">{m.descripcion}</p><p className="mt-3 rounded-2xl bg-black/20 p-3 text-sm text-zinc-400">{m.instrucciones || 'Sin instrucciones'}</p><p className="mt-3 text-xs uppercase tracking-wider text-zinc-500">{m.automatico ? 'Activación automática' : 'Activación manual'}</p><div className="mt-5 flex gap-2"><button className="btn btn-dark" onClick={() => setMetodo(m)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_metodos_pago', m.id)}>Eliminar</button></div></div>)}</div>
+          <div className="grid gap-4 md:grid-cols-2">{metodos.map((m) => <div key={m.id} className="card p-5"><div className="flex items-start justify-between"><h3 className="text-xl font-bold">{m.nombre}</h3><span className={`badge ${m.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{m.activo ? 'Activo' : 'Oculto'}</span></div><p className="mt-2 text-sm text-zinc-400">{m.descripcion}</p><p className="mt-3 rounded-2xl bg-black/20 p-3 text-sm text-zinc-400">{m.instrucciones || 'Sin instrucciones'}</p><p className="mt-3 text-xs uppercase tracking-wider text-zinc-500">{m.automatico ? 'Activación automática' : 'Activación manual'}</p><div className="mt-5 flex gap-2"><button className="btn btn-dark" onClick={() => setMetodo(m)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_metodos_pago', m.id)}>Eliminar</button></div></div>)}</div>
         </div>
       )}
 
       {!loading && tab === 'novedades' && (
         <div className="grid gap-6 xl:grid-cols-[420px_1fr]">
           <div className="card p-5">
-            <h2 className="mb-4 text-xl font-black">{novedad.id ? 'Editar novedad' : 'Nueva novedad'}</h2>
+            <h2 className="mb-4 text-xl font-bold">{novedad.id ? 'Editar novedad' : 'Nueva novedad'}</h2>
             <p className="mb-5 text-sm text-zinc-500">Lo que publiques aquí aparecerá en el apartado de novedades del dashboard de AK Cloud.</p>
             <div className="grid gap-4">
               <Field label="Título"><input className="w-full" value={novedad.titulo} onChange={(e) => setNovedad({ ...novedad, titulo: e.target.value })} placeholder="Nuevo servicio: Agrícola disponible" /></Field>
@@ -549,7 +549,7 @@ export default function AkCloudAdminPage() {
 
           <div className="card overflow-hidden">
             <div className="border-b border-zinc-800 p-5">
-              <h2 className="text-xl font-black">Novedades publicadas</h2>
+              <h2 className="text-xl font-bold">Novedades publicadas</h2>
               <p className="mt-1 text-sm text-zinc-500">Se muestran a los distribuidores ordenadas por "Orden" (menor primero) y luego por fecha.</p>
             </div>
             <div className="overflow-auto">
@@ -565,7 +565,7 @@ export default function AkCloudAdminPage() {
 
       {!loading && tab === 'branding' && branding && (
         <div className="grid gap-6 xl:grid-cols-[520px_1fr]">
-          <div className="card p-5"><h2 className="mb-4 text-xl font-black">Marca y textos del portal</h2><div className="grid gap-4">
+          <div className="card p-5"><h2 className="mb-4 text-xl font-bold">Marca y textos del portal</h2><div className="grid gap-4">
             <Field label="Nombre producto"><input className="w-full" value={branding.nombre_producto} onChange={(e) => setBranding({ ...branding, nombre_producto: e.target.value })} /></Field>
             <Field label="Slogan"><input className="w-full" value={branding.slogan} onChange={(e) => setBranding({ ...branding, slogan: e.target.value })} /></Field>
             <Field label="Subtítulo"><input className="w-full" value={branding.subtitulo || ''} onChange={(e) => setBranding({ ...branding, subtitulo: e.target.value })} /></Field>
@@ -574,7 +574,7 @@ export default function AkCloudAdminPage() {
             <Field label="Color principal"><input className="w-full" value={branding.color_principal || '#D90429'} onChange={(e) => setBranding({ ...branding, color_principal: e.target.value })} /></Field>
             <button onClick={saveBranding} className="btn btn-red">Guardar branding</button>
           </div></div>
-          <div className="card overflow-hidden p-0"><div className="bg-gradient-to-br from-red-600/25 via-black to-zinc-950 p-8"><p className="text-xs font-black uppercase tracking-[0.3em] text-red-300">Preview AK Cloud</p><h3 className="mt-8 text-5xl font-black">{branding.nombre_producto}</h3><p className="mt-3 max-w-xl text-xl text-zinc-300">{branding.slogan}</p><p className="mt-2 text-zinc-500">{branding.subtitulo}</p><div className="mt-8 inline-flex rounded-2xl bg-red-600 px-5 py-3 font-black">Entrar al portal</div></div></div>
+          <div className="card overflow-hidden p-0"><div className="bg-gradient-to-br from-[#e2954d]/25 via-black to-zinc-950 p-8"><p className="text-xs font-bold uppercase tracking-[0.3em] text-[#ffb870]">Preview AK Cloud</p><h3 className="mt-8 text-5xl font-bold">{branding.nombre_producto}</h3><p className="mt-3 max-w-xl text-xl text-zinc-300">{branding.slogan}</p><p className="mt-2 text-zinc-500">{branding.subtitulo}</p><div className="mt-8 inline-flex rounded-2xl bg-[#e2954d] px-5 py-3 font-bold">Entrar al portal</div></div></div>
         </div>
       )}
     </AppShell>

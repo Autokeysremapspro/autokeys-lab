@@ -112,16 +112,16 @@ export default function AkCloudSoportePage() {
     <AppShell>
       <div className="space-y-7">
         <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#101827] to-[#19070d] p-7 shadow-2xl shadow-black/30">
-          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-red-600/20 blur-3xl" />
+          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#e2954d]/20 blur-3xl" />
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <Link href="/ak-cloud" className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-white">
                 <ArrowLeft size={16} /> Volver a AK Cloud
               </Link>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-red-300">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ffb870]">
                 <Headphones size={16} /> AK Cloud Sync
               </div>
-              <h1 className="text-4xl font-black tracking-tight lg:text-6xl">Soporte de distribuidores</h1>
+              <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">Soporte de distribuidores</h1>
               <p className="mt-3 max-w-3xl text-zinc-400">Responde tickets de AK Cloud desde Autokeys Core. El distribuidor recibe la notificación al instante.</p>
             </div>
             <button onClick={loadTickets} className="btn btn-dark inline-flex items-center gap-2">
@@ -135,7 +135,7 @@ export default function AkCloudSoportePage() {
             <button
               key={item}
               onClick={() => setEstado(item)}
-              className={`rounded-2xl px-4 py-2 text-sm font-black uppercase tracking-wider transition ${estado === item ? 'bg-red-600 text-white' : 'bg-white/5 text-zinc-400 hover:bg-white/10'}`}
+              className={`rounded-2xl px-4 py-2 text-sm font-bold uppercase tracking-wider transition ${estado === item ? 'bg-[#e2954d] text-[#0a0d12]' : 'bg-white/5 text-zinc-400 hover:bg-white/10'}`}
             >
               {item}
             </button>
@@ -156,7 +156,7 @@ export default function AkCloudSoportePage() {
                   className={`block w-full p-4 text-left transition hover:bg-white/[0.04] ${activeId === t.id ? 'bg-white/[0.06]' : ''}`}
                 >
                   <div className="mb-1 flex items-center justify-between gap-2">
-                    <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider ${estadoClass(t.estado)}`}>{t.estado || 'abierto'}</span>
+                    <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${estadoClass(t.estado)}`}>{t.estado || 'abierto'}</span>
                     <span className="text-[11px] text-zinc-500">{formatDate(t.created_at)}</span>
                   </div>
                   <p className="truncate font-bold text-white">{t.asunto}</p>
@@ -172,13 +172,13 @@ export default function AkCloudSoportePage() {
             ) : (
               <div className="flex h-full flex-col">
                 <div className="mb-4 border-b border-white/10 pb-4">
-                  <h3 className="text-xl font-black">{activeTicket.asunto}</h3>
+                  <h3 className="text-xl font-bold">{activeTicket.asunto}</h3>
                   <p className="mt-1 text-sm text-zinc-500">{activeTicket.numero} · {activeTicket.descripcion || 'Sin descripción adicional'}</p>
                 </div>
                 <div className="mb-4 flex-1 space-y-3 overflow-y-auto">
                   {mensajes.map((m) => (
-                    <div key={m.id} className={`max-w-[85%] rounded-2xl p-3 text-sm ${m.interno ? 'ml-auto bg-red-600/15 text-red-100' : 'bg-white/[0.05] text-zinc-200'}`}>
-                      <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-zinc-500">{m.remitente || 'Distribuidor'} · {formatDate(m.created_at)}</p>
+                    <div key={m.id} className={`max-w-[85%] rounded-2xl p-3 text-sm ${m.interno ? 'ml-auto bg-[#e2954d]/15 text-[#ffb870]' : 'bg-white/[0.05] text-zinc-200'}`}>
+                      <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-zinc-500">{m.remitente || 'Distribuidor'} · {formatDate(m.created_at)}</p>
                       {m.mensaje}
                     </div>
                   ))}

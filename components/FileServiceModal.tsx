@@ -57,8 +57,8 @@ export default function FileServiceModal({ open, job, onClose, onSubmit }: Props
       <form onSubmit={handleSubmit} className="w-full max-w-4xl rounded-3xl border border-white/10 bg-[#0B1220] p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-red-400 font-black">File Service</p>
-            <h2 className="text-2xl font-black mt-1">{job ? 'Editar solicitud' : 'Nueva solicitud'}</h2>
+            <p className="text-xs uppercase tracking-[0.24em] text-[#ffb870] font-bold">File Service</p>
+            <h2 className="text-2xl font-bold mt-1">{job ? 'Editar solicitud' : 'Nueva solicitud'}</h2>
             <p className="text-zinc-500 text-sm mt-1">Gestiona trabajos de distribuidores y talleres externos.</p>
           </div>
           <button type="button" onClick={onClose} className="rounded-2xl border border-white/10 px-4 py-2 text-zinc-300 hover:bg-white/5">Cerrar</button>
@@ -108,12 +108,12 @@ export default function FileServiceModal({ open, job, onClose, onSubmit }: Props
 
         <label className="block space-y-2 mt-4">
           <span className="text-sm font-bold text-zinc-300">Notas</span>
-          <textarea value={form.notas || ''} onChange={(e) => setField('notas', e.target.value)} rows={4} className="w-full rounded-2xl border border-white/10 bg-[#111827] px-4 py-3 outline-none focus:border-red-500" placeholder="Observaciones del archivo, peticiones del taller, avisos..." />
+          <textarea value={form.notas || ''} onChange={(e) => setField('notas', e.target.value)} rows={4} className="w-full rounded-2xl border border-white/10 bg-[#111827] px-4 py-3 outline-none focus:border-[#e2954d]" placeholder="Observaciones del archivo, peticiones del taller, avisos..." />
         </label>
 
         <div className="flex justify-end gap-3 mt-6">
           <button type="button" onClick={onClose} className="rounded-2xl border border-white/10 px-5 py-3 font-bold hover:bg-white/5">Cancelar</button>
-          <button disabled={saving} className="rounded-2xl bg-red-600 px-5 py-3 font-black text-white hover:bg-red-500 disabled:opacity-60">
+          <button disabled={saving} className="rounded-2xl bg-[#e2954d] px-5 py-3 font-bold text-[#0a0d12] hover:bg-[#ffb870] disabled:opacity-60">
             {saving ? 'Guardando...' : 'Guardar'}
           </button>
         </div>
@@ -126,7 +126,7 @@ function Input({ label, value, onChange, type = 'text', required = false }: any)
   return (
     <label className="space-y-2">
       <span className="text-sm font-bold text-zinc-300">{label}</span>
-      <input required={required} type={type} value={value || ''} onChange={(e) => onChange(e.target.value)} className="w-full rounded-2xl border border-white/10 bg-[#111827] px-4 py-3 outline-none focus:border-red-500" />
+      <input required={required} type={type} value={value || ''} onChange={(e) => onChange(e.target.value)} className="w-full rounded-2xl border border-white/10 bg-[#111827] px-4 py-3 outline-none focus:border-[#e2954d]" />
     </label>
   )
 }

@@ -12,13 +12,13 @@ export function expedienteStatusClass(status?: string | null) {
     case 'cancelado':
       return 'bg-zinc-500/15 text-zinc-300 border-zinc-500/30'
     default:
-      return 'bg-red-500/15 text-red-300 border-red-500/30'
+      return 'bg-[#e2954d]/15 text-[#ffb870] border-[#e2954d]/30'
   }
 }
 
 export default function ExpedienteStatusBadge({ status }: { status?: string | null }) {
   return (
-    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-black uppercase tracking-wider ${expedienteStatusClass(status)}`}>
+    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider ${expedienteStatusClass(status)}`}>
       {status || 'recibido'}
     </span>
   )

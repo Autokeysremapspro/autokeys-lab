@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import AppShell from '@/components/AppShell'
+import ConfirmModal from '@/components/ConfirmModal'
 import CasoTecnicoModal from '@/components/CasoTecnicoModal'
 import { CasosTecnicosService, filterCasos } from '@/lib/services/casosTecnicos'
 import type { CasoTecnico } from '@/types/autokeys'
@@ -62,9 +63,19 @@ export default function BibliotecaTecnicaPage() {
     await load()
   }
 
-  async function eliminar(caso: CasoTecnico) {
-    if (!confirm(`¿Eliminar caso técnico "${caso.titulo}"?`)) return
-    await CasosTecnicosService.remove(caso.id)
+  const [pendingDelete, setPendingDelete] = useState<CasoTecnico | null>(null)
+  const [deleting, setDeleting] = useState(false)
+
+  function eliminar(caso: CasoTecnico) {
+    setPendingDelete(caso)
+  }
+
+  async function confirmEliminar() {
+    if (!pendingDelete) return
+    setDeleting(true)
+    await CasosTecnicosService.remove(pendingDelete.id)
+    setDeleting(false)
+    setPendingDelete(null)
     await load()
   }
 
@@ -73,13 +84,13 @@ export default function BibliotecaTecnicaPage() {
       <div className="space-y-6">
         <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
           <div>
-            <p className="text-sm text-red-400 font-black tracking-[0.22em] uppercase">Conocimiento del laboratorio</p>
-            <h1 className="text-4xl font-black mt-1">Biblioteca Técnica</h1>
+            <p className="text-sm text-[#ffb870] font-bold tracking-[0.22em] uppercase">Conocimiento del laboratorio</p>
+            <h1 className="text-4xl font-bold mt-1">Biblioteca Técnica</h1>
             <p className="text-zinc-500 mt-2">Casos resueltos, averías repetidas, soluciones, ECUs, DTC, archivos y notas técnicas.</p>
           </div>
           <div className="flex gap-3">
             <button onClick={load} className="rounded-2xl border border-white/10 px-4 py-3 font-bold hover:bg-white/5 flex items-center gap-2"><RefreshCw size={18} /> Actualizar</button>
-            <button onClick={nuevo} className="rounded-2xl bg-red-600 px-5 py-3 font-black text-white hover:bg-red-500 flex items-center gap-2"><Plus size={18} /> Nuevo caso</button>
+            <button onClick={nuevo} className="rounded-2xl bg-[#e2954d] px-5 py-3 font-bold text-[#0a0d12] hover:bg-[#ffb870] flex items-center gap-2"><Plus size={18} /> Nuevo caso</button>
           </div>
         </div>
 
@@ -107,24 +118,24 @@ export default function BibliotecaTecnicaPage() {
           {!loading && filtered.length === 0 && (
             <div className="rounded-3xl border border-dashed border-white/10 p-10 text-center">
               <BookOpen className="mx-auto text-zinc-600 mb-3" size={42} />
-              <h3 className="text-xl font-black">No hay casos técnicos</h3>
+              <h3 className="text-xl font-bold">No hay casos técnicos</h3>
               <p className="text-zinc-500 mt-2">Guarda la primera avería o solución para empezar tu base de conocimiento.</p>
-              <button onClick={nuevo} className="rounded-2xl bg-red-600 px-5 py-3 font-black text-white hover:bg-red-500 mt-5">Crear caso</button>
+              <button onClick={nuevo} className="rounded-2xl bg-[#e2954d] px-5 py-3 font-bold text-[#0a0d12] hover:bg-[#ffb870] mt-5">Crear caso</button>
             </div>
           )}
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             {filtered.map(caso => (
-              <article key={caso.id} className="rounded-3xl border border-white/10 bg-[#111827] p-5 hover:border-red-500/40 transition">
+              <article key={caso.id} className="rounded-3xl border border-white/10 bg-[#111827] p-5 hover:border-[#e2954d]/40 transition">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       {caso.destacado && <Star size={18} className="text-yellow-300 fill-yellow-300" />}
-                      <h3 className="text-xl font-black">{caso.titulo}</h3>
+                      <h3 className="text-xl font-bold">{caso.titulo}</h3>
                     </div>
                     <p className="text-zinc-500 mt-1">{[caso.marca, caso.modelo, caso.motor].filter(Boolean).join(' · ') || 'Vehículo sin definir'}</p>
                   </div>
-                  <span className="text-xs rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 font-black text-red-300 uppercase">{(caso.categoria || 'caso').replaceAll('_', ' ')}</span>
+                  <span className="text-xs rounded-full border border-[#e2954d]/30 bg-[#e2954d]/10 px-3 py-1 font-bold text-[#ffb870] uppercase">{(caso.categoria || 'caso').replaceAll('_', ' ')}</span>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
@@ -135,7 +146,7 @@ export default function BibliotecaTecnicaPage() {
                 </div>
 
                 <div className="mt-4 rounded-2xl bg-black/20 border border-white/5 p-4">
-                  <div className="text-xs uppercase tracking-[0.16em] text-zinc-500 font-black mb-1">Solución</div>
+                  <div className="text-xs uppercase tracking-[0.16em] text-zinc-500 font-bold mb-1">Solución</div>
                   <p className="text-sm text-zinc-300 line-clamp-3">{caso.solucion || caso.diagnostico || caso.sintomas || 'Sin descripción todavía.'}</p>
                 </div>
 
@@ -160,14 +171,24 @@ export default function BibliotecaTecnicaPage() {
       </div>
 
       <CasoTecnicoModal open={open} caso={editing} onClose={() => setOpen(false)} onSubmit={guardar} />
+      <ConfirmModal
+        open={Boolean(pendingDelete)}
+        title={`Eliminar "${pendingDelete?.titulo || 'este caso'}"`}
+        description="Se eliminará el caso técnico definitivamente."
+        confirmLabel="Sí, eliminar"
+        danger
+        loading={deleting}
+        onConfirm={confirmEliminar}
+        onCancel={() => setPendingDelete(null)}
+      />
     </AppShell>
   )
 }
 
 function Stat({ label, value }: { label: string; value: any }) {
-  return <div className="rounded-3xl border border-white/10 bg-[#0B1220] p-5"><div className="text-sm text-zinc-500 font-bold">{label}</div><div className="text-3xl font-black mt-2">{value}</div></div>
+  return <div className="rounded-3xl border border-white/10 bg-[#0B1220] p-5"><div className="text-sm text-zinc-500 font-bold">{label}</div><div className="text-3xl font-bold mt-2">{value}</div></div>
 }
 
 function Mini({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-2xl border border-white/5 bg-black/20 p-3"><div className="text-[10px] uppercase tracking-[0.16em] text-zinc-500 font-black">{label}</div><div className="font-bold truncate mt-1">{value}</div></div>
+  return <div className="rounded-2xl border border-white/5 bg-black/20 p-3"><div className="text-[10px] uppercase tracking-[0.16em] text-zinc-500 font-bold">{label}</div><div className="font-bold truncate mt-1">{value}</div></div>
 }

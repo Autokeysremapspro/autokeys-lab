@@ -230,23 +230,23 @@ export default function MobileCameraCapture({ onBack }: Props) {
               </button>
             )}
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-red-400">Autokeys Core</p>
-              <h1 className="text-2xl font-black">Cámara de OT</h1>
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#ffb870]">Autokeys Core</p>
+              <h1 className="text-2xl font-bold">Cámara de OT</h1>
             </div>
           </div>
-          <Camera className="text-red-400" />
+          <Camera className="text-[#ffb870]" />
         </div>
       </header>
 
       <section className="mx-auto max-w-xl space-y-5 p-4 pb-28">
-        <div className="rounded-[2rem] border border-red-500/20 bg-gradient-to-br from-red-600/20 to-white/[0.03] p-5">
-          <p className="text-sm text-red-100/70">Fotos directas al expediente</p>
-          <h2 className="mt-1 text-3xl font-black">Vehículo, matrícula, VIN, ECU, etiqueta, cuadro y llaves.</h2>
+        <div className="rounded-[2rem] border border-[#e2954d]/20 bg-gradient-to-br from-[#e2954d]/20 to-white/[0.03] p-5">
+          <p className="text-sm text-[#ffb870]/70">Fotos directas al expediente</p>
+          <h2 className="mt-1 text-3xl font-bold">Vehículo, matrícula, VIN, ECU, etiqueta, cuadro y llaves.</h2>
         </div>
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
           <label className="text-sm font-bold text-slate-300">Buscar OT, matrícula, cliente o ECU</label>
-          <div className="mt-3 flex items-center gap-2 rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 focus-within:border-red-500">
+          <div className="mt-3 flex items-center gap-2 rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 focus-within:border-[#e2954d]">
             <Search size={18} className="text-slate-500" />
             <input
               value={query}
@@ -259,12 +259,12 @@ export default function MobileCameraCapture({ onBack }: Props) {
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <p className="font-black">Expediente seleccionado</p>
+            <p className="font-bold">Expediente seleccionado</p>
             {selected && <CheckCircle2 className="text-emerald-300" size={20} />}
           </div>
           <p className={selected ? 'text-sm text-white' : 'text-sm text-slate-500'}>{selectedText}</p>
           {selected && (
-            <Link href={`/expedientes/${selected.id}`} className="mt-3 inline-block text-sm font-black text-red-300">
+            <Link href={`/expedientes/${selected.id}`} className="mt-3 inline-block text-sm font-bold text-[#ffb870]">
               Abrir expediente →
             </Link>
           )}
@@ -280,10 +280,10 @@ export default function MobileCameraCapture({ onBack }: Props) {
               <button
                 key={item.id}
                 onClick={() => setSelected(item)}
-                className={`block w-full rounded-3xl border p-4 text-left transition ${selected?.id === item.id ? 'border-red-500 bg-red-500/10' : 'border-white/10 bg-white/[0.04]'}`}
+                className={`block w-full rounded-3xl border p-4 text-left transition ${selected?.id === item.id ? 'border-[#e2954d] bg-[#e2954d]/10' : 'border-white/10 bg-white/[0.04]'}`}
               >
-                <div className="text-xs font-black uppercase tracking-[0.2em] text-red-400">{item.numero_ot || 'OT'}</div>
-                <div className="mt-1 text-xl font-black">{item.tipo_trabajo || 'Trabajo sin tipo'}</div>
+                <div className="text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">{item.numero_ot || 'OT'}</div>
+                <div className="mt-1 text-xl font-bold">{item.tipo_trabajo || 'Trabajo sin tipo'}</div>
                 <div className="text-sm text-slate-400">{subtitleFor(item)}</div>
               </button>
             ))
@@ -296,7 +296,7 @@ export default function MobileCameraCapture({ onBack }: Props) {
             <select
               value={categoria}
               onChange={(e) => setCategoria(e.target.value)}
-              className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-4 text-white outline-none focus:border-red-500"
+              className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-4 text-white outline-none focus:border-[#e2954d]"
             >
               {categorias.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
             </select>
@@ -308,7 +308,7 @@ export default function MobileCameraCapture({ onBack }: Props) {
               value={notas}
               onChange={(e) => setNotas(e.target.value)}
               placeholder="Ej: etiqueta ECU sulfatada, VIN ilegible, cuadro con fallo..."
-              className="h-24 w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-4 text-white outline-none focus:border-red-500"
+              className="h-24 w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-4 text-white outline-none focus:border-[#e2954d]"
             />
           </label>
         </div>
@@ -321,14 +321,14 @@ export default function MobileCameraCapture({ onBack }: Props) {
             <button
               disabled={!selected || uploading}
               onClick={() => cameraInputRef.current?.click()}
-              className="rounded-2xl bg-red-600 px-5 py-4 font-black text-white disabled:opacity-40"
+              className="rounded-2xl bg-[#e2954d] px-5 py-4 font-bold text-[#0a0d12] disabled:opacity-40"
             >
               {uploading ? <span className="inline-flex items-center gap-2"><Loader2 className="animate-spin" size={18} /> Subiendo</span> : <span className="inline-flex items-center gap-2"><Camera size={18} /> Hacer foto</span>}
             </button>
             <button
               disabled={!selected || uploading}
               onClick={() => galleryInputRef.current?.click()}
-              className="rounded-2xl border border-white/10 px-5 py-4 font-black text-white disabled:opacity-40"
+              className="rounded-2xl border border-white/10 px-5 py-4 font-bold text-white disabled:opacity-40"
             >
               <span className="inline-flex items-center gap-2"><ImageIcon size={18} /> Galería</span>
             </button>

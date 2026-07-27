@@ -134,7 +134,7 @@ export default function BackupsPage() {
               </span>
               <Archive size={20} />
             </div>
-            <div className="text-2xl font-black mt-3">
+            <div className="text-2xl font-bold mt-3">
               {lastBackup ? formatDate(lastBackup.created_at) : 'Sin copias'}
             </div>
             <p className="text-zinc-500 text-sm mt-1">
@@ -149,7 +149,7 @@ export default function BackupsPage() {
               </span>
               <Database size={20} />
             </div>
-            <div className="text-3xl font-black mt-3">{registros.length}</div>
+            <div className="text-3xl font-bold mt-3">{registros.length}</div>
             <p className="text-zinc-500 text-sm mt-1">Registros guardados</p>
           </div>
 
@@ -160,7 +160,7 @@ export default function BackupsPage() {
               </span>
               <FileJson size={20} />
             </div>
-            <div className="text-3xl font-black mt-3">{totalRows}</div>
+            <div className="text-3xl font-bold mt-3">{totalRows}</div>
             <p className="text-zinc-500 text-sm mt-1">Total exportado</p>
           </div>
 
@@ -171,7 +171,7 @@ export default function BackupsPage() {
               </span>
               <ShieldCheck size={20} />
             </div>
-            <div className="text-xl font-black mt-3">Copia semanal</div>
+            <div className="text-xl font-bold mt-3">Copia semanal</div>
             <p className="text-zinc-500 text-sm mt-1">
               Descarga JSON completo y CSV de tablas clave.
             </p>
@@ -179,7 +179,7 @@ export default function BackupsPage() {
         </div>
 
         {error && (
-          <div className="card p-4 border border-red-500/30 text-red-300">
+          <div className="card p-4 border border-[#e2954d]/30 text-[#ffb870]">
             {error}
           </div>
         )}
@@ -194,7 +194,7 @@ export default function BackupsPage() {
           <section className="xl:col-span-2 card p-6">
             <div className="flex items-center justify-between gap-4 mb-6">
               <div>
-                <h2 className="text-2xl font-black">
+                <h2 className="text-2xl font-bold">
                   Exportaciones rápidas
                 </h2>
                 <p className="text-zinc-500 mt-1">
@@ -216,10 +216,10 @@ export default function BackupsPage() {
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <div className="flex items-center gap-2 text-red-400 font-black uppercase tracking-wider text-xs">
+                      <div className="flex items-center gap-2 text-[#ffb870] font-bold uppercase tracking-wider text-xs">
                         <FileSpreadsheet size={16} /> CSV
                       </div>
-                      <h3 className="text-xl font-black mt-2">{item.label}</h3>
+                      <h3 className="text-xl font-bold mt-2">{item.label}</h3>
                       <p className="text-zinc-500 text-sm mt-1">
                         Exportación directa de la tabla {item.table}.
                       </p>
@@ -245,9 +245,9 @@ export default function BackupsPage() {
 
           <section className="card p-6">
             <div className="flex items-center gap-3 mb-4">
-              <HardDriveDownload className="text-red-400" />
+              <HardDriveDownload className="text-[#ffb870]" />
               <div>
-                <h2 className="text-2xl font-black">Copia completa JSON</h2>
+                <h2 className="text-2xl font-bold">Copia completa JSON</h2>
                 <p className="text-zinc-500 text-sm">
                   Selecciona las tablas que quieres incluir.
                 </p>
@@ -269,7 +269,7 @@ export default function BackupsPage() {
                     type="checkbox"
                     checked={selected.includes(table.name)}
                     onChange={() => toggleTable(table.name)}
-                    className="h-5 w-5 accent-red-600"
+                    className="h-5 w-5 accent-[#e2954d]"
                   />
                 </label>
               ))}
@@ -293,7 +293,7 @@ export default function BackupsPage() {
         <section className="card p-6">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-2xl font-black">Historial de copias</h2>
+              <h2 className="text-2xl font-bold">Historial de copias</h2>
               <p className="text-zinc-500 mt-1">
                 Registro de exportaciones realizadas desde Autokeys Core.
               </p>
@@ -332,7 +332,7 @@ export default function BackupsPage() {
                       <td className="py-4 pr-4 font-bold">
                         {item.tipo || '—'}
                       </td>
-                      <td className="py-4 pr-4 uppercase text-red-300 font-bold">
+                      <td className="py-4 pr-4 uppercase text-[#ffb870] font-bold">
                         {item.formato || '—'}
                       </td>
                       <td className="py-4 pr-4 text-zinc-400 max-w-[420px] truncate">

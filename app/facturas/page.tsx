@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import AppShell from '@/components/AppShell'
 import FormModal from '@/components/FormModal'
+import ConfirmModal from '@/components/ConfirmModal'
+import CustomSelect from '@/components/ak/CustomSelect'
 import { supabase } from '@/lib/supabase'
 import { money } from '@/lib/status'
 import toast from 'react-hot-toast'
@@ -45,8 +47,23 @@ const emptyForm = {
   precio: 0,
 }
 
+const TIPO_OPTIONS = [
+  { value: 'todos', label: 'Todos los tipos' },
+  { value: 'factura', label: 'Factura' },
+  { value: 'presupuesto', label: 'Presupuesto' },
+  { value: 'albaran', label: 'Albarán' },
+  { value: 'ticket', label: 'Ticket' },
+]
+
+const ESTADO_FILTRO_OPTIONS = [
+  { value: 'todos', label: 'Todos los estados' },
+  { value: 'pendiente', label: 'Pendiente' },
+  { value: 'pagada', label: 'Pagada' },
+  { value: 'cancelada', label: 'Cancelada' },
+]
+
 function docBadge(tipo?: string | null) {
-  if (tipo === 'factura') return 'badge bg-red-600/20 text-red-300 border border-red-500/30'
+  if (tipo === 'factura') return 'badge bg-[#e2954d]/20 text-[#ffb870] border border-[#e2954d]/30'
   if (tipo === 'presupuesto') return 'badge bg-blue-600/20 text-blue-300 border border-blue-500/30'
   if (tipo === 'albaran') return 'badge bg-purple-600/20 text-purple-300 border border-purple-500/30'
   return 'badge bg-zinc-600/20 text-zinc-300 border border-zinc-500/30'
@@ -70,7 +87,11 @@ export default function FacturasPage() {
   const [editing, setEditing] = useState<Documento | null>(null)
   const [form, setForm] = useState<any>(emptyForm)
   const [query, setQuery] = useState('')
+  const [tipoFiltro, setTipoFiltro] = useState('todos')
+  const [estadoFiltro, setEstadoFiltro] = useState('todos')
   const [loading, setLoading] = useState(true)
+  const [pendingDelete, setPendingDelete] = useState<Documento | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => { load() }, [])
 
@@ -93,10 +114,14 @@ export default function FacturasPage() {
   }
 
   const filtered = useMemo(() => {
+    let out = items
+    if (tipoFiltro !== 'todos') out = out.filter(i => i.tipo_documento === tipoFiltro)
+    if (estadoFiltro !== 'todos') out = out.filter(i => (i.estado || 'pendiente') === estadoFiltro)
+
     const q = query.toLowerCase().trim()
-    if (!q) return items
-    return items.filter(i => `${i.numero_documento || ''} ${i.tipo_documento || ''} ${i.clientes?.nombre || ''} ${i.estado || ''}`.toLowerCase().includes(q))
-  }, [items, query])
+    if (!q) return out
+    return out.filter(i => `${i.numero_documento || ''} ${i.tipo_documento || ''} ${i.clientes?.nombre || ''} ${i.estado || ''}`.toLowerCase().includes(q))
+  }, [items, query, tipoFiltro, estadoFiltro])
 
   function nuevo() {
     setEditing(null)
@@ -170,15 +195,23 @@ export default function FacturasPage() {
     }
   }
 
-  async function eliminar(doc: Documento) {
-    if (!confirm(`¿Eliminar ${doc.numero_documento || 'este documento'}? Esta acción eliminará también sus líneas.`)) return
+  function askDelete(doc: Documento) {
+    setPendingDelete(doc)
+  }
+
+  async function confirmDelete() {
+    if (!pendingDelete) return
+    setDeleting(true)
     try {
-      const { error } = await supabase.from('facturas').delete().eq('id', doc.id)
+      const { error } = await supabase.from('facturas').delete().eq('id', pendingDelete.id)
       if (error) throw error
       toast.success('Documento eliminado')
+      setPendingDelete(null)
       await load()
     } catch (error: any) {
       toast.error(error.message || 'No se pudo eliminar')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -200,8 +233,8 @@ export default function FacturasPage() {
     <AppShell>
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
         <div>
-          <p className="text-sm text-red-400 font-bold uppercase tracking-[0.2em]">Administración</p>
-          <h2 className="text-3xl font-black mt-1">Facturas / Presupuestos</h2>
+          <p className="ak-mono text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Administración</p>
+          <h2 className="text-3xl font-bold mt-1">Facturas / Presupuestos</h2>
           <p className="text-zinc-500 mt-2">Crea, edita, imprime y controla el estado de los documentos.</p>
         </div>
         <button onClick={nuevo} className="btn btn-red flex items-center gap-2 justify-center">
@@ -210,17 +243,25 @@ export default function FacturasPage() {
       </div>
 
       <div className="grid md:grid-cols-4 gap-4 mb-6">
-        <div className="card p-5"><div className="text-zinc-500 text-sm">Documentos</div><div className="text-3xl font-black mt-2">{items.length}</div></div>
-        <div className="card p-5"><div className="text-zinc-500 text-sm">Pendiente</div><div className="text-3xl font-black mt-2 text-amber-300">{money(totalPendiente)}</div></div>
-        <div className="card p-5"><div className="text-zinc-500 text-sm">Pagado</div><div className="text-3xl font-black mt-2 text-emerald-300">{money(totalPagado)}</div></div>
-        <div className="card p-5"><div className="text-zinc-500 text-sm">Facturas</div><div className="text-3xl font-black mt-2">{items.filter(i => i.tipo_documento === 'factura').length}</div></div>
+        <button type="button" onClick={() => { setTipoFiltro('todos'); setEstadoFiltro('todos') }} className={`card p-5 text-left transition ${tipoFiltro === 'todos' && estadoFiltro === 'todos' ? 'border-[#e2954d]/60 bg-[#e2954d]/[.08]' : 'hover:border-[#e2954d]/25'}`}>
+          <div className="text-zinc-500 text-sm">Documentos</div><div className="text-3xl font-bold mt-2">{items.length}</div>
+        </button>
+        <button type="button" onClick={() => setEstadoFiltro('pendiente')} className={`card p-5 text-left transition ${estadoFiltro === 'pendiente' ? 'border-amber-500/50 bg-amber-500/[.08]' : 'hover:border-amber-500/25'}`}>
+          <div className="text-zinc-500 text-sm">Pendiente</div><div className="text-3xl font-bold mt-2 text-amber-300">{money(totalPendiente)}</div>
+        </button>
+        <button type="button" onClick={() => setEstadoFiltro('pagada')} className={`card p-5 text-left transition ${estadoFiltro === 'pagada' ? 'border-emerald-500/50 bg-emerald-500/[.08]' : 'hover:border-emerald-500/25'}`}>
+          <div className="text-zinc-500 text-sm">Pagado</div><div className="text-3xl font-bold mt-2 text-emerald-300">{money(totalPagado)}</div>
+        </button>
+        <button type="button" onClick={() => setTipoFiltro('factura')} className={`card p-5 text-left transition ${tipoFiltro === 'factura' ? 'border-[#e2954d]/60 bg-[#e2954d]/[.08]' : 'hover:border-[#e2954d]/25'}`}>
+          <div className="text-zinc-500 text-sm">Facturas</div><div className="text-3xl font-bold mt-2">{items.filter(i => i.tipo_documento === 'factura').length}</div>
+        </button>
       </div>
 
       <div className="card p-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-3">
-            <FileText className="text-red-400" />
-            <h3 className="text-xl font-black">Documentos</h3>
+            <FileText className="text-[#ffb870]" />
+            <h3 className="text-xl font-bold">Documentos</h3>
           </div>
           <div className="flex items-center gap-2 bg-[#0B1220] border border-white/10 rounded-2xl px-4 py-3 w-full md:w-96">
             <Search size={18} className="text-zinc-500" />
@@ -228,10 +269,19 @@ export default function FacturasPage() {
           </div>
         </div>
 
+        <div className="flex flex-col sm:flex-row gap-3 mb-5">
+          <CustomSelect className="flex-1" value={tipoFiltro} onChange={setTipoFiltro} options={TIPO_OPTIONS} />
+          <CustomSelect className="flex-1" value={estadoFiltro} onChange={setEstadoFiltro} options={ESTADO_FILTRO_OPTIONS} />
+        </div>
+
         {loading ? (
-          <div className="text-zinc-500 py-10 text-center">Cargando documentos...</div>
+          <div className="space-y-3">
+            {[1, 2, 3].map(i => <div key={i} className="h-14 animate-pulse rounded-2xl bg-white/5" />)}
+          </div>
         ) : filtered.length === 0 ? (
-          <div className="text-zinc-500 py-10 text-center">No hay documentos todavía.</div>
+          <div className="text-zinc-500 py-10 text-center">
+            {items.length === 0 ? 'Todavía no hay documentos — crea el primero.' : 'Ningún documento coincide con estos filtros.'}
+          </div>
         ) : (
           <div className="table-wrap">
             <table>
@@ -262,7 +312,7 @@ export default function FacturasPage() {
                         <button onClick={() => editar(doc)} className="btn btn-dark flex items-center gap-2"><Pencil size={15} /> Editar</button>
                         {doc.estado !== 'pagada' && <button onClick={() => cambiarEstado(doc, 'pagada')} className="btn bg-emerald-950/40 border border-emerald-500/20 text-emerald-300 flex items-center gap-2"><CheckCircle2 size={15} /> Pagada</button>}
                         {doc.estado !== 'cancelada' && <button onClick={() => cambiarEstado(doc, 'cancelada')} className="btn bg-zinc-900 border border-white/10 text-zinc-300 flex items-center gap-2"><XCircle size={15} /> Cancelar</button>}
-                        <button onClick={() => eliminar(doc)} className="btn bg-red-950/40 border border-red-500/20 text-red-300 flex items-center gap-2"><Trash2 size={15} /> Eliminar</button>
+                        <button onClick={() => askDelete(doc)} className="btn bg-red-950/40 border border-red-500/20 text-red-300 flex items-center gap-2"><Trash2 size={15} /> Eliminar</button>
                       </div>
                     </td>
                   </tr>
@@ -304,6 +354,17 @@ export default function FacturasPage() {
           <button className="btn btn-red md:col-span-2">{editing ? 'Guardar cambios' : 'Crear documento'}</button>
         </form>
       </FormModal>
+
+      <ConfirmModal
+        open={Boolean(pendingDelete)}
+        title={`Eliminar ${pendingDelete?.numero_documento || 'este documento'}`}
+        description="Esta acción eliminará también sus líneas de detalle. No se puede deshacer."
+        confirmLabel="Sí, eliminar"
+        danger
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </AppShell>
   )
 }

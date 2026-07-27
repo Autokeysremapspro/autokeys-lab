@@ -120,16 +120,16 @@ export default function MobileEntregaPage() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-500/20 text-emerald-300">
               <CheckCircle2 size={34} />
             </div>
-            <div className="text-xs font-black uppercase tracking-[0.25em] text-emerald-200/70">Entrega registrada</div>
-            <h1 className="mt-2 text-3xl font-black">{expedienteTitle(selected)}</h1>
+            <div className="text-xs font-bold uppercase tracking-[0.25em] text-emerald-200/70">Entrega registrada</div>
+            <h1 className="mt-2 text-3xl font-bold">{expedienteTitle(selected)}</h1>
             <p className="mt-2 text-emerald-100/80">El expediente se marcó como entregado y la firma quedó guardada.</p>
           </div>
 
-          <button onClick={reset} className="w-full rounded-2xl bg-red-600 px-5 py-4 font-black text-white">
+          <button onClick={reset} className="w-full rounded-2xl bg-[#e2954d] px-5 py-4 font-bold text-[#0a0d12]">
             Registrar otra entrega
           </button>
 
-          <Link href="/mobile" className="block w-full rounded-2xl border border-white/10 px-5 py-4 text-center font-black text-white">
+          <Link href="/mobile" className="block w-full rounded-2xl border border-white/10 px-5 py-4 text-center font-bold text-white">
             Volver a móvil
           </Link>
         </div>
@@ -142,8 +142,8 @@ export default function MobileEntregaPage() {
       <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/95 px-4 py-4 backdrop-blur">
         <div className="mx-auto flex max-w-xl items-center justify-between gap-3">
           <div>
-            <div className="text-xs font-black uppercase tracking-[0.25em] text-red-400">Autokeys Core</div>
-            <h1 className="text-xl font-black">Entrega con firma</h1>
+            <div className="text-xs font-bold uppercase tracking-[0.25em] text-[#ffb870]">Autokeys Core</div>
+            <h1 className="text-xl font-bold">Entrega con firma</h1>
           </div>
           <Link href="/mobile" className="rounded-2xl border border-white/10 p-3 text-white">
             <ArrowLeft size={20} />
@@ -154,14 +154,14 @@ export default function MobileEntregaPage() {
       <main className="mx-auto max-w-xl space-y-5 p-4 pb-24">
         <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
           <div className="mb-4 flex items-center gap-3">
-            <div className="rounded-2xl bg-red-600/15 p-3 text-red-400"><Search /></div>
+            <div className="rounded-2xl bg-[#e2954d]/15 p-3 text-[#ffb870]"><Search /></div>
             <div>
-              <h2 className="text-2xl font-black">Seleccionar OT</h2>
+              <h2 className="text-2xl font-bold">Seleccionar OT</h2>
               <p className="text-sm text-slate-400">Busca por número de OT, estado o tipo de trabajo.</p>
             </div>
           </div>
 
-          <div className="flex gap-2 rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 focus-within:border-red-500">
+          <div className="flex gap-2 rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 focus-within:border-[#e2954d]">
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -171,7 +171,7 @@ export default function MobileEntregaPage() {
               placeholder="Buscar OT..."
               className="w-full bg-transparent text-white outline-none"
             />
-            <button onClick={() => load(query)} className="font-black text-red-400">Buscar</button>
+            <button onClick={() => load(query)} className="font-bold text-[#ffb870]">Buscar</button>
           </div>
 
           <div className="mt-4 space-y-2">
@@ -186,14 +186,14 @@ export default function MobileEntregaPage() {
                   onClick={() => setSelected(item)}
                   className={`w-full rounded-2xl border p-4 text-left transition ${
                     selected?.id === item.id
-                      ? 'border-red-500 bg-red-500/10'
+                      ? 'border-[#e2954d] bg-[#e2954d]/10'
                       : 'border-white/10 bg-black/20'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="text-xs font-black uppercase tracking-[0.2em] text-red-400">{expedienteTitle(item)}</div>
-                      <div className="mt-1 text-lg font-black">{item.tipo_trabajo || 'Servicio sin definir'}</div>
+                      <div className="text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">{expedienteTitle(item)}</div>
+                      <div className="mt-1 text-lg font-bold">{item.tipo_trabajo || 'Servicio sin definir'}</div>
                     </div>
                     <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-slate-300">{item.estado || 'sin estado'}</span>
                   </div>
@@ -211,9 +211,9 @@ export default function MobileEntregaPage() {
         {selected && (
           <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
             <div className="mb-5 flex items-center gap-3">
-              <div className="rounded-2xl bg-red-600/15 p-3 text-red-400"><ClipboardSignature /></div>
+              <div className="rounded-2xl bg-[#e2954d]/15 p-3 text-[#ffb870]"><ClipboardSignature /></div>
               <div>
-                <h2 className="text-2xl font-black">Datos de entrega</h2>
+                <h2 className="text-2xl font-bold">Datos de entrega</h2>
                 <p className="text-sm text-slate-400">Firma del cliente y entrega del vehículo.</p>
               </div>
             </div>
@@ -227,7 +227,7 @@ export default function MobileEntregaPage() {
                 value={form.observaciones}
                 onChange={(event) => setForm({ ...form, observaciones: event.target.value })}
                 placeholder="Estado de entrega, material entregado, aviso al cliente..."
-                className="h-24 w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-4 text-white outline-none focus:border-red-500"
+                className="h-24 w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-4 text-white outline-none focus:border-[#e2954d]"
               />
             </label>
 
@@ -239,7 +239,7 @@ export default function MobileEntregaPage() {
             <button
               onClick={submit}
               disabled={saving}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 py-4 font-black text-white disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#e2954d] px-5 py-4 font-bold text-[#0a0d12] disabled:opacity-50"
             >
               {saving ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
               {saving ? 'Registrando entrega...' : 'Entregar vehículo'}
@@ -259,7 +259,7 @@ function MobileField({ label, value, onChange, placeholder }: { label: string; v
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-4 text-white outline-none focus:border-red-500"
+        className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-4 text-white outline-none focus:border-[#e2954d]"
       />
     </label>
   )

@@ -65,7 +65,7 @@ export default function Dashboard() {
       </div>
 
       {error && (
-        <div className="mb-6 rounded-2xl border border-red-900/50 bg-red-950/20 p-4 text-red-300">
+        <div className="mb-6 rounded-2xl border border-[#8a4a1f]/50 bg-[#8a4a1f]/20 p-4 text-[#ffb870]">
           {error}
         </div>
       )}
@@ -124,12 +124,12 @@ export default function Dashboard() {
 
       <div className="grid xl:grid-cols-3 gap-6">
         <div className="card p-5">
-          <h2 className="text-xl font-black mb-4">Últimos clientes</h2>
+          <h2 className="text-xl font-bold mb-4">Últimos clientes</h2>
           <div className="space-y-3">
             {overview.ultimosClientes.map((c: any) => (
               <a href={`/clientes/${c.id}`} key={c.id} className="flex items-center justify-between border border-white/10 rounded-2xl p-4 bg-white/[0.02] hover:bg-white/[0.04] transition">
                 <div>
-                  <p className="font-black">{c.nombre}</p>
+                  <p className="font-bold">{c.nombre}</p>
                   <p className="text-sm text-zinc-500">{c.telefono || c.email || 'Sin contacto'}</p>
                 </div>
                 <span className="badge bg-zinc-800 border border-zinc-700 text-zinc-300">Cliente</span>
@@ -140,16 +140,16 @@ export default function Dashboard() {
         </div>
 
         <div className="card p-5">
-          <h2 className="text-xl font-black mb-4">File Service activo</h2>
+          <h2 className="text-xl font-bold mb-4">File Service activo</h2>
           <div className="space-y-3">
             {overview.fileService.filter((f: any) => !['finalizado', 'cancelado'].includes(String(f.estado))).slice(0, 5).map((f: any) => (
               <a href="/file-service" key={f.id} className="block border border-white/10 rounded-2xl p-4 bg-white/[0.02] hover:bg-white/[0.04] transition">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-black">{f.taller || f.matricula || 'Solicitud'}</p>
+                    <p className="font-bold">{f.taller || f.matricula || 'Solicitud'}</p>
                     <p className="text-sm text-zinc-500">{[f.servicio, f.ecu, f.estado].filter(Boolean).join(' · ')}</p>
                   </div>
-                  <span className="text-zinc-300 font-black">{money(f.precio)}</span>
+                  <span className="text-zinc-300 font-bold">{money(f.precio)}</span>
                 </div>
               </a>
             ))}
@@ -158,15 +158,15 @@ export default function Dashboard() {
         </div>
 
         <div className="card p-5">
-          <h2 className="text-xl font-black mb-4">Avisos de stock bajo</h2>
+          <h2 className="text-xl font-bold mb-4">Avisos de stock bajo</h2>
           <div className="space-y-3">
             {overview.stockBajo.map((s: any) => (
-              <a href="/stock" key={s.id} className="flex items-center justify-between border border-red-900/40 rounded-2xl p-4 bg-red-950/10 hover:bg-red-950/20 transition">
+              <a href="/stock" key={s.id} className="flex items-center justify-between border border-[#8a4a1f]/40 rounded-2xl p-4 bg-[#8a4a1f]/10 hover:bg-[#8a4a1f]/20 transition">
                 <div>
-                  <p className="font-black">{s.referencia || s.descripcion}</p>
+                  <p className="font-bold">{s.referencia || s.descripcion}</p>
                   <p className="text-sm text-zinc-500">{s.tipo} · {s.ubicacion || 'Sin ubicación'}</p>
                 </div>
-                <span className="text-red-300 font-black">{s.cantidad}</span>
+                <span className="text-[#ffb870] font-bold">{s.cantidad}</span>
               </a>
             ))}
             {!loading && overview.stockBajo.length === 0 && <p className="text-zinc-500">Stock correcto.</p>}
