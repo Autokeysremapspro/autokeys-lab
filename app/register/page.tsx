@@ -66,7 +66,7 @@ export default function RegisterPage() {
       if (authError) throw authError
       if (!signUp.user) throw new Error('No se pudo crear la solicitud de acceso')
 
-      const { error: requestError } = await supabase.from('akcloud_solicitudes_distribuidores').insert({
+      const { data: solicitud, error: requestError } = await supabase.from('akcloud_solicitudes_distribuidores').insert({
         auth_user_id: signUp.user.id,
         email: form.email.trim().toLowerCase(),
         empresa: form.empresa.trim(),
@@ -87,7 +87,7 @@ export default function RegisterPage() {
         herramientas: form.herramientas,
         observaciones: form.observaciones.trim() || null,
         estado: 'pendiente',
-      })
+      }).select('id').single()
       if (requestError) throw requestError
 
       // Best-effort: si falla, el registro ya se completó igualmente —
@@ -101,6 +101,7 @@ export default function RegisterPage() {
           email: form.email.trim(),
           ciudad: form.ciudad.trim(),
           especialidad: form.especialidad,
+          solicitud_id: solicitud.id,
         }),
       }).catch(() => null)
 

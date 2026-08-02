@@ -170,10 +170,9 @@ export default function ExpedienteFichaPage() {
 
   const checklist = useMemo(() => checklistFor(item?.tipo_trabajo), [item?.tipo_trabajo])
 
-  const vehicleTitle = useMemo(() => {
-    if (!item?.vehiculo) return 'Sin vehículo'
-    return [item.vehiculo.marca, item.vehiculo.modelo, item.vehiculo.motor].filter(Boolean).join(' ') || 'Vehículo sin modelo'
-  }, [item?.vehiculo])
+  const vehicleTitle = !item?.vehiculo
+    ? 'Sin vehículo'
+    : [item.vehiculo.marca, item.vehiculo.modelo, item.vehiculo.motor].filter(Boolean).join(' ') || 'Vehículo sin modelo'
 
   const ecuTitle = useMemo(() => {
     return [ecu?.marca_ecu, ecu?.modelo_ecu].filter(Boolean).join(' ') || item?.vehiculo?.ecu || 'ECU sin definir'

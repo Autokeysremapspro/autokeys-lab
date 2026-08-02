@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from '@/lib/supabase/server'
 
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -64,6 +65,7 @@ async function createOrGetAuthUser(admin: ReturnType<typeof getAdminClient>, par
 
 export async function POST(request: Request) {
   try {
+    await requireAdmin()
     const body = await request.json()
     const nombre = String(body.nombre || '').trim()
     const email = String(body.email || '').trim().toLowerCase()
@@ -108,6 +110,7 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    await requireAdmin()
     const body = await request.json()
     const id = String(body.id || '')
     const nombre = String(body.nombre || '').trim()
@@ -156,6 +159,7 @@ export async function PUT(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
+    await requireAdmin()
     const body = await request.json()
     const id = String(body.id || '')
     const password = String(body.password || '')
@@ -213,6 +217,7 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    await requireAdmin()
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
     if (!id) return NextResponse.json({ error: 'Falta id' }, { status: 400 })

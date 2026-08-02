@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireStaff } from '@/lib/supabase/server'
 
 function adminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
@@ -24,10 +25,11 @@ function fecha(value: any) {
   return new Intl.DateTimeFormat('es-ES').format(new Date(value))
 }
 
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
+export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
+    await requireStaff()
     const supabase = adminClient()
-    const id = context.params.id
+    const { id } = await context.params
     const print = req.nextUrl.searchParams.get('print') === '1'
 
     const [{ data: factura, error: facturaError }, { data: config }] = await Promise.all([
