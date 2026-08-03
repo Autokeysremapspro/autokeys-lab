@@ -90,11 +90,11 @@ export default function Dashboard() {
             </div>
           </div>
           <DataTable columns={['OT', 'Cliente', 'Vehículo', 'Trabajo', 'Estado', 'Importe']} rows={overview.ultimosExpedientes.map((o: any) => [
-            <a href={`/expedientes/${o.id}`} className="font-bold hover:text-[#ffb870]">{o.numero_ot}</a>,
+            <a key="ot" href={`/expedientes/${o.id}`} className="font-bold hover:text-[#ffb870]">{o.numero_ot}</a>,
             o.cliente?.nombre || '-',
             `${o.vehiculo?.marca || ''} ${o.vehiculo?.modelo || ''} ${o.vehiculo?.matricula || ''}`.trim() || '-',
             o.tipo_trabajo,
-            <span className={`badge ${statusClass(o.estado)}`}>{o.estado || 'recibido'}</span>,
+            <span key="estado" className={`badge ${statusClass(o.estado)}`}>{o.estado || 'recibido'}</span>,
             money(o.precio_final || o.precio_estimado),
           ])} />
           {!loading && overview.ultimosExpedientes.length === 0 && <p className="text-zinc-500 mt-4">Todavía no hay expedientes.</p>}

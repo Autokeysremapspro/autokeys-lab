@@ -49,7 +49,7 @@ const emptyForm = {
 
 const TIPO_OPTIONS = [
   { value: 'todos', label: 'Todos los tipos' },
-  { value: 'factura', label: 'Factura' },
+  { value: 'factura', label: 'Borrador de factura' },
   { value: 'presupuesto', label: 'Presupuesto' },
   { value: 'albaran', label: 'Albarán' },
   { value: 'ticket', label: 'Ticket' },
@@ -234,8 +234,8 @@ export default function FacturasPage() {
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
         <div>
           <p className="ak-mono text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Administración</p>
-          <h2 className="text-3xl font-bold mt-1">Facturas / Presupuestos</h2>
-          <p className="text-zinc-500 mt-2">Crea, edita, imprime y controla el estado de los documentos.</p>
+          <h2 className="text-3xl font-bold mt-1">Documentos internos</h2>
+          <p className="text-zinc-500 mt-2">Presupuestos, albaranes y borradores. La factura fiscal se emite en Declarando con VeriFactu.</p>
         </div>
         <button onClick={nuevo} className="btn btn-red flex items-center gap-2 justify-center">
           <PlusCircle size={18} /> Nuevo documento

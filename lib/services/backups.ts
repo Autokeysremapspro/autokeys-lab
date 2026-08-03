@@ -7,11 +7,16 @@ export type BackupTable =
   | 'facturas'
   | 'stock'
   | 'file_service'
-  | 'usuarios'
+  | 'usuarios_app'
   | 'agenda_eventos'
   | 'biblioteca_tecnica'
-  | 'auditoria'
+  | 'auditoria_eventos'
   | 'notificaciones'
+  | 'lineas_factura'
+  | 'pagos_factura'
+  | 'gastos'
+  | 'garantias_expediente'
+  | 'configuracion_empresa'
 
 export const BACKUP_TABLES: { name: BackupTable; key: BackupTable; label: string }[] = [
   { name: 'clientes', key: 'clientes', label: 'Clientes' },
@@ -20,11 +25,16 @@ export const BACKUP_TABLES: { name: BackupTable; key: BackupTable; label: string
   { name: 'facturas', key: 'facturas', label: 'Facturas' },
   { name: 'stock', key: 'stock', label: 'Stock' },
   { name: 'file_service', key: 'file_service', label: 'File Service' },
-  { name: 'usuarios', key: 'usuarios', label: 'Usuarios' },
+  { name: 'usuarios_app', key: 'usuarios_app', label: 'Usuarios' },
   { name: 'agenda_eventos', key: 'agenda_eventos', label: 'Agenda' },
   { name: 'biblioteca_tecnica', key: 'biblioteca_tecnica', label: 'Biblioteca Técnica' },
-  { name: 'auditoria', key: 'auditoria', label: 'Auditoría' },
-  { name: 'notificaciones', key: 'notificaciones', label: 'Notificaciones' },]
+  { name: 'auditoria_eventos', key: 'auditoria_eventos', label: 'Auditoría' },
+  { name: 'notificaciones', key: 'notificaciones', label: 'Notificaciones' },
+  { name: 'lineas_factura', key: 'lineas_factura', label: 'Líneas de documentos' },
+  { name: 'pagos_factura', key: 'pagos_factura', label: 'Pagos' },
+  { name: 'gastos', key: 'gastos', label: 'Gastos' },
+  { name: 'garantias_expediente', key: 'garantias_expediente', label: 'Garantías' },
+  { name: 'configuracion_empresa', key: 'configuracion_empresa', label: 'Configuración' },]
 
 
 export const QUICK_EXPORTS = [
@@ -111,9 +121,12 @@ export function getBackupFilename(prefix: string, extension: string) {
   return `${prefix}-${timestamp}.${extension}`
 }
 
-export async function registrarBackup(tipo: string, descripcion?: string) {
-  const { error } = await supabase.from('backups').insert({
+export async function registrarBackup(tipo: string, descripcion?: string, tablas: BackupTable[] = [], totalRegistros = 0) {
+  const { error } = await supabase.from('backup_registros').insert({
     tipo,
+    formato: tipo,
+    tablas,
+    total_registros: totalRegistros,
     descripcion: descripcion || null,
     created_at: new Date().toISOString(),
   })
@@ -131,7 +144,7 @@ export async function exportTable(table: BackupTable) {
 
   downloadFile(filename, csv, 'text/csv;charset=utf-8;')
 
-  await registrarBackup('csv', `Exportación CSV de ${table}`)
+  await registrarBackup('csv', `Exportación CSV de ${table}`, [table], rows.length)
 }
 
 export async function exportFullJson(tables: BackupTable[]) {
@@ -151,12 +164,13 @@ export async function exportFullJson(tables: BackupTable[]) {
 
   downloadFile(filename, content, 'application/json;charset=utf-8;')
 
-  await registrarBackup('json', `Backup completo JSON: ${tables.join(', ')}`)
+  const total = Object.values(data).reduce((sum, rows) => sum + rows.length, 0)
+  await registrarBackup('json', `Exportación JSON: ${tables.join(', ')}`, tables, total)
 }
 
 export async function getBackupRegistros() {
   const { data, error } = await supabase
-    .from('backups')
+    .from('backup_registros')
     .select('*')
     .order('created_at', { ascending: false })
 
