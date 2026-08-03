@@ -53,125 +53,21 @@ export default function Dashboard() {
 
   return (
     <AppShell>
-      <div className="ak-mission-hero mb-7 flex flex-col lg:flex-row lg:items-center justify-between gap-5 rounded-[28px] p-6 lg:p-7">
-        <div>
-          <div className="mb-3 flex items-center gap-3"><span className="ak-core-live-dot"/><p className="ak-mono text-[11px] text-[#ffb870] font-bold uppercase tracking-[0.22em]">Mission Control · Sistema operativo</p></div>
-          <h2 className="text-3xl lg:text-4xl font-bold tracking-[-.035em]">Centro de operaciones Autokeys</h2>
-          <p className="text-zinc-400 mt-2 max-w-3xl">Control en tiempo real del laboratorio, expedientes, producción, stock y AK Cloud.</p>
-        </div>
-        <button onClick={load} disabled={loading} className="btn btn-dark flex items-center justify-center gap-2">
-          <RefreshCw size={17} className={loading ? 'animate-spin' : ''} /> Actualizar
-        </button>
-      </div>
-
-      {error && (
-        <div className="mb-6 rounded-2xl border border-[#8a4a1f]/50 bg-[#8a4a1f]/20 p-4 text-[#ffb870]">
-          {error}
-        </div>
-      )}
-
-      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
-        <StatCard title="OT abiertas" value={stats.otAbiertas} subtitle="Trabajos activos" icon={<ClipboardList size={20} />} tone="copper" />
-        <StatCard title="Terminadas hoy" value={stats.terminadasHoy} subtitle="Listas para entrega" icon={<Car size={20} />} tone="green" />
-        <StatCard title="Facturación hoy" value={money(stats.facturacionHoy)} subtitle={`Mes: ${money(stats.facturacionMes)}`} icon={<Euro size={20} />} tone="blue" />
-        <StatCard title="File Service" value={stats.fileServiceActivos} subtitle="Archivos activos" icon={<UploadCloud size={20} />} tone="amber" />
-        <StatCard title="Urgentes" value={stats.urgentes} subtitle="Prioridad urgente" icon={<AlertTriangle size={20} />} tone="red" />
-        <StatCard title="Pendientes cobro" value={stats.pendientesCobro} subtitle="Documentos pendientes" icon={<FileText size={20} />} tone="amber" />
-        <StatCard title="Clientes" value={stats.clientes} subtitle={`${stats.vehiculos} vehículos registrados`} icon={<Users size={20} />} tone="zinc" />
-        <StatCard title="Stock bajo" value={stats.stockBajo} subtitle="Revisar material" icon={<Package size={20} />} tone="red" />
-      </div>
-
-      <div className="grid xl:grid-cols-3 gap-6 mb-8">
-        <div className="xl:col-span-2 card p-5">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-xl font-bold">Últimos expedientes</h2>
-              <p className="text-sm text-zinc-500">Actividad reciente del laboratorio</p>
-            </div>
+      <div className="ak-v5-reveal space-y-6">
+        <section className="ak-v5-glass relative overflow-hidden rounded-[32px] p-6 sm:p-8">
+          <div className="pointer-events-none absolute -right-20 -top-32 h-80 w-80 rounded-full bg-[#e5a05d]/10 blur-[90px]"/>
+          <div className="relative flex flex-col justify-between gap-8 xl:flex-row xl:items-end">
+            <div><div className="ak-v5-pill"><span className="ak-v5-dot"/> Laboratorio operativo</div><div className="ak-v5-kicker mt-7">Mission Control · Autokeys Core</div><h1 className="ak-v5-title mt-3 text-5xl sm:text-6xl">Buenos días, Carlos.</h1><p className="mt-4 max-w-2xl text-sm leading-7 text-white/38">Todo el laboratorio en una sola vista: trabajos, facturación, stock y actividad de AK Cloud.</p></div>
+            <div className="flex flex-col gap-3 sm:flex-row"><a href="/expedientes/nueva" className="ak-v5-button"><PlusCircle size={18}/> Nueva orden</a><button onClick={load} disabled={loading} className="ak-v5-button-secondary"><RefreshCw size={17} className={loading?'animate-spin':''}/> Sincronizar</button></div>
           </div>
-          <DataTable columns={['OT', 'Cliente', 'Vehículo', 'Trabajo', 'Estado', 'Importe']} rows={overview.ultimosExpedientes.map((o: any) => [
-            <a href={`/expedientes/${o.id}`} className="font-bold hover:text-[#ffb870]">{o.numero_ot}</a>,
-            o.cliente?.nombre || '-',
-            `${o.vehiculo?.marca || ''} ${o.vehiculo?.modelo || ''} ${o.vehiculo?.matricula || ''}`.trim() || '-',
-            o.tipo_trabajo,
-            <span className={`badge ${statusClass(o.estado)}`}>{o.estado || 'recibido'}</span>,
-            money(o.precio_final || o.precio_estimado),
-          ])} />
-          {!loading && overview.ultimosExpedientes.length === 0 && <p className="text-zinc-500 mt-4">Todavía no hay expedientes.</p>}
+          <div className="relative mt-8 grid grid-cols-2 gap-3 lg:grid-cols-5"><div className="ak-v5-stat"><div className="text-[10px] uppercase tracking-widest text-white/28">OT abiertas</div><div className="ak-v5-stat-value mt-2">{stats.otAbiertas}</div></div><div className="ak-v5-stat"><div className="text-[10px] uppercase tracking-widest text-white/28">Urgentes</div><div className="ak-v5-stat-value mt-2 text-[#ff6b7f]">{stats.urgentes}</div></div><div className="ak-v5-stat"><div className="text-[10px] uppercase tracking-widest text-white/28">Terminadas hoy</div><div className="ak-v5-stat-value mt-2 text-[#53e6a8]">{stats.terminadasHoy}</div></div><div className="ak-v5-stat"><div className="text-[10px] uppercase tracking-widest text-white/28">File Service</div><div className="ak-v5-stat-value mt-2 text-[#67e8d1]">{stats.fileServiceActivos}</div></div><div className="ak-v5-stat col-span-2 lg:col-span-1"><div className="text-[10px] uppercase tracking-widest text-white/28">Facturación hoy</div><div className="ak-v5-stat-value mt-2 text-[#ffd09a]">{money(stats.facturacionHoy)}</div></div></div>
+        </section>
+        {error&&<div className="rounded-2xl border border-[#ff4964]/25 bg-[#ff4964]/10 p-4 text-[#ff8b9c]">{error}</div>}
+        <div className="grid gap-6 2xl:grid-cols-[1.55fr_.75fr]">
+          <section className="ak-v5-card p-5 sm:p-6"><div className="mb-5 flex items-end justify-between"><div><div className="ak-v5-kicker">Cola de trabajo</div><h2 className="mt-2 text-2xl font-bold">Últimos expedientes</h2></div><a href="/expedientes" className="text-xs font-bold text-[#e5a05d]">Ver todos →</a></div><DataTable columns={['OT','Cliente','Vehículo','Trabajo','Estado','Importe']} rows={overview.ultimosExpedientes.map((o:any)=>[<a href={`/expedientes/${o.id}`} className="font-bold text-[#ffd09a]">{o.numero_ot}</a>,o.cliente?.nombre||'-',`${o.vehiculo?.marca||''} ${o.vehiculo?.modelo||''} ${o.vehiculo?.matricula||''}`.trim()||'-',o.tipo_trabajo,<span className={`badge ${statusClass(o.estado)}`}>{o.estado||'recibido'}</span>,money(o.precio_final||o.precio_estimado)])}/>{!loading&&overview.ultimosExpedientes.length===0&&<p className="py-8 text-center text-white/30">Todavía no hay expedientes.</p>}</section>
+          <aside className="space-y-6"><section className="ak-v5-card p-5"><div className="ak-v5-kicker">Acciones rápidas</div><div className="mt-4 space-y-2"><QuickAction href="/expedientes/nueva" icon={<PlusCircle size={19}/>} title="Nueva OT" description="Crear expediente"/><QuickAction href="/clientes" icon={<Users size={19}/>} title="Nuevo cliente" description="Alta rápida"/><QuickAction href="/vehiculos" icon={<Car size={19}/>} title="Nuevo vehículo" description="Vincular a cliente"/><QuickAction href="/ak-cloud/produccion" icon={<UploadCloud size={19}/>} title="Producción AK Cloud" description="Gestionar pedidos"/></div></section><section className="ak-v5-card p-5"><div className="flex items-center justify-between"><div><div className="ak-v5-kicker">Actividad</div><h3 className="mt-2 font-bold">Últimos 12 días</h3></div><span className="ak-v5-pill"><span className="ak-v5-dot"/> Live</span></div><div className="mt-7 flex h-32 items-end gap-2">{overview.actividad.map((h,i)=><div key={i} className="flex-1 rounded-t-lg bg-gradient-to-t from-[#9b5628] to-[#ffd09a] opacity-80" style={{height:`${Math.max(8,h)}%`}}/>)}</div></section></aside>
         </div>
-
-        <div className="space-y-6">
-          <div className="card p-5">
-            <h2 className="text-xl font-bold">Acciones rápidas</h2>
-            <p className="text-sm text-zinc-500 mb-4">Crear trabajo, cliente o material</p>
-            <div className="space-y-3">
-              <QuickAction href="/expedientes/nueva" icon={<PlusCircle size={19} />} title="Nueva OT" description="Crear expediente de trabajo" />
-              <QuickAction href="/clientes" icon={<Users size={19} />} title="Nuevo cliente" description="Alta rápida de cliente" />
-              <QuickAction href="/vehiculos" icon={<Car size={19} />} title="Nuevo vehículo" description="Asociar vehículo a cliente" />
-              <QuickAction href="/file-service" icon={<UploadCloud size={19} />} title="File Service" description="Nueva solicitud de archivo" />
-            </div>
-          </div>
-
-          <div className="card p-5">
-            <h2 className="text-xl font-bold mb-4">Actividad de OT</h2>
-            <div className="h-40 flex items-end gap-2">
-              {overview.actividad.map((h, i) => <div key={i} className="flex-1 rounded-t-xl bg-gradient-to-t from-[#8a4a1f] to-[#e2954d]/80 transition-all" style={{ height: `${h}%` }} />)}
-            </div>
-            <p className="text-xs text-zinc-500 mt-3">Últimos 12 días según expedientes creados.</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid xl:grid-cols-3 gap-6">
-        <div className="card p-5">
-          <h2 className="text-xl font-bold mb-4">Últimos clientes</h2>
-          <div className="space-y-3">
-            {overview.ultimosClientes.map((c: any) => (
-              <a href={`/clientes/${c.id}`} key={c.id} className="flex items-center justify-between border border-white/10 rounded-2xl p-4 bg-white/[0.02] hover:bg-white/[0.04] transition">
-                <div>
-                  <p className="font-bold">{c.nombre}</p>
-                  <p className="text-sm text-zinc-500">{c.telefono || c.email || 'Sin contacto'}</p>
-                </div>
-                <span className="badge bg-zinc-800 border border-zinc-700 text-zinc-300">Cliente</span>
-              </a>
-            ))}
-            {!loading && overview.ultimosClientes.length === 0 && <p className="text-zinc-500">Todavía no hay clientes.</p>}
-          </div>
-        </div>
-
-        <div className="card p-5">
-          <h2 className="text-xl font-bold mb-4">File Service activo</h2>
-          <div className="space-y-3">
-            {overview.fileService.filter((f: any) => !['finalizado', 'cancelado'].includes(String(f.estado))).slice(0, 5).map((f: any) => (
-              <a href="/file-service" key={f.id} className="block border border-white/10 rounded-2xl p-4 bg-white/[0.02] hover:bg-white/[0.04] transition">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-bold">{f.taller || f.matricula || 'Solicitud'}</p>
-                    <p className="text-sm text-zinc-500">{[f.servicio, f.ecu, f.estado].filter(Boolean).join(' · ')}</p>
-                  </div>
-                  <span className="text-zinc-300 font-bold">{money(f.precio)}</span>
-                </div>
-              </a>
-            ))}
-            {!loading && overview.fileService.filter((f: any) => !['finalizado', 'cancelado'].includes(String(f.estado))).length === 0 && <p className="text-zinc-500">No hay archivos activos.</p>}
-          </div>
-        </div>
-
-        <div className="card p-5">
-          <h2 className="text-xl font-bold mb-4">Avisos de stock bajo</h2>
-          <div className="space-y-3">
-            {overview.stockBajo.map((s: any) => (
-              <a href="/stock" key={s.id} className="flex items-center justify-between border border-[#8a4a1f]/40 rounded-2xl p-4 bg-[#8a4a1f]/10 hover:bg-[#8a4a1f]/20 transition">
-                <div>
-                  <p className="font-bold">{s.referencia || s.descripcion}</p>
-                  <p className="text-sm text-zinc-500">{s.tipo} · {s.ubicacion || 'Sin ubicación'}</p>
-                </div>
-                <span className="text-[#ffb870] font-bold">{s.cantidad}</span>
-              </a>
-            ))}
-            {!loading && overview.stockBajo.length === 0 && <p className="text-zinc-500">Stock correcto.</p>}
-          </div>
-        </div>
+        <div className="grid gap-6 xl:grid-cols-3"><section className="ak-v5-card p-5"><div className="ak-v5-kicker">Clientes recientes</div><div className="mt-4 space-y-2">{overview.ultimosClientes.slice(0,5).map((c:any)=><a href={`/clientes/${c.id}`} key={c.id} className="flex items-center justify-between rounded-2xl border border-white/[.07] bg-white/[.025] p-4 hover:bg-white/[.045]"><div><div className="font-bold">{c.nombre}</div><div className="mt-1 text-xs text-white/30">{c.telefono||c.email||'Sin contacto'}</div></div><span className="text-xs text-white/25">Abrir →</span></a>)}</div></section><section className="ak-v5-card p-5"><div className="ak-v5-kicker">AK Cloud activo</div><div className="mt-4 space-y-2">{overview.fileService.filter((f:any)=>!['finalizado','cancelado'].includes(String(f.estado))).slice(0,5).map((f:any)=><a href="/ak-cloud/produccion" key={f.id} className="block rounded-2xl border border-white/[.07] bg-white/[.025] p-4 hover:bg-white/[.045]"><div className="flex justify-between gap-3"><div><div className="font-bold">{f.taller||f.matricula||'Solicitud'}</div><div className="mt-1 text-xs text-white/30">{[f.servicio,f.ecu,f.estado].filter(Boolean).join(' · ')}</div></div><div className="font-bold text-[#ffd09a]">{money(f.precio)}</div></div></a>)}</div></section><section className="ak-v5-card p-5"><div className="ak-v5-kicker">Stock crítico</div><div className="mt-4 space-y-2">{overview.stockBajo.slice(0,5).map((x:any)=><a href="/stock" key={x.id} className="flex items-center justify-between rounded-2xl border border-[#ff4964]/15 bg-[#ff4964]/[.045] p-4"><div><div className="font-bold">{x.referencia||x.descripcion}</div><div className="mt-1 text-xs text-white/30">{x.tipo} · {x.ubicacion||'Sin ubicación'}</div></div><span className="font-black text-[#ff8b9c]">{x.cantidad}</span></a>)}</div></section></div>
       </div>
     </AppShell>
   )

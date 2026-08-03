@@ -19,14 +19,14 @@ const toneClasses = {
 
 export default function StatCard({ title, value, subtitle, icon, tone = 'zinc' }: StatCardProps) {
   return (
-    <div className={`ak-stat-v4 card p-5 overflow-hidden relative border ${toneClasses[tone]}`}>
+    <div className={`card p-5 overflow-hidden relative border ${toneClasses[tone]}`}>
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm text-zinc-400 font-semibold">{title}</p>
           <div className="text-3xl font-bold mt-2 text-white">{value}</div>
           {subtitle && <p className="text-xs text-zinc-500 mt-2">{subtitle}</p>}
         </div>
-        {icon && <div className="stat-icon h-11 w-11 rounded-2xl grid place-items-center">{icon}</div>}
+        {icon && <div className="h-11 w-11 rounded-2xl bg-white/5 border border-white/10 grid place-items-center">{icon}</div>}
       </div>
       <div className="absolute -right-8 -bottom-8 h-24 w-24 rounded-full bg-white/5 blur-xl" />
     </div>

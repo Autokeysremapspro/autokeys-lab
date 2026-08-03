@@ -255,8 +255,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const page = currentPage(pathname || '/')
 
   return (
-    <div className="ak-core-shell min-h-screen flex text-zinc-100">
-      <aside className="ak-core-sidebar-v4 w-80 border-r border-white/10 p-5 hidden lg:flex flex-col">
+    <div className="min-h-screen flex bg-[#0a0d12] text-zinc-100">
+      <aside className="w-80 bg-[#0c0f16] border-r border-white/10 p-5 hidden lg:flex flex-col">
         <Link href="/" className="mb-4 block">
           <div className="font-display text-2xl font-bold tracking-tight">
             AUTOKEYS <span className="text-[#ffb870]">CORE</span>
@@ -293,9 +293,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         <Link
                           key={`${group.title}-${item.href}-${item.label}`}
                           href={item.href}
-                          className={`ak-core-nav-v4 flex items-center gap-3 px-4 py-3 rounded-2xl transition ${
+                          className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition ${
                             active
-                              ? 'is-active bg-gradient-to-r from-[#8a4a1f]/70 to-[#e2954d]/70 text-white shadow-lg shadow-black/40'
+                              ? 'bg-gradient-to-r from-[#8a4a1f] to-[#e2954d] text-[#0a0d12] shadow-lg shadow-black/40'
                               : 'hover:bg-white/5 text-zinc-300'
                           }`}
                         >
@@ -316,26 +316,23 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </button>
       </aside>
 
-      <main className="flex-1 min-w-0">
-        <div className="ak-core-topbar-v4 sticky top-0 z-30 border-b border-white/[.07] px-4 py-4 lg:px-8">
-          <div className="mx-auto flex max-w-[1780px] flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-            <div className="min-w-0">
-              <p className="ak-mono text-[11px] text-[#ffb870] font-bold uppercase tracking-[0.22em] flex items-center gap-1.5">
-                <span className="ak-core-live-dot mr-1" />
-                {page.group}
-                {page.title !== page.group && <ChevronRight size={14} className="text-zinc-600" />}
-              </p>
-              <h1 className="font-display truncate text-2xl font-bold tracking-[-.035em] lg:text-4xl mt-1">{page.title}</h1>
-            </div>
-            <div className="flex items-center gap-3">
-              <UniversalSearch />
-              <NotificationCenter />
-            </div>
+      <main className="flex-1 p-4 lg:p-8 max-w-[1700px] mx-auto w-full">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-8 gap-4">
+          <div>
+            <p className="ak-mono text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em] flex items-center gap-1.5">
+              {page.group}
+              {page.title !== page.group && <ChevronRight size={14} className="text-zinc-600" />}
+            </p>
+            <h1 className="font-display text-3xl lg:text-5xl font-bold mt-1">{page.title}</h1>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <UniversalSearch />
+            <NotificationCenter />
           </div>
         </div>
-        <div className="ak-core-content-v4 p-4 lg:p-8">
-          {children}
-        </div>
+
+        {children}
       </main>
       <ChatInterno />
     </div>
