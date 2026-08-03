@@ -216,13 +216,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const stored = window.localStorage.getItem(COLLAPSE_KEY)
-      if (stored) {
-        setCollapsed(JSON.parse(stored))
-      } else {
-        // Conserva todas las rutas históricas, pero evita que el sistema
-        // antiguo de créditos y recargas ocupe espacio en el trabajo diario.
-        setCollapsed({ Histórico: true })
-      }
+      if (stored) setCollapsed(JSON.parse(stored))
     } catch {
       // localStorage puede fallar en modo privado — no pasa nada, se queda todo expandido.
     }
