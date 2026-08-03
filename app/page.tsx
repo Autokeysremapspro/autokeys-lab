@@ -53,11 +53,11 @@ export default function Dashboard() {
 
   return (
     <AppShell>
-      <div className="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 card p-5 border-[#e2954d]/25">
+      <div className="ak-mission-hero mb-7 flex flex-col lg:flex-row lg:items-center justify-between gap-5 rounded-[28px] p-6 lg:p-7">
         <div>
-          <p className="ak-mono text-sm text-[#ffb870] font-bold uppercase tracking-[0.18em]">Autokeys Core v1.2</p>
-          <h2 className="text-2xl font-bold mt-1">Panel conectado a datos reales</h2>
-          <p className="text-zinc-500 mt-1">Clientes, vehículos, OT, facturación, stock y File Service desde Supabase.</p>
+          <div className="mb-3 flex items-center gap-3"><span className="ak-core-live-dot"/><p className="ak-mono text-[11px] text-[#ffb870] font-bold uppercase tracking-[0.22em]">Mission Control · Sistema operativo</p></div>
+          <h2 className="text-3xl lg:text-4xl font-bold tracking-[-.035em]">Centro de operaciones Autokeys</h2>
+          <p className="text-zinc-400 mt-2 max-w-3xl">Control en tiempo real del laboratorio, expedientes, producción, stock y AK Cloud.</p>
         </div>
         <button onClick={load} disabled={loading} className="btn btn-dark flex items-center justify-center gap-2">
           <RefreshCw size={17} className={loading ? 'animate-spin' : ''} /> Actualizar
