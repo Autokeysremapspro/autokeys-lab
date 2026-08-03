@@ -255,8 +255,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const page = currentPage(pathname || '/')
 
   return (
-    <div className="min-h-screen flex bg-[#0a0d12] text-zinc-100">
-      <aside className="w-80 bg-[#0c0f16] border-r border-white/10 p-5 hidden lg:flex flex-col">
+    <div className="ak-core-signature min-h-screen flex bg-[#0a0d12] text-zinc-100">
+      <aside className="ak-core-signature-sidebar w-80 border-r border-white/10 p-5 hidden lg:flex flex-col">
         <Link href="/" className="mb-4 block">
           <div className="font-display text-2xl font-bold tracking-tight">
             AUTOKEYS <span className="text-[#ffb870]">CORE</span>
@@ -293,9 +293,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         <Link
                           key={`${group.title}-${item.href}-${item.label}`}
                           href={item.href}
-                          className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition ${
+                          className={`ak-core-signature-nav flex items-center gap-3 px-4 py-3 rounded-2xl transition ${
                             active
-                              ? 'bg-gradient-to-r from-[#8a4a1f] to-[#e2954d] text-[#0a0d12] shadow-lg shadow-black/40'
+                              ? 'ak-core-signature-nav-active bg-gradient-to-r from-[#8a4a1f] to-[#e2954d] text-[#0a0d12] shadow-lg shadow-black/40'
                               : 'hover:bg-white/5 text-zinc-300'
                           }`}
                         >
@@ -316,7 +316,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </button>
       </aside>
 
-      <main className="flex-1 p-4 lg:p-8 max-w-[1700px] mx-auto w-full">
+      <main className="ak-core-signature-main flex-1 p-4 lg:p-8 max-w-[1780px] mx-auto w-full">
         <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-8 gap-4">
           <div>
             <p className="ak-mono text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em] flex items-center gap-1.5">
