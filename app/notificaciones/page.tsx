@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import AppShell from '@/components/AppShell'
+import ConfirmModal from '@/components/ConfirmModal'
 import { eliminarNotificacion, getNotificaciones, getNotificacionesStats, marcarNotificacionLeida, marcarTodasLeidas } from '@/lib/services/notificaciones'
 import type { Notificacion } from '@/types/notificaciones'
 import { AlertTriangle, Bell, CheckCheck, Clock, Info, Search, ShieldAlert, Trash2 } from 'lucide-react'
@@ -31,9 +32,9 @@ function StatBox({ icon: Icon, label, value }: { icon: any; label: string; value
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-zinc-500 font-bold uppercase tracking-wider">{label}</p>
-          <p className="text-3xl font-black mt-2">{value}</p>
+          <p className="text-3xl font-bold mt-2">{value}</p>
         </div>
-        <div className="w-12 h-12 rounded-2xl bg-red-600/15 border border-red-500/20 flex items-center justify-center text-red-400">
+        <div className="w-12 h-12 rounded-2xl bg-[#e2954d]/15 border border-[#e2954d]/20 flex items-center justify-center text-[#ffb870]">
           <Icon size={22} />
         </div>
       </div>
@@ -91,9 +92,19 @@ export default function NotificacionesPage() {
     await load()
   }
 
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
+
   async function remove(id: string) {
-    if (!confirm('¿Eliminar esta notificación?')) return
-    await eliminarNotificacion(id)
+    setPendingDelete(id)
+  }
+
+  async function confirmRemove() {
+    if (!pendingDelete) return
+    setDeleting(true)
+    await eliminarNotificacion(pendingDelete)
+    setDeleting(false)
+    setPendingDelete(null)
     await load()
   }
 
@@ -102,8 +113,8 @@ export default function NotificacionesPage() {
       <div className="space-y-6">
         <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
           <div>
-            <p className="text-sm text-red-400 font-black uppercase tracking-[0.2em]">Centro de operaciones</p>
-            <h2 className="text-4xl font-black mt-1">Notificaciones</h2>
+            <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Centro de operaciones</p>
+            <h2 className="text-4xl font-bold mt-1">Notificaciones</h2>
             <p className="text-zinc-500 mt-2 max-w-3xl">
               Centro de avisos de Autokeys Core: urgencias, facturas pendientes, stock bajo, File Service, agenda y eventos del sistema.
             </p>
@@ -157,7 +168,7 @@ export default function NotificacionesPage() {
         <div className="card overflow-hidden">
           <div className="p-5 border-b border-white/10 flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-black">Bandeja de avisos</h3>
+              <h3 className="text-xl font-bold">Bandeja de avisos</h3>
               <p className="text-sm text-zinc-500">Avisos persistentes creados por el sistema o por automatizaciones.</p>
             </div>
             {loading && <span className="text-sm text-zinc-500">Cargando...</span>}
@@ -179,8 +190,8 @@ export default function NotificacionesPage() {
                       </div>
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-black text-lg">{item.titulo}</span>
-                          {!item.leida && <span className="text-[10px] font-black px-2 py-1 rounded-full bg-red-600 text-white">NUEVA</span>}
+                          <span className="font-bold text-lg">{item.titulo}</span>
+                          {!item.leida && <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-[#e2954d] text-[#0a0d12]">NUEVA</span>}
                           <span className={`text-xs font-bold px-2 py-1 rounded-full border ${tipoStyles[item.tipo] || tipoStyles.info}`}>
                             {item.tipo}
                           </span>
@@ -205,7 +216,7 @@ export default function NotificacionesPage() {
                               Marcar leída
                             </button>
                           )}
-                          <button onClick={() => remove(item.id)} className="btn btn-soft text-sm text-red-300 flex items-center gap-2">
+                          <button onClick={() => remove(item.id)} className="btn btn-soft text-sm text-red-400 flex items-center gap-2">
                             <Trash2 size={15} /> Eliminar
                           </button>
                         </div>
@@ -223,6 +234,16 @@ export default function NotificacionesPage() {
           </div>
         </div>
       </div>
+      <ConfirmModal
+        open={Boolean(pendingDelete)}
+        title="Eliminar esta notificación"
+        description="Se quitará del centro de notificaciones definitivamente."
+        confirmLabel="Sí, eliminar"
+        danger
+        loading={deleting}
+        onConfirm={confirmRemove}
+        onCancel={() => setPendingDelete(null)}
+      />
     </AppShell>
   )
 }

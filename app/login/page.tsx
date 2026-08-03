@@ -96,14 +96,14 @@ function LoginContent() {
   }
 
   return (
-    <main className="min-h-screen grid place-items-center p-4 bg-[radial-gradient(circle_at_top,#2a0004,#070707_45%)] text-zinc-100">
+    <main className="min-h-screen grid place-items-center p-4 bg-[radial-gradient(circle_at_top,#3a2412,#0a0d12_45%)] text-zinc-100">
       <form onSubmit={submit} className="card w-full max-w-md p-8 space-y-5">
         <div>
-          <p className="text-xs text-red-400 uppercase tracking-[0.24em] font-black">
+          <p className="ak-mono text-xs text-[#ffb870] uppercase tracking-[0.24em] font-bold">
             Acceso interno
           </p>
-          <h1 className="text-4xl font-black mt-2">
-            AUTOKEYS <span className="text-red-500">CORE</span>
+          <h1 className="font-display text-4xl font-bold mt-2">
+            AUTOKEYS <span className="text-[#ffb870]">CORE</span>
           </h1>
           <p className="text-zinc-500 mt-2">
             Laboratorio de electrónica · ECU · IMMO · Llaves
@@ -157,7 +157,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen grid place-items-center p-4 bg-[radial-gradient(circle_at_top,#2a0004,#070707_45%)] text-zinc-100">
+        <main className="min-h-screen grid place-items-center p-4 bg-[radial-gradient(circle_at_top,#3a2412,#0a0d12_45%)] text-zinc-100">
           <div className="card w-full max-w-md p-8 text-center text-zinc-400">
             Cargando acceso...
           </div>

@@ -69,14 +69,14 @@ export default function TimeTrackerPanel({ expedienteId, onEvent }: Props) {
   return (
     <div className="grid xl:grid-cols-3 gap-5">
       <div className="card p-6 xl:col-span-2">
-        <h3 className="text-2xl font-black mb-2 flex items-center gap-2"><Clock3 className="text-red-300" /> Cronómetro de trabajo</h3>
+        <h3 className="text-2xl font-bold mb-2 flex items-center gap-2"><Clock3 className="text-[#ffb870]" /> Cronómetro de trabajo</h3>
         <p className="text-zinc-500 mb-6">Controla el tiempo real invertido en esta OT. Más adelante servirá para rentabilidad y estadísticas por tipo de trabajo.</p>
 
         {error && <div className="rounded-2xl border border-red-500/30 bg-red-500/10 text-red-300 p-4 mb-4">{error}</div>}
 
         <div className="rounded-3xl bg-[#0B1220] border border-white/10 p-8 text-center mb-5">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-3">Sesión actual</p>
-          <div className="text-5xl md:text-7xl font-black tabular-nums">{formatSeconds(activeSeconds)}</div>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 mb-3">Sesión actual</p>
+          <div className="text-5xl md:text-7xl font-bold tabular-nums">{formatSeconds(activeSeconds)}</div>
           {active && <p className="text-zinc-500 mt-3">Iniciado: {new Date(active.started_at).toLocaleString('es-ES')}</p>}
         </div>
 
@@ -93,26 +93,26 @@ export default function TimeTrackerPanel({ expedienteId, onEvent }: Props) {
       </div>
 
       <div className="card p-6">
-        <h3 className="text-2xl font-black mb-5">Resumen</h3>
+        <h3 className="text-2xl font-bold mb-5">Resumen</h3>
         <div className="space-y-4">
-          <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-4"><p className="text-xs text-zinc-500 font-black uppercase">Tiempo total cerrado</p><p className="text-3xl font-black tabular-nums">{formatSeconds(totalSeconds)}</p></div>
-          <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-4"><p className="text-xs text-zinc-500 font-black uppercase">Sesiones</p><p className="text-3xl font-black">{items.length}</p></div>
-          <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-4"><p className="text-xs text-zinc-500 font-black uppercase">Estado</p><p className={active ? 'text-emerald-300 font-black' : 'text-zinc-300 font-black'}>{active ? 'En marcha' : 'Parado'}</p></div>
+          <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-4"><p className="text-xs text-zinc-500 font-bold uppercase">Tiempo total cerrado</p><p className="text-3xl font-bold tabular-nums">{formatSeconds(totalSeconds)}</p></div>
+          <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-4"><p className="text-xs text-zinc-500 font-bold uppercase">Sesiones</p><p className="text-3xl font-bold">{items.length}</p></div>
+          <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-4"><p className="text-xs text-zinc-500 font-bold uppercase">Estado</p><p className={active ? 'text-emerald-300 font-bold' : 'text-zinc-300 font-bold'}>{active ? 'En marcha' : 'Parado'}</p></div>
         </div>
       </div>
 
       <div className="card p-6 xl:col-span-3">
-        <h3 className="text-2xl font-black mb-5">Historial de tiempos</h3>
+        <h3 className="text-2xl font-bold mb-5">Historial de tiempos</h3>
         {loading ? <div className="text-zinc-500">Cargando...</div> : (
           <div className="space-y-3">
             {items.map(item => (
               <div key={item.id} className="rounded-2xl border border-white/10 bg-[#0B1220] p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div>
-                  <p className="font-black">{item.usuario || 'Autokeys Core'}</p>
+                  <p className="font-bold">{item.usuario || 'Autokeys Core'}</p>
                   <p className="text-sm text-zinc-500">{new Date(item.started_at).toLocaleString('es-ES')} {item.ended_at ? `→ ${new Date(item.ended_at).toLocaleString('es-ES')}` : '→ en marcha'}</p>
                   {item.notas && <p className="text-zinc-400 mt-2">{item.notas}</p>}
                 </div>
-                <p className="text-2xl font-black tabular-nums">{item.ended_at ? formatSeconds(item.duration_seconds) : formatSeconds(activeSeconds)}</p>
+                <p className="text-2xl font-bold tabular-nums">{item.ended_at ? formatSeconds(item.duration_seconds) : formatSeconds(activeSeconds)}</p>
               </div>
             ))}
             {!items.length && <div className="text-zinc-500">Aún no hay tiempos registrados.</div>}

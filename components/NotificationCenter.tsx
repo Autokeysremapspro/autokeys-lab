@@ -90,17 +90,17 @@ export default function NotificationCenter() {
     <div className="relative">
       <button onClick={() => setOpen(!open)} className="relative h-12 w-12 rounded-2xl bg-[#0B1220] border border-white/10 flex items-center justify-center hover:bg-white/5 transition">
         <Bell size={18} />
-        {items.length > 0 && <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1 rounded-full bg-red-600 text-[10px] font-black flex items-center justify-center">{items.length}</span>}
+        {items.length > 0 && <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1 rounded-full bg-[#e2954d] text-[10px] font-bold text-[#0a0d12] flex items-center justify-center">{items.length}</span>}
       </button>
 
       {open && (
         <div className="absolute right-0 top-[56px] z-50 w-[390px] bg-[#0B1220] border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
           <div className="p-4 border-b border-white/10 flex items-center justify-between gap-3">
             <div>
-              <div className="font-black">Centro de avisos</div>
+              <div className="font-bold">Centro de avisos</div>
               <div className="text-xs text-zinc-500 mt-1">Urgencias, cobros, file service y stock.</div>
             </div>
-            <button onClick={markAll} className="text-xs font-bold text-red-400 hover:text-red-300 flex items-center gap-1">
+            <button onClick={markAll} className="text-xs font-bold text-[#ffb870] hover:text-[#ffd39f] flex items-center gap-1">
               <CheckCheck size={14} /> Leer todo
             </button>
           </div>
@@ -124,7 +124,7 @@ export default function NotificationCenter() {
                   <div className="min-w-0">
                     <div className="font-bold text-sm truncate">{item.titulo}</div>
                     {item.mensaje && <div className="text-xs text-zinc-500 mt-1 line-clamp-2">{item.mensaje}</div>}
-                    <div className="text-[10px] text-zinc-600 mt-1 uppercase tracking-wider font-black">
+                    <div className="text-[10px] text-zinc-600 mt-1 uppercase tracking-wider font-bold">
                       {item.modulo || 'Sistema'} · {item.prioridad || 'normal'}
                     </div>
                   </div>
@@ -133,7 +133,7 @@ export default function NotificationCenter() {
             })}
           </div>
 
-          <Link href="/notificaciones" onClick={() => setOpen(false)} className="block p-4 border-t border-white/10 text-center text-sm font-bold text-red-400 hover:bg-white/5">
+          <Link href="/notificaciones" onClick={() => setOpen(false)} className="block p-4 border-t border-white/10 text-center text-sm font-bold text-[#ffb870] hover:bg-white/5">
             Ver centro de avisos
           </Link>
         </div>

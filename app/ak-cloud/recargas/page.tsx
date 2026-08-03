@@ -27,7 +27,7 @@ function estadoClass(estado?: string | null) {
     case 'aprobado':
       return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
     case 'rechazado':
-      return 'border-red-500/30 bg-red-500/10 text-red-300'
+      return 'border-[#e2954d]/30 bg-[#e2954d]/10 text-[#ffb870]'
     default:
       return 'border-amber-500/30 bg-amber-500/10 text-amber-300'
   }
@@ -129,16 +129,16 @@ export default function AkCloudRecargasPage() {
     <AppShell>
       <div className="space-y-7">
         <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#101827] to-[#19070d] p-7 shadow-2xl shadow-black/30">
-          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-red-600/20 blur-3xl" />
+          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#e2954d]/20 blur-3xl" />
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <Link href="/ak-cloud" className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-white">
                 <ArrowLeft size={16} /> Volver a AK Cloud
               </Link>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-red-300">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ffb870]">
                 <Wallet size={16} /> AK Cloud Sync v3
               </div>
-              <h1 className="text-4xl font-black tracking-tight lg:text-6xl">Recargas y créditos</h1>
+              <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">Recargas y créditos</h1>
               <p className="mt-3 max-w-3xl text-zinc-400">
                 Aprueba solicitudes de recarga desde Autokeys Core. Al aprobar, se suman créditos al distribuidor y se notifica en AK Cloud.
               </p>
@@ -151,20 +151,20 @@ export default function AkCloudRecargasPage() {
 
         <section className="grid gap-4 md:grid-cols-4">
           <div className="card p-5">
-            <div className="flex items-center justify-between text-zinc-400"><span className="text-xs font-black uppercase tracking-wider">Pendientes</span><Clock3 size={20} /></div>
-            <div className="mt-3 text-3xl font-black">{pendientes}</div>
+            <div className="flex items-center justify-between text-zinc-400"><span className="text-xs font-bold uppercase tracking-wider">Pendientes</span><Clock3 size={20} /></div>
+            <div className="mt-3 text-3xl font-bold">{pendientes}</div>
           </div>
           <div className="card p-5">
-            <div className="flex items-center justify-between text-zinc-400"><span className="text-xs font-black uppercase tracking-wider">Aprobadas</span><CheckCircle2 size={20} /></div>
-            <div className="mt-3 text-3xl font-black">{aprobadas}</div>
+            <div className="flex items-center justify-between text-zinc-400"><span className="text-xs font-bold uppercase tracking-wider">Aprobadas</span><CheckCircle2 size={20} /></div>
+            <div className="mt-3 text-3xl font-bold">{aprobadas}</div>
           </div>
           <div className="card p-5">
-            <div className="flex items-center justify-between text-zinc-400"><span className="text-xs font-black uppercase tracking-wider">Créditos</span><ShieldCheck size={20} /></div>
-            <div className="mt-3 text-3xl font-black">{creditosAprobados}</div>
+            <div className="flex items-center justify-between text-zinc-400"><span className="text-xs font-bold uppercase tracking-wider">Créditos</span><ShieldCheck size={20} /></div>
+            <div className="mt-3 text-3xl font-bold">{creditosAprobados}</div>
           </div>
           <div className="card p-5">
-            <div className="flex items-center justify-between text-zinc-400"><span className="text-xs font-black uppercase tracking-wider">Importe</span><CreditCard size={20} /></div>
-            <div className="mt-3 text-3xl font-black">{formatMoney(importeAprobado)}</div>
+            <div className="flex items-center justify-between text-zinc-400"><span className="text-xs font-bold uppercase tracking-wider">Importe</span><CreditCard size={20} /></div>
+            <div className="mt-3 text-3xl font-bold">{formatMoney(importeAprobado)}</div>
           </div>
         </section>
 
@@ -184,7 +184,7 @@ export default function AkCloudRecargasPage() {
                 <button
                   key={item}
                   onClick={() => setEstado(item)}
-                  className={`rounded-2xl px-4 py-2 text-sm font-black uppercase tracking-wider transition ${estado === item ? 'bg-red-600 text-white' : 'bg-white/5 text-zinc-400 hover:bg-white/10'}`}
+                  className={`rounded-2xl px-4 py-2 text-sm font-bold uppercase tracking-wider transition ${estado === item ? 'bg-[#e2954d] text-[#0a0d12]' : 'bg-white/5 text-zinc-400 hover:bg-white/10'}`}
                 >
                   {item}
                 </button>
@@ -204,15 +204,15 @@ export default function AkCloudRecargasPage() {
                 <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                   <div className="min-w-0">
                     <div className="mb-3 flex flex-wrap items-center gap-2">
-                      <span className={`rounded-full border px-3 py-1 text-xs font-black uppercase tracking-wider ${estadoClass(recarga.estado)}`}>{recarga.estado || 'pendiente'}</span>
+                      <span className={`rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider ${estadoClass(recarga.estado)}`}>{recarga.estado || 'pendiente'}</span>
                       <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-bold text-zinc-400">{formatDate(recarga.created_at)}</span>
                     </div>
-                    <h3 className="text-2xl font-black">{recarga.nombre_cliente || recarga.email_cliente || 'Distribuidor AK Cloud'}</h3>
+                    <h3 className="text-2xl font-bold">{recarga.nombre_cliente || recarga.email_cliente || 'Distribuidor AK Cloud'}</h3>
                     <p className="mt-1 text-zinc-500">{recarga.email_cliente || 'Sin email'} · {recarga.metodo_pago || 'Método no indicado'}</p>
                     <div className="mt-4 grid gap-3 md:grid-cols-3">
-                      <div className="rounded-2xl bg-black/20 p-4"><p className="text-xs font-black uppercase tracking-wider text-zinc-500">Créditos</p><p className="mt-1 text-2xl font-black text-white">{recarga.creditos || 0}</p></div>
-                      <div className="rounded-2xl bg-black/20 p-4"><p className="text-xs font-black uppercase tracking-wider text-zinc-500">Importe</p><p className="mt-1 text-2xl font-black text-white">{formatMoney(recarga.importe)}</p></div>
-                      <div className="rounded-2xl bg-black/20 p-4"><p className="text-xs font-black uppercase tracking-wider text-zinc-500">Referencia</p><p className="mt-1 truncate text-sm font-bold text-white">{recarga.referencia_pago || '—'}</p></div>
+                      <div className="rounded-2xl bg-black/20 p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Créditos</p><p className="mt-1 text-2xl font-bold text-white">{recarga.creditos || 0}</p></div>
+                      <div className="rounded-2xl bg-black/20 p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Importe</p><p className="mt-1 text-2xl font-bold text-white">{formatMoney(recarga.importe)}</p></div>
+                      <div className="rounded-2xl bg-black/20 p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Referencia</p><p className="mt-1 truncate text-sm font-bold text-white">{recarga.referencia_pago || '—'}</p></div>
                     </div>
                     {(recarga.notas_cliente || recarga.notas_admin) && (
                       <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-zinc-400">

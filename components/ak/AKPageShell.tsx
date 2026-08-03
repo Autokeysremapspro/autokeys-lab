@@ -31,7 +31,7 @@ export default function AKPageShell({
               {(title || description || actions) && (
                 <div className="mb-6 flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
                   <div>
-                    {title && <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">{title}</h1>}
+                    {title && <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">{title}</h1>}
                     {description && <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">{description}</p>}
                   </div>
                   {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { BookOpen, Edit3, Plus, Search, Star, Trash2, Trophy } from 'lucide-react'
 import AppShell from '@/components/AppShell'
+import ConfirmModal from '@/components/ConfirmModal'
 import BibliotecaCasoModal from '@/components/BibliotecaCasoModal'
 import { actualizarCasoTecnico, crearCasoTecnico, eliminarCasoTecnico, getCasosTecnicos } from '@/lib/services/bibliotecaTecnica'
 import type { BibliotecaPayload, BibliotecaTecnica } from '@/types/biblioteca'
@@ -82,25 +83,37 @@ export default function BibliotecaTecnicaPage() {
     }
   }
 
-  async function remove(caso: BibliotecaTecnica) {
-    if (!confirm(`¿Eliminar el caso técnico "${caso.titulo}"?`)) return
+  const [pendingDelete, setPendingDelete] = useState<BibliotecaTecnica | null>(null)
+  const [deleting, setDeleting] = useState(false)
+
+  function remove(caso: BibliotecaTecnica) {
+    setPendingDelete(caso)
+  }
+
+  async function confirmRemove() {
+    if (!pendingDelete) return
+    setDeleting(true)
     try {
-      await eliminarCasoTecnico(caso.id)
+      await eliminarCasoTecnico(pendingDelete.id)
       toast.success('Caso eliminado')
+      setPendingDelete(null)
       await load()
     } catch (error: any) {
       toast.error(error?.message || 'No se pudo eliminar')
+    } finally {
+      setDeleting(false)
     }
   }
 
   return (
+    <>
     <AppShell>
       <div className="mb-6 flex flex-col justify-between gap-4 xl:flex-row xl:items-center">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-red-400">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">
             <BookOpen size={14} /> Biblioteca Técnica PRO
           </div>
-          <h2 className="text-3xl font-black tracking-tight">Biblioteca técnica</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Biblioteca técnica</h2>
           <p className="mt-1 text-zinc-500">Casos resueltos, ECUs, HW/SW, síntomas y soluciones del laboratorio.</p>
         </div>
         <button onClick={openCreate} className="btn btn-red inline-flex items-center justify-center gap-2">
@@ -125,18 +138,18 @@ export default function BibliotecaTecnicaPage() {
       ) : (
         <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
           {filtered.map((caso) => (
-            <div key={caso.id} className="card p-5 transition hover:-translate-y-0.5 hover:border-red-500/35">
+            <div key={caso.id} className="card p-5 transition hover:-translate-y-0.5 hover:border-[#e2954d]/35">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-red-400">
+                  <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#ffb870]">
                     {caso.ecu || 'ECU —'}
                     {caso.destacado && <Star size={14} className="text-yellow-400" />}
                     {caso.solucion_definitiva && <Trophy size={14} className="text-emerald-400" />}
                   </div>
-                  <h3 className="mt-2 text-xl font-black">{caso.titulo}</h3>
+                  <h3 className="mt-2 text-xl font-bold">{caso.titulo}</h3>
                   <p className="mt-1 text-sm text-zinc-500">{[caso.marca, caso.modelo, caso.motor].filter(Boolean).join(' · ') || 'Vehículo sin definir'}</p>
                 </div>
-                <div className="rounded-2xl border border-white/10 px-3 py-2 text-sm font-black text-zinc-300">D{caso.dificultad || 1}</div>
+                <div className="rounded-2xl border border-white/10 px-3 py-2 text-sm font-bold text-zinc-300">D{caso.dificultad || 1}</div>
               </div>
 
               <div className="mt-5 grid gap-3 text-sm">
@@ -164,11 +177,22 @@ export default function BibliotecaTecnicaPage() {
 
       <BibliotecaCasoModal open={modalOpen} caso={editing} loading={saving} onClose={() => { setModalOpen(false); setEditing(null) }} onSubmit={save} />
     </AppShell>
+    <ConfirmModal
+      open={Boolean(pendingDelete)}
+      title={`Eliminar "${pendingDelete?.titulo || 'este caso'}"`}
+      description="Se eliminará el caso técnico de la biblioteca definitivamente."
+      confirmLabel="Sí, eliminar"
+      danger
+      loading={deleting}
+      onConfirm={confirmRemove}
+      onCancel={() => setPendingDelete(null)}
+    />
+    </>
   )
 }
 
 function Stat({ label, value }: { label: string; value: number }) {
-  return <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">{label}</p><p className="mt-1 text-2xl font-black">{value}</p></div>
+  return <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">{label}</p><p className="mt-1 text-2xl font-bold">{value}</p></div>
 }
 
 function Info({ label, value }: { label: string; value: string }) {

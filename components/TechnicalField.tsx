@@ -12,7 +12,7 @@ type Props = {
 export default function TechnicalField({ label, value, onChange, placeholder, type = 'text', textarea }: Props) {
   return (
     <label className="space-y-2">
-      <span className="text-xs font-black uppercase tracking-wider text-zinc-400">{label}</span>
+      <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">{label}</span>
       {textarea ? (
         <textarea
           value={value ?? ''}

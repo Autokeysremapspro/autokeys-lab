@@ -5,7 +5,7 @@ type StatCardProps = {
   value: ReactNode
   subtitle?: string
   icon?: ReactNode
-  tone?: 'red' | 'green' | 'amber' | 'blue' | 'zinc'
+  tone?: 'red' | 'green' | 'amber' | 'blue' | 'zinc' | 'copper'
 }
 
 const toneClasses = {
@@ -14,6 +14,7 @@ const toneClasses = {
   amber: 'from-amber-500/20 to-amber-950/20 border-amber-900/50 text-amber-300',
   blue: 'from-blue-500/20 to-blue-950/20 border-blue-900/50 text-blue-300',
   zinc: 'from-zinc-500/10 to-zinc-950/20 border-zinc-800 text-zinc-300',
+  copper: 'from-[#e2954d]/20 to-[#8a4a1f]/10 border-[#e2954d]/40 text-[#ffb870]',
 }
 
 export default function StatCard({ title, value, subtitle, icon, tone = 'zinc' }: StatCardProps) {
@@ -22,7 +23,7 @@ export default function StatCard({ title, value, subtitle, icon, tone = 'zinc' }
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm text-zinc-400 font-semibold">{title}</p>
-          <div className="text-3xl font-black mt-2 text-white">{value}</div>
+          <div className="text-3xl font-bold mt-2 text-white">{value}</div>
           {subtitle && <p className="text-xs text-zinc-500 mt-2">{subtitle}</p>}
         </div>
         {icon && <div className="h-11 w-11 rounded-2xl bg-white/5 border border-white/10 grid place-items-center">{icon}</div>}

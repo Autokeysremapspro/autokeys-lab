@@ -43,7 +43,7 @@ export default function ClienteModal({ open, cliente, onClose, onSave }: Props) 
       <div className="w-full max-w-4xl rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
         <div className="mb-6 flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-black text-white">{cliente ? 'Editar cliente' : 'Nuevo cliente'}</h2>
+            <h2 className="text-2xl font-bold text-white">{cliente ? 'Editar cliente' : 'Nuevo cliente'}</h2>
             <p className="text-sm text-slate-400">Datos administrativos del cliente.</p>
           </div>
           <button onClick={onClose} className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800">Cerrar</button>
@@ -61,13 +61,13 @@ export default function ClienteModal({ open, cliente, onClose, onSave }: Props) 
           <div />
           <div className="md:col-span-2">
             <label className="mb-2 block text-sm font-bold text-slate-300">Observaciones</label>
-            <textarea value={form.notas || ''} onChange={e => set('notas', e.target.value)} className="h-28 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-500" />
+            <textarea value={form.notas || ''} onChange={e => set('notas', e.target.value)} className="h-28 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-[#e2954d]" />
           </div>
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
           <button onClick={onClose} className="rounded-xl border border-slate-700 px-5 py-3 font-bold text-white hover:bg-slate-800">Cancelar</button>
-          <button onClick={submit} disabled={loading} className="rounded-xl bg-red-600 px-5 py-3 font-black text-white shadow-lg shadow-red-950/40 hover:bg-red-500 disabled:opacity-60">
+          <button onClick={submit} disabled={loading} className="rounded-xl bg-[#e2954d] px-5 py-3 font-bold text-[#0a0d12] shadow-lg shadow-[#8a4a1f]/40 hover:bg-[#ffb870] disabled:opacity-60">
             {loading ? 'Guardando...' : 'Guardar cliente'}
           </button>
         </div>
@@ -80,7 +80,7 @@ function Field({ label, value, onChange }: { label: string; value: string; onCha
   return (
     <label className="block">
       <span className="mb-2 block text-sm font-bold text-slate-300">{label}</span>
-      <input value={value} onChange={e => onChange(e.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-500" />
+      <input value={value} onChange={e => onChange(e.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-[#e2954d]" />
     </label>
   )
 }

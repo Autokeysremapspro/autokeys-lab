@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import AppShell from '@/components/AppShell'
+import CustomSelect from '@/components/ak/CustomSelect'
 import {
   AkCloudRecargaFactura,
   crearFacturaDesdeRecarga,
@@ -116,16 +117,16 @@ export default function AkCloudFacturacionPage() {
     <AppShell>
       <div className="space-y-7">
         <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#111827] to-[#1b0b12] p-7 shadow-2xl shadow-black/30">
-          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-red-600/20 blur-3xl" />
+          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#e2954d]/20 blur-3xl" />
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <Link href="/ak-cloud" className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-white">
                 <ArrowLeft size={16} /> Volver a AK Cloud
               </Link>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-red-300">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ffb870]">
                 <FileText size={16} /> AK Cloud Sync v4
               </div>
-              <h1 className="text-4xl font-black tracking-tight lg:text-6xl">Facturación AK Cloud</h1>
+              <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">Facturación AK Cloud</h1>
               <p className="mt-3 max-w-3xl text-zinc-400">
                 Genera facturas de recargas aprobadas usando el sistema de documentos de Autokeys Core. AK Cloud solo muestra el documento al distribuidor.
               </p>
@@ -138,19 +139,19 @@ export default function AkCloudFacturacionPage() {
 
         <section className="grid gap-4 md:grid-cols-4">
           <div className="card p-5">
-            <div className="flex items-center justify-between text-zinc-400"><span className="text-xs font-black uppercase tracking-wider">Total aprobado</span><Wallet size={20} /></div>
-            <div className="mt-3 text-3xl font-black">{money(totalAprobado)}</div>
+            <div className="flex items-center justify-between text-zinc-400"><span className="text-xs font-bold uppercase tracking-wider">Total aprobado</span><Wallet size={20} /></div>
+            <div className="mt-3 text-3xl font-bold">{money(totalAprobado)}</div>
           </div>
           <div className="card p-5">
-            <div className="flex items-center justify-between text-zinc-400"><span className="text-xs font-black uppercase tracking-wider">Pendientes factura</span><CreditCard size={20} /></div>
-            <div className="mt-3 text-3xl font-black">{pendientesFactura}</div>
+            <div className="flex items-center justify-between text-zinc-400"><span className="text-xs font-bold uppercase tracking-wider">Pendientes factura</span><CreditCard size={20} /></div>
+            <div className="mt-3 text-3xl font-bold">{pendientesFactura}</div>
           </div>
           <div className="card p-5">
-            <div className="flex items-center justify-between text-zinc-400"><span className="text-xs font-black uppercase tracking-wider">Facturadas</span><CheckCircle2 size={20} /></div>
-            <div className="mt-3 text-3xl font-black">{facturadas}</div>
+            <div className="flex items-center justify-between text-zinc-400"><span className="text-xs font-bold uppercase tracking-wider">Facturadas</span><CheckCircle2 size={20} /></div>
+            <div className="mt-3 text-3xl font-bold">{facturadas}</div>
           </div>
-          <div className="card p-5 border border-red-500/20">
-            <div className="text-xs font-black uppercase tracking-wider text-red-300">Flujo recomendado</div>
+          <div className="card p-5 border border-[#e2954d]/20">
+            <div className="text-xs font-bold uppercase tracking-wider text-[#ffb870]">Flujo recomendado</div>
             <div className="mt-3 text-sm text-zinc-400">Recarga aprobada → factura Core → PDF visible en AK Cloud.</div>
           </div>
         </section>
@@ -158,7 +159,7 @@ export default function AkCloudFacturacionPage() {
         <section className="card overflow-hidden">
           <div className="flex flex-col gap-4 border-b border-white/10 p-5 xl:flex-row xl:items-center xl:justify-between">
             <div>
-              <h2 className="text-2xl font-black">Recargas y facturas</h2>
+              <h2 className="text-2xl font-bold">Recargas y facturas</h2>
               <p className="text-zinc-500">Control documental de créditos AK Cloud.</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -166,12 +167,17 @@ export default function AkCloudFacturacionPage() {
                 <Search size={18} className="text-zinc-500" />
                 <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar distribuidor, email o referencia..." className="w-full min-w-[280px] border-0 bg-transparent p-0" />
               </div>
-              <select value={estado} onChange={(e) => setEstado(e.target.value)} className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white">
-                <option value="todos">Todos</option>
-                <option value="pendiente">Pendientes</option>
-                <option value="aprobado">Aprobadas</option>
-                <option value="rechazado">Rechazadas</option>
-              </select>
+              <CustomSelect
+                className="min-w-[180px]"
+                value={estado}
+                onChange={setEstado}
+                options={[
+                  { value: 'todos', label: 'Todos' },
+                  { value: 'pendiente', label: 'Pendientes' },
+                  { value: 'aprobado', label: 'Aprobadas' },
+                  { value: 'rechazado', label: 'Rechazadas' },
+                ]}
+              />
             </div>
           </div>
 
@@ -197,16 +203,16 @@ export default function AkCloudFacturacionPage() {
                   {filtered.map((recarga) => (
                     <tr key={recarga.id} className="hover:bg-white/[0.03]">
                       <td className="p-4">
-                        <div className="font-black text-white">{recarga.nombre_cliente || 'Distribuidor'}</div>
+                        <div className="font-bold text-white">{recarga.nombre_cliente || 'Distribuidor'}</div>
                         <div className="text-sm text-zinc-500">{recarga.email_cliente || '—'}</div>
                       </td>
                       <td className="p-4">
-                        <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-black uppercase ${badge(recarga.estado)}`}>
+                        <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold uppercase ${badge(recarga.estado)}`}>
                           {recarga.estado || 'pendiente'}
                         </span>
                       </td>
-                      <td className="p-4 font-black">{Number(recarga.creditos || 0)}</td>
-                      <td className="p-4 font-black">{money(recarga.importe)}</td>
+                      <td className="p-4 font-bold">{Number(recarga.creditos || 0)}</td>
+                      <td className="p-4 font-bold">{money(recarga.importe)}</td>
                       <td className="p-4 text-zinc-400">{date(recarga.created_at)}</td>
                       <td className="p-4">
                         {recarga.core_factura_id ? (

@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import { Edit3, Eye, Mail, Phone, Plus, Search, Trash2, Users } from 'lucide-react'
 import AppShell from '@/components/AppShell'
 import ClienteModal from '@/components/ClienteModal'
+import ConfirmModal from '@/components/ConfirmModal'
 import { supabase } from '@/lib/supabase'
 
 type Cliente = {
@@ -28,6 +29,8 @@ export default function ClientesPage() {
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Cliente | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<Cliente | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     loadClientes()
@@ -102,7 +105,7 @@ export default function ClientesPage() {
     loadClientes()
   }
 
-  async function deleteCliente(cliente: Cliente) {
+  async function askDelete(cliente: Cliente) {
     const [{ count: vehiculosCount }, { count: expedientesCount }, { count: facturasCount }] =
       await Promise.all([
         supabase.from('vehiculos').select('id', { count: 'exact', head: true }).eq('cliente_id', cliente.id),
@@ -110,17 +113,21 @@ export default function ClientesPage() {
         supabase.from('facturas').select('id', { count: 'exact', head: true }).eq('cliente_id', cliente.id),
       ])
 
-    const totalRelations =
-      (vehiculosCount || 0) + (expedientesCount || 0) + (facturasCount || 0)
+    const totalRelations = (vehiculosCount || 0) + (expedientesCount || 0) + (facturasCount || 0)
 
     if (totalRelations > 0) {
       toast.error('No se puede eliminar: tiene vehículos, expedientes o facturas asociados.')
       return
     }
 
-    if (!confirm(`¿Eliminar definitivamente a ${cliente.nombre}?`)) return
+    setPendingDelete(cliente)
+  }
 
-    const { error } = await supabase.from('clientes').delete().eq('id', cliente.id)
+  async function confirmDelete() {
+    if (!pendingDelete) return
+    setDeleting(true)
+    const { error } = await supabase.from('clientes').delete().eq('id', pendingDelete.id)
+    setDeleting(false)
 
     if (error) {
       toast.error(error.message)
@@ -128,6 +135,7 @@ export default function ClientesPage() {
     }
 
     toast.success('Cliente eliminado')
+    setPendingDelete(null)
     loadClientes()
   }
 
@@ -135,10 +143,10 @@ export default function ClientesPage() {
     <AppShell>
       <div className="mb-6 flex flex-col justify-between gap-4 xl:flex-row xl:items-center">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-red-400">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">
             <Users size={14} /> Clientes
           </div>
-          <h2 className="text-3xl font-black tracking-tight">Clientes</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Clientes</h2>
           <p className="mt-1 text-zinc-500">
             Alta, búsqueda, ficha y edición de clientes reales desde Supabase.
           </p>
@@ -165,25 +173,27 @@ export default function ClientesPage() {
 
         <div className="card p-4">
           <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Clientes</p>
-          <p className="mt-1 text-2xl font-black">{clientes.length}</p>
+          <p className="mt-1 text-2xl font-bold">{clientes.length}</p>
         </div>
 
         <div className="card p-4">
           <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Resultados</p>
-          <p className="mt-1 text-2xl font-black">{filtered.length}</p>
+          <p className="mt-1 text-2xl font-bold">{filtered.length}</p>
         </div>
       </div>
 
       <div className="card overflow-hidden">
         <div className="border-b border-zinc-800 px-5 py-4">
-          <h3 className="font-black">Listado de clientes</h3>
+          <h3 className="font-bold">Listado de clientes</h3>
         </div>
 
         {loading ? (
-          <div className="p-8 text-zinc-500">Cargando clientes...</div>
+          <div className="space-y-3 p-5">
+            {[1, 2, 3].map((i) => <div key={i} className="h-14 animate-pulse rounded-2xl bg-white/5" />)}
+          </div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-zinc-500">
-            No hay clientes que coincidan con la búsqueda.
+          <div className="p-10 text-center text-zinc-500">
+            {clientes.length === 0 ? 'Todavía no hay clientes — crea el primero con "Nuevo cliente".' : 'Ningún cliente coincide con esa búsqueda.'}
           </div>
         ) : (
           <div className="overflow-auto">
@@ -202,7 +212,7 @@ export default function ClientesPage() {
                 {filtered.map((cliente) => (
                   <tr key={cliente.id}>
                     <td>
-                      <div className="font-black text-white">{cliente.nombre}</div>
+                      <div className="font-bold text-white">{cliente.nombre}</div>
                       <div className="mt-1 max-w-xs truncate text-sm text-zinc-500">
                         {cliente.notas || 'Sin observaciones'}
                       </div>
@@ -241,8 +251,8 @@ export default function ClientesPage() {
                         </button>
 
                         <button
-                          onClick={() => deleteCliente(cliente)}
-                          className="btn btn-dark inline-flex items-center gap-2 text-sm text-red-300"
+                          onClick={() => askDelete(cliente)}
+                          className="btn btn-dark inline-flex items-center gap-2 text-sm text-red-400"
                         >
                           <Trash2 size={15} /> Eliminar
                         </button>
@@ -264,6 +274,17 @@ export default function ClientesPage() {
           setEditing(null)
         }}
         onSave={saveCliente}
+      />
+
+      <ConfirmModal
+        open={Boolean(pendingDelete)}
+        title={`Eliminar a ${pendingDelete?.nombre || 'este cliente'}`}
+        description="Se eliminará la ficha del cliente definitivamente. Ya hemos comprobado que no tiene vehículos, expedientes ni facturas asociados."
+        confirmLabel="Sí, eliminar"
+        danger
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
       />
     </AppShell>
   )

@@ -3,12 +3,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import AppShell from '@/components/AppShell'
 import FormModal from '@/components/FormModal'
+import ConfirmModal from '@/components/ConfirmModal'
+import CustomSelect from '@/components/ak/CustomSelect'
 import { supabase } from '@/lib/supabase'
 import { money } from '@/lib/status'
 import toast from 'react-hot-toast'
 import { Package, Pencil, PlusCircle, Search, Trash2 } from 'lucide-react'
 
 const tiposStock = ['llave','ecu','bsi','bcm','cas','fem','bdc','ezs','elv','cuadro','accesorio','otro']
+
+const TIPO_FILTRO_OPTIONS = [{ value: 'todos', label: 'Todos los tipos' }, ...tiposStock.map(t => ({ value: t, label: t }))]
 
 const emptyForm = {
   tipo: 'otro',
@@ -30,8 +34,12 @@ export default function StockPage() {
   const [editing, setEditing] = useState<any | null>(null)
   const [form, setForm] = useState<any>(emptyForm)
   const [query, setQuery] = useState('')
+  const [tipoFiltro, setTipoFiltro] = useState('todos')
+  const [soloStockBajo, setSoloStockBajo] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState<any | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => { load() }, [])
 
@@ -51,13 +59,20 @@ export default function StockPage() {
     }
   }
 
+  const stockBajo = items.filter(i => Number(i.cantidad || 0) <= Number(i.cantidad_minima || 0)).length
+  const valorStock = items.reduce((sum, i) => sum + Number(i.cantidad || 0) * Number(i.precio_compra || 0), 0)
+
   const filtered = useMemo(() => {
+    let out = items
+    if (tipoFiltro !== 'todos') out = out.filter(i => (i.tipo || 'otro') === tipoFiltro)
+    if (soloStockBajo) out = out.filter(i => Number(i.cantidad || 0) <= Number(i.cantidad_minima || 0))
+
     const q = query.toLowerCase().trim()
-    if (!q) return items
-    return items.filter(i =>
+    if (!q) return out
+    return out.filter(i =>
       `${i.tipo || ''} ${i.referencia || ''} ${i.descripcion || ''} ${i.marca || ''} ${i.modelo || ''} ${i.ubicacion || ''}`.toLowerCase().includes(q)
     )
-  }, [items, query])
+  }, [items, query, tipoFiltro, soloStockBajo])
 
   function newItem() {
     setEditing(null)
@@ -133,27 +148,32 @@ export default function StockPage() {
     }
   }
 
-  async function remove(item: any) {
-    if (!confirm(`¿Eliminar la referencia ${item.referencia || item.descripcion}?`)) return
+  function askDelete(item: any) {
+    setPendingDelete(item)
+  }
+
+  async function confirmDelete() {
+    if (!pendingDelete) return
+    setDeleting(true)
     try {
-      const { error } = await supabase.from('stock').delete().eq('id', item.id)
+      const { error } = await supabase.from('stock').delete().eq('id', pendingDelete.id)
       if (error) throw error
       toast.success('Referencia eliminada')
+      setPendingDelete(null)
       await load()
     } catch (error: any) {
       toast.error(error.message || 'No se pudo eliminar')
+    } finally {
+      setDeleting(false)
     }
   }
-
-  const stockBajo = items.filter(i => Number(i.cantidad || 0) <= Number(i.cantidad_minima || 0)).length
-  const valorStock = items.reduce((sum, i) => sum + Number(i.cantidad || 0) * Number(i.precio_compra || 0), 0)
 
   return (
     <AppShell>
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
         <div>
-          <p className="text-sm text-red-400 font-bold uppercase tracking-[0.2em]">Almacén</p>
-          <h2 className="text-3xl font-black mt-1">Control de stock</h2>
+          <p className="ak-mono text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Almacén</p>
+          <h2 className="text-3xl font-bold mt-1">Control de stock</h2>
           <p className="text-zinc-500 mt-2">Edita, elimina y controla referencias de llaves, ECUs, módulos y accesorios.</p>
         </div>
         <button onClick={newItem} className="btn btn-red flex items-center gap-2 justify-center">
@@ -162,19 +182,19 @@ export default function StockPage() {
       </div>
 
       <div className="grid md:grid-cols-3 gap-4 mb-6">
-        <div className="card p-5">
-          <Package className="text-red-400" />
-          <div className="text-3xl font-black mt-3">{items.length}</div>
+        <button type="button" onClick={() => setSoloStockBajo(false)} className={`card p-5 text-left transition ${!soloStockBajo ? 'border-[#e2954d]/60 bg-[#e2954d]/[.08]' : 'hover:border-[#e2954d]/25'}`}>
+          <Package className="text-[#ffb870]" />
+          <div className="text-3xl font-bold mt-3">{items.length}</div>
           <div className="text-sm text-zinc-500">Referencias</div>
-        </div>
-        <div className="card p-5">
-          <Package className="text-amber-300" />
-          <div className="text-3xl font-black mt-3">{stockBajo}</div>
+        </button>
+        <button type="button" onClick={() => setSoloStockBajo((v) => !v)} className={`card p-5 text-left transition ${soloStockBajo ? 'border-red-500/50 bg-red-500/[.08]' : 'hover:border-red-500/25'}`}>
+          <Package className="text-red-400" />
+          <div className="text-3xl font-bold mt-3">{stockBajo}</div>
           <div className="text-sm text-zinc-500">Stock bajo</div>
-        </div>
+        </button>
         <div className="card p-5">
           <Package className="text-emerald-300" />
-          <div className="text-3xl font-black mt-3">{money(valorStock)}</div>
+          <div className="text-3xl font-bold mt-3">{money(valorStock)}</div>
           <div className="text-sm text-zinc-500">Valor compra estimado</div>
         </div>
       </div>
@@ -182,8 +202,8 @@ export default function StockPage() {
       <div className="card p-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-3">
-            <Search className="text-red-400" />
-            <h3 className="text-xl font-black">Referencias</h3>
+            <Search className="text-[#ffb870]" />
+            <h3 className="text-xl font-bold">Referencias</h3>
           </div>
           <input
             value={query}
@@ -193,10 +213,18 @@ export default function StockPage() {
           />
         </div>
 
+        <div className="mb-5">
+          <CustomSelect className="max-w-xs" value={tipoFiltro} onChange={setTipoFiltro} options={TIPO_FILTRO_OPTIONS} />
+        </div>
+
         {loading ? (
-          <div className="text-zinc-500 py-10 text-center">Cargando stock...</div>
+          <div className="space-y-3">
+            {[1, 2, 3].map(i => <div key={i} className="h-12 animate-pulse rounded-2xl bg-white/5" />)}
+          </div>
         ) : filtered.length === 0 ? (
-          <div className="text-zinc-500 py-10 text-center">No hay referencias de stock.</div>
+          <div className="text-zinc-500 py-10 text-center">
+            {items.length === 0 ? 'Todavía no hay referencias de stock — crea la primera.' : 'Ninguna referencia coincide con estos filtros.'}
+          </div>
         ) : (
           <div className="table-wrap">
             <table>
@@ -221,7 +249,7 @@ export default function StockPage() {
                     <td>{item.descripcion}</td>
                     <td className="text-zinc-400">{`${item.marca || ''} ${item.modelo || ''}`.trim() || '—'}</td>
                     <td>
-                      <span className={Number(item.cantidad || 0) <= Number(item.cantidad_minima || 0) ? 'text-red-300 font-black' : 'font-black'}>
+                      <span className={Number(item.cantidad || 0) <= Number(item.cantidad_minima || 0) ? 'text-red-400 font-bold' : 'font-bold'}>
                         {item.cantidad ?? 0}
                       </span>
                       <span className="text-xs text-zinc-500 ml-1">/ min {item.cantidad_minima ?? 0}</span>
@@ -232,7 +260,7 @@ export default function StockPage() {
                     <td>
                       <div className="flex gap-2 flex-wrap">
                         <button onClick={() => editItem(item)} className="btn btn-dark flex items-center gap-2"><Pencil size={15} /> Editar</button>
-                        <button onClick={() => remove(item)} className="btn bg-red-950/40 border border-red-500/20 text-red-300 flex items-center gap-2"><Trash2 size={15} /> Eliminar</button>
+                        <button onClick={() => askDelete(item)} className="btn bg-red-950/40 border border-red-500/20 text-red-300 flex items-center gap-2"><Trash2 size={15} /> Eliminar</button>
                       </div>
                     </td>
                   </tr>
@@ -261,6 +289,17 @@ export default function StockPage() {
           <button disabled={saving} className="btn btn-red md:col-span-2 disabled:opacity-50">{saving ? 'Guardando...' : editing ? 'Guardar cambios' : 'Crear referencia'}</button>
         </form>
       </FormModal>
+
+      <ConfirmModal
+        open={Boolean(pendingDelete)}
+        title={`Eliminar ${pendingDelete?.referencia || pendingDelete?.descripcion || 'esta referencia'}`}
+        description="Se eliminará la referencia de stock definitivamente."
+        confirmLabel="Sí, eliminar"
+        danger
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </AppShell>
   )
 }

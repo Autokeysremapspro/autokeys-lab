@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CreditCard, FilePlus2, Plus, ReceiptText, Save, Trash2 } from 'lucide-react'
 import { FacturacionService } from '@/lib/services/facturacion'
+import ConfirmModal from '@/components/ConfirmModal'
 import type { DocumentoFacturacion, ExpedienteConRelaciones, LineaFactura } from '@/types/autokeys'
 
 type Props = {
@@ -117,12 +118,20 @@ export default function FacturacionPanel({ expediente, onEvent }: Props) {
     }
   }
 
-  async function deleteLinea(linea: LineaFactura) {
-    if (!confirm('¿Eliminar esta línea?')) return
+  const [pendingDelete, setPendingDelete] = useState<LineaFactura | null>(null)
+
+  function deleteLinea(linea: LineaFactura) {
+    setPendingDelete(linea)
+  }
+
+  async function confirmDeleteLinea() {
+    if (!pendingDelete) return
+    const linea = pendingDelete
     setSaving(true); setError(''); setOk('')
     try {
       await FacturacionService.deleteLinea(linea.id)
       await onEvent?.('Línea eliminada', linea.concepto)
+      setPendingDelete(null)
       await load()
     } catch (err: any) {
       setError(err.message || 'No se pudo eliminar la línea')
@@ -140,14 +149,14 @@ export default function FacturacionPanel({ expediente, onEvent }: Props) {
   return (
     <div className="grid xl:grid-cols-3 gap-5">
       <div className="card p-6 xl:col-span-1">
-        <h3 className="text-2xl font-black mb-4 flex items-center gap-2"><ReceiptText className="text-red-300" /> Facturación</h3>
+        <h3 className="text-2xl font-bold mb-4 flex items-center gap-2"><ReceiptText className="text-[#ffb870]" /> Facturación</h3>
         <p className="text-zinc-400 text-sm mb-5">Genera factura, presupuesto, albarán o ticket directamente desde esta OT.</p>
 
         {(error || ok) && <div className={`rounded-2xl border p-3 mb-4 text-sm ${error ? 'text-red-300 border-red-500/30' : 'text-emerald-300 border-emerald-500/30'}`}>{error || ok}</div>}
 
         <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-4 mb-5">
           <label className="space-y-2 block">
-            <span className="text-xs font-black uppercase text-zinc-400">Nuevo documento</span>
+            <span className="text-xs font-bold uppercase text-zinc-400">Nuevo documento</span>
             <select value={newTipo} onChange={e => setNewTipo(e.target.value as any)}>
               {tipos.map(t => <option key={t} value={t}>{prettyTipo(t)}</option>)}
             </select>
@@ -157,13 +166,13 @@ export default function FacturacionPanel({ expediente, onEvent }: Props) {
 
         <div className="space-y-2">
           {docs.map(doc => (
-            <button key={doc.id} onClick={() => setActiveId(doc.id)} className={`w-full text-left rounded-2xl border p-4 transition ${active?.id === doc.id ? 'border-red-500/60 bg-red-500/10' : 'border-white/10 bg-[#0B1220] hover:border-white/20'}`}>
+            <button key={doc.id} onClick={() => setActiveId(doc.id)} className={`w-full text-left rounded-2xl border p-4 transition ${active?.id === doc.id ? 'border-[#e2954d]/60 bg-[#e2954d]/10' : 'border-white/10 bg-[#0B1220] hover:border-white/20'}`}>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="font-black">{doc.numero_documento || prettyTipo(doc.tipo_documento)}</p>
+                  <p className="font-bold">{doc.numero_documento || prettyTipo(doc.tipo_documento)}</p>
                   <p className="text-xs text-zinc-500 uppercase font-bold">{prettyTipo(doc.tipo_documento)} · {doc.estado || 'pendiente'}</p>
                 </div>
-                <p className="font-black text-red-200">{money(doc.total)}</p>
+                <p className="font-bold text-[#ffb870]">{money(doc.total)}</p>
               </div>
             </button>
           ))}
@@ -178,27 +187,27 @@ export default function FacturacionPanel({ expediente, onEvent }: Props) {
           <div>
             <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 mb-6">
               <div>
-                <p className="text-sm text-red-400 font-black uppercase tracking-[0.2em]">Documento</p>
-                <h3 className="text-3xl font-black mt-1">{active.numero_documento || prettyTipo(active.tipo_documento)}</h3>
+                <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Documento</p>
+                <h3 className="text-3xl font-bold mt-1">{active.numero_documento || prettyTipo(active.tipo_documento)}</h3>
                 <p className="text-zinc-400 mt-1">{expediente.cliente?.nombre || 'Sin cliente'} · {expediente.numero_ot}</p>
               </div>
               <div className="grid grid-cols-3 gap-3 min-w-[320px]">
-                <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-3"><p className="text-xs text-zinc-500 font-bold uppercase">Base</p><p className="font-black">{money(active.subtotal)}</p></div>
-                <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-3"><p className="text-xs text-zinc-500 font-bold uppercase">IVA</p><p className="font-black">{money(active.iva_importe)}</p></div>
-                <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-3"><p className="text-xs text-zinc-500 font-bold uppercase">Total</p><p className="font-black text-red-200">{money(active.total)}</p></div>
+                <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-3"><p className="text-xs text-zinc-500 font-bold uppercase">Base</p><p className="font-bold">{money(active.subtotal)}</p></div>
+                <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-3"><p className="text-xs text-zinc-500 font-bold uppercase">IVA</p><p className="font-bold">{money(active.iva_importe)}</p></div>
+                <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-3"><p className="text-xs text-zinc-500 font-bold uppercase">Total</p><p className="font-bold text-[#ffb870]">{money(active.total)}</p></div>
               </div>
             </div>
 
             <div className="grid md:grid-cols-4 gap-4 mb-6">
-              <label className="space-y-2"><span className="text-xs font-black uppercase text-zinc-400">Tipo</span><select value={active.tipo_documento || 'factura'} onChange={e => updateDocLocal({ ...active, tipo_documento: e.target.value })}>{tipos.map(t => <option key={t} value={t}>{prettyTipo(t)}</option>)}</select></label>
-              <label className="space-y-2"><span className="text-xs font-black uppercase text-zinc-400">Estado</span><select value={active.estado || 'pendiente'} onChange={e => updateDocLocal({ ...active, estado: e.target.value })}>{estados.map(e => <option key={e}>{e}</option>)}</select></label>
-              <label className="space-y-2"><span className="text-xs font-black uppercase text-zinc-400">IVA %</span><input type="number" value={active.iva_porcentaje || 21} onChange={e => updateDocLocal({ ...active, iva_porcentaje: Number(e.target.value) })} /></label>
+              <label className="space-y-2"><span className="text-xs font-bold uppercase text-zinc-400">Tipo</span><select value={active.tipo_documento || 'factura'} onChange={e => updateDocLocal({ ...active, tipo_documento: e.target.value })}>{tipos.map(t => <option key={t} value={t}>{prettyTipo(t)}</option>)}</select></label>
+              <label className="space-y-2"><span className="text-xs font-bold uppercase text-zinc-400">Estado</span><select value={active.estado || 'pendiente'} onChange={e => updateDocLocal({ ...active, estado: e.target.value })}>{estados.map(e => <option key={e}>{e}</option>)}</select></label>
+              <label className="space-y-2"><span className="text-xs font-bold uppercase text-zinc-400">IVA %</span><input type="number" value={active.iva_porcentaje || 21} onChange={e => updateDocLocal({ ...active, iva_porcentaje: Number(e.target.value) })} /></label>
               <button disabled={saving} onClick={() => saveDocumento(active)} className="btn btn-red self-end inline-flex items-center justify-center gap-2"><Save size={18} /> Guardar</button>
-              <label className="space-y-2 md:col-span-4"><span className="text-xs font-black uppercase text-zinc-400">Notas</span><textarea value={active.notas || ''} onChange={e => updateDocLocal({ ...active, notas: e.target.value })} /></label>
+              <label className="space-y-2 md:col-span-4"><span className="text-xs font-bold uppercase text-zinc-400">Notas</span><textarea value={active.notas || ''} onChange={e => updateDocLocal({ ...active, notas: e.target.value })} /></label>
             </div>
 
             <div className="rounded-2xl border border-white/10 overflow-hidden mb-5">
-              <div className="grid grid-cols-12 gap-2 bg-[#0B1220] px-4 py-3 text-xs font-black uppercase text-zinc-500">
+              <div className="grid grid-cols-12 gap-2 bg-[#0B1220] px-4 py-3 text-xs font-bold uppercase text-zinc-500">
                 <div className="col-span-5">Concepto</div>
                 <div className="col-span-2">Cant.</div>
                 <div className="col-span-2">Precio</div>
@@ -210,7 +219,7 @@ export default function FacturacionPanel({ expediente, onEvent }: Props) {
                   <div className="col-span-5"><p className="font-bold">{linea.concepto}</p>{linea.descripcion && <p className="text-zinc-500 text-xs">{linea.descripcion}</p>}</div>
                   <div className="col-span-2 text-zinc-300">{linea.cantidad || 0}</div>
                   <div className="col-span-2 text-zinc-300">{money(linea.precio_unitario)}</div>
-                  <div className="col-span-2 font-black">{money(linea.total)}</div>
+                  <div className="col-span-2 font-bold">{money(linea.total)}</div>
                   <div className="col-span-1 text-right"><button onClick={() => deleteLinea(linea)} className="text-zinc-500 hover:text-red-300"><Trash2 size={18} /></button></div>
                 </div>
               ))}
@@ -218,7 +227,7 @@ export default function FacturacionPanel({ expediente, onEvent }: Props) {
             </div>
 
             <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-4">
-              <h4 className="font-black mb-3 flex items-center gap-2"><Plus size={18} className="text-red-300" /> Añadir línea</h4>
+              <h4 className="font-bold mb-3 flex items-center gap-2"><Plus size={18} className="text-[#ffb870]" /> Añadir línea</h4>
               <div className="grid md:grid-cols-12 gap-3">
                 <input className="md:col-span-4" placeholder="Concepto" value={draftLinea?.concepto || ''} onChange={e => setDraftLinea({ ...(draftLinea || emptyLinea(active.id)), concepto: e.target.value })} />
                 <input className="md:col-span-3" placeholder="Descripción" value={draftLinea?.descripcion || ''} onChange={e => setDraftLinea({ ...(draftLinea || emptyLinea(active.id)), descripcion: e.target.value })} />
@@ -235,6 +244,16 @@ export default function FacturacionPanel({ expediente, onEvent }: Props) {
           </div>
         )}
       </div>
+      <ConfirmModal
+        open={Boolean(pendingDelete)}
+        title="Eliminar esta línea"
+        description="Se eliminará la línea de facturación y se recalculará el total del documento."
+        confirmLabel="Sí, eliminar"
+        danger
+        loading={saving}
+        onConfirm={confirmDeleteLinea}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   )
 }

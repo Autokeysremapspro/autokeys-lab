@@ -112,7 +112,7 @@ export default function AgendaEventModal({ open, evento, onClose, onSave }: Prop
       <form onSubmit={submit} className="w-full max-w-4xl bg-[#0B1220] border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
         <div className="p-6 border-b border-white/10 flex items-center justify-between">
           <div>
-            <div className="text-2xl font-black">{evento ? 'Editar evento' : 'Nueva cita / evento'}</div>
+            <div className="text-2xl font-bold">{evento ? 'Editar evento' : 'Nueva cita / evento'}</div>
             <div className="text-sm text-zinc-500 mt-1">Planificador de recepción, entregas y trabajos del laboratorio.</div>
           </div>
           <button type="button" onClick={onClose} className="h-10 w-10 rounded-2xl hover:bg-white/5 flex items-center justify-center"><X size={18} /></button>

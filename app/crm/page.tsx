@@ -71,8 +71,8 @@ export default function CrmPage() {
       <div className="space-y-8">
         <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
           <div>
-            <p className="text-red-400 font-black uppercase tracking-[0.25em] text-xs">Autokeys Core CRM</p>
-            <h1 className="text-4xl font-black mt-2">Clientes e historial técnico</h1>
+            <p className="text-[#ffb870] font-bold uppercase tracking-[0.25em] text-xs">Autokeys Core CRM</p>
+            <h1 className="text-4xl font-bold mt-2">Clientes e historial técnico</h1>
             <p className="text-zinc-500 mt-2">Ficha comercial, historial de vehículos y trabajos por matrícula/VIN/ECU.</p>
           </div>
           <div className="relative w-full xl:w-[480px]">
@@ -87,10 +87,10 @@ export default function CrmPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="card p-5"><UserRound className="text-red-400" /><div className="text-3xl font-black mt-3">{clientes.length}</div><p className="text-zinc-500 text-sm">Clientes encontrados</p></div>
-          <div className="card p-5"><Car className="text-red-400" /><div className="text-3xl font-black mt-3">{stats.vehiculos}</div><p className="text-zinc-500 text-sm">Vehículos asociados</p></div>
-          <div className="card p-5"><Euro className="text-emerald-400" /><div className="text-3xl font-black mt-3">{money(stats.totalFacturado)}</div><p className="text-zinc-500 text-sm">Facturación clientes</p></div>
-          <div className="card p-5"><Wrench className="text-yellow-400" /><div className="text-3xl font-black mt-3">{historial.length}</div><p className="text-zinc-500 text-sm">Trabajos en historial</p></div>
+          <div className="card p-5"><UserRound className="text-[#ffb870]" /><div className="text-3xl font-bold mt-3">{clientes.length}</div><p className="text-zinc-500 text-sm">Clientes encontrados</p></div>
+          <div className="card p-5"><Car className="text-[#ffb870]" /><div className="text-3xl font-bold mt-3">{stats.vehiculos}</div><p className="text-zinc-500 text-sm">Vehículos asociados</p></div>
+          <div className="card p-5"><Euro className="text-emerald-400" /><div className="text-3xl font-bold mt-3">{money(stats.totalFacturado)}</div><p className="text-zinc-500 text-sm">Facturación clientes</p></div>
+          <div className="card p-5"><Wrench className="text-yellow-400" /><div className="text-3xl font-bold mt-3">{historial.length}</div><p className="text-zinc-500 text-sm">Trabajos en historial</p></div>
         </div>
 
         {loading ? (
@@ -102,11 +102,11 @@ export default function CrmPage() {
                 <button
                   key={cliente.id}
                   onClick={() => setSelected(cliente)}
-                  className={`w-full text-left rounded-3xl border p-4 transition ${selected?.id === cliente.id ? 'border-red-500/50 bg-red-500/10' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]'}`}
+                  className={`w-full text-left rounded-3xl border p-4 transition ${selected?.id === cliente.id ? 'border-[#e2954d]/50 bg-[#e2954d]/10' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]'}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h3 className="font-black text-lg">{cliente.nombre}</h3>
+                      <h3 className="font-bold text-lg">{cliente.nombre}</h3>
                       <p className="text-zinc-500 text-sm">{cliente.telefono || cliente.email || 'Sin contacto'}</p>
                     </div>
                     <ClienteTipoBadge tipo={cliente.tipo_cliente} />
@@ -125,36 +125,40 @@ export default function CrmPage() {
                 <div className="card p-6">
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                     <div>
-                      <div className="flex items-center gap-3"><h2 className="text-3xl font-black">{selected.nombre}</h2><ClienteTipoBadge tipo={selected.tipo_cliente} /></div>
+                      <div className="flex items-center gap-3"><h2 className="text-3xl font-bold">{selected.nombre}</h2><ClienteTipoBadge tipo={selected.tipo_cliente} /></div>
                       <p className="text-zinc-500 mt-2">{selected.telefono || 'Sin teléfono'} · {selected.email || 'Sin email'} · {selected.nif || 'Sin NIF'}</p>
                       <p className="text-zinc-500 text-sm mt-1">Última visita: {fmt(selected.ultima_visita)}</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {['premium','normal','distribuidor','moroso','bloqueado'].map((tipo) => (
-                        <button key={tipo} disabled={saving} onClick={() => setTipoCliente(tipo)} className="btn btn-dark text-xs">{tipo}</button>
-                      ))}
+                      {['premium','normal','distribuidor','moroso','bloqueado'].map((tipo) => {
+                        const active = selected.tipo_cliente === tipo
+                        const toneActive = tipo === 'moroso' || tipo === 'bloqueado' ? 'border-red-500/50 bg-red-500/15 text-red-300' : 'border-[#e2954d]/50 bg-[#e2954d]/15 text-[#ffb870]'
+                        return (
+                          <button key={tipo} disabled={saving} onClick={() => setTipoCliente(tipo)} className={`btn text-xs capitalize ${active ? toneActive : 'btn-dark'}`}>{tipo}</button>
+                        )
+                      })}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-6">
-                    <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-4"><span className="text-zinc-500 text-sm">Facturado</span><div className="font-black text-xl">{money(selected.total_facturado)}</div></div>
-                    <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-4"><span className="text-zinc-500 text-sm">Pendiente</span><div className="font-black text-xl text-yellow-300">{money(selected.pendiente_cobro)}</div></div>
-                    <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-4"><span className="text-zinc-500 text-sm">Vehículos</span><div className="font-black text-xl">{selected.vehiculos_count || 0}</div></div>
-                    <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-4"><span className="text-zinc-500 text-sm">Expedientes</span><div className="font-black text-xl">{selected.expedientes_count || 0}</div></div>
+                    <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-4"><span className="text-zinc-500 text-sm">Facturado</span><div className="font-bold text-xl">{money(selected.total_facturado)}</div></div>
+                    <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-4"><span className="text-zinc-500 text-sm">Pendiente</span><div className="font-bold text-xl text-yellow-300">{money(selected.pendiente_cobro)}</div></div>
+                    <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-4"><span className="text-zinc-500 text-sm">Vehículos</span><div className="font-bold text-xl">{selected.vehiculos_count || 0}</div></div>
+                    <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-4"><span className="text-zinc-500 text-sm">Expedientes</span><div className="font-bold text-xl">{selected.expedientes_count || 0}</div></div>
                   </div>
                 </div>
               )}
 
               <div className="card p-6">
-                <div className="flex items-center gap-2 mb-5"><Star className="text-red-400" /><h2 className="text-2xl font-black">Historial técnico inteligente</h2></div>
+                <div className="flex items-center gap-2 mb-5"><Star className="text-[#ffb870]" /><h2 className="text-2xl font-bold">Historial técnico inteligente</h2></div>
                 <div className="space-y-3 max-h-[520px] overflow-auto">
                   {historial.length === 0 ? <p className="text-zinc-500">Sin trabajos encontrados.</p> : historial.map((item, idx) => (
                     <div key={`${item.expediente_id || item.vehiculo_id}-${idx}`} className="rounded-3xl border border-white/10 bg-white/[0.03] p-4">
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <h3 className="font-black text-lg">{item.marca || 'Vehículo'} {item.modelo || ''}</h3>
+                          <h3 className="font-bold text-lg">{item.marca || 'Vehículo'} {item.modelo || ''}</h3>
                           <p className="text-zinc-500 text-sm">{item.matricula || 'Sin matrícula'} · {item.bastidor || 'Sin VIN'} · {item.ecu || 'Sin ECU'}</p>
-                          <p className="mt-3"><span className="text-red-300 font-bold">{item.numero_ot || 'Sin OT'}</span> · {item.tipo_trabajo || 'Trabajo'} · {item.estado || '—'}</p>
+                          <p className="mt-3"><span className="text-[#ffb870] font-bold">{item.numero_ot || 'Sin OT'}</span> · {item.tipo_trabajo || 'Trabajo'} · {item.estado || '—'}</p>
                         </div>
                         <div className="text-right text-sm text-zinc-500">{fmt(item.created_at || item.fecha_entrada)}</div>
                       </div>

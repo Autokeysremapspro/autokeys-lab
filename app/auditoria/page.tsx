@@ -31,19 +31,25 @@ function fmtDate(value?: string) {
   }).format(new Date(value))
 }
 
-function StatBox({ icon: Icon, label, value }: { icon: any; label: string; value: string | number }) {
+function StatBox({ icon: Icon, label, value, active, onClick }: { icon: any; label: string; value: string | number; active?: boolean; onClick?: () => void }) {
+  const clickable = Boolean(onClick)
   return (
-    <div className="card p-5">
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={!clickable}
+      className={`card p-5 text-left transition ${clickable ? '' : 'cursor-default'} ${active ? 'border-[#e2954d]/60 bg-[#e2954d]/[.08]' : clickable ? 'hover:border-[#e2954d]/25' : ''}`}
+    >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-zinc-500 font-bold uppercase tracking-wider">{label}</p>
-          <p className="text-3xl font-black mt-2">{value}</p>
+          <p className="text-3xl font-bold mt-2">{value}</p>
         </div>
-        <div className="w-12 h-12 rounded-2xl bg-red-600/15 border border-red-500/20 flex items-center justify-center text-red-400">
+        <div className="w-12 h-12 rounded-2xl bg-[#e2954d]/15 border border-[#e2954d]/20 flex items-center justify-center text-[#ffb870]">
           <Icon size={22} />
         </div>
       </div>
-    </div>
+    </button>
   )
 }
 
@@ -88,8 +94,8 @@ export default function AuditoriaPage() {
       <div className="space-y-6">
         <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
           <div>
-            <p className="text-sm text-red-400 font-black uppercase tracking-[0.2em]">Sistema</p>
-            <h2 className="text-4xl font-black mt-1">Auditoría</h2>
+            <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Sistema</p>
+            <h2 className="text-4xl font-bold mt-1">Auditoría</h2>
             <p className="text-zinc-500 mt-2 max-w-3xl">
               Registro de actividad de Autokeys Core: cambios de clientes, vehículos, OT, facturas, stock, usuarios y configuración.
             </p>
@@ -100,10 +106,10 @@ export default function AuditoriaPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          <StatBox icon={Database} label="Eventos totales" value={stats.total} />
+          <StatBox icon={Database} label="Eventos totales" value={stats.total} active={severidad === 'todas'} onClick={() => setSeveridad('todas')} />
           <StatBox icon={Clock} label="Eventos hoy" value={stats.hoy} />
-          <StatBox icon={AlertTriangle} label="Avisos" value={stats.warning} />
-          <StatBox icon={ShieldAlert} label="Críticos" value={stats.danger} />
+          <StatBox icon={AlertTriangle} label="Avisos" value={stats.warning} active={severidad === 'warning'} onClick={() => setSeveridad(severidad === 'warning' ? 'todas' : 'warning')} />
+          <StatBox icon={ShieldAlert} label="Críticos" value={stats.danger} active={severidad === 'danger'} onClick={() => setSeveridad(severidad === 'danger' ? 'todas' : 'danger')} />
         </div>
 
         <div className="card p-5">
@@ -136,7 +142,7 @@ export default function AuditoriaPage() {
         <div className="card overflow-hidden">
           <div className="p-5 border-b border-white/10 flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-black">Registro de actividad</h3>
+              <h3 className="text-xl font-bold">Registro de actividad</h3>
               <p className="text-sm text-zinc-500">Últimos movimientos registrados en el sistema.</p>
             </div>
             {loading && <span className="text-sm text-zinc-500">Cargando...</span>}
@@ -156,7 +162,7 @@ export default function AuditoriaPage() {
                     </div>
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-black text-lg">{evento.accion}</span>
+                        <span className="font-bold text-lg">{evento.accion}</span>
                         <span className={`text-xs font-bold px-2 py-1 rounded-full border ${severidadStyles[evento.severidad] || severidadStyles.info}`}>
                           {severidadLabels[evento.severidad] || evento.severidad}
                         </span>

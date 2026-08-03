@@ -63,10 +63,10 @@ export default function ObjetivosPage() {
       <div className="space-y-8">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-3 text-red-400 font-black uppercase tracking-wider text-xs">
+            <div className="flex items-center gap-3 text-[#ffb870] font-bold uppercase tracking-wider text-xs">
               <Target size={18} /> Autokeys Core v3.1
             </div>
-            <h1 className="text-4xl font-black mt-2">Objetivos / KPIs</h1>
+            <h1 className="text-4xl font-bold mt-2">Objetivos / KPIs</h1>
             <p className="text-zinc-500 mt-2">Controla objetivos mensuales, avance de facturación, beneficio, File Service y OT terminadas.</p>
           </div>
           <button onClick={save} disabled={saving} className="btn btn-red flex items-center gap-2 disabled:opacity-50">
@@ -85,29 +85,29 @@ export default function ObjetivosPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="card p-5">
                 <div className="flex items-center justify-between text-zinc-400"><span className="text-sm font-bold uppercase tracking-wider">Ingresos mes</span><TrendingUp size={20} /></div>
-                <div className="text-3xl font-black mt-3">{money(resumen?.ingresosMes || 0)}</div>
+                <div className="text-3xl font-bold mt-3">{money(resumen?.ingresosMes || 0)}</div>
                 <p className="text-zinc-500 text-sm mt-1">Facturación no cancelada</p>
               </div>
               <div className="card p-5">
                 <div className="flex items-center justify-between text-zinc-400"><span className="text-sm font-bold uppercase tracking-wider">Gastos mes</span><TrendingDown size={20} /></div>
-                <div className="text-3xl font-black mt-3">{money(resumen?.gastosMes || 0)}</div>
+                <div className="text-3xl font-bold mt-3">{money(resumen?.gastosMes || 0)}</div>
                 <p className="text-zinc-500 text-sm mt-1">Gastos no cancelados</p>
               </div>
               <div className="card p-5 border border-emerald-500/20">
                 <div className="flex items-center justify-between text-emerald-400"><span className="text-sm font-bold uppercase tracking-wider">Beneficio</span><BarChart3 size={20} /></div>
-                <div className="text-3xl font-black mt-3">{money(resumen?.beneficioMes || 0)}</div>
+                <div className="text-3xl font-bold mt-3">{money(resumen?.beneficioMes || 0)}</div>
                 <p className="text-zinc-500 text-sm mt-1">Ingresos - gastos</p>
               </div>
               <div className="card p-5">
                 <div className="flex items-center justify-between text-zinc-400"><span className="text-sm font-bold uppercase tracking-wider">Margen</span><Target size={20} /></div>
-                <div className="text-3xl font-black mt-3">{Math.round(resumen?.margenMes || 0)}%</div>
+                <div className="text-3xl font-bold mt-3">{Math.round(resumen?.margenMes || 0)}%</div>
                 <p className="text-zinc-500 text-sm mt-1">Margen bruto mensual</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
               <section className="xl:col-span-2 card p-6">
-                <h2 className="text-2xl font-black mb-1">Progreso mensual</h2>
+                <h2 className="text-2xl font-bold mb-1">Progreso mensual</h2>
                 <p className="text-zinc-500 mb-6">Comparativa entre datos reales y objetivos configurados.</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <KpiProgress label="Facturación" value={resumen?.ingresosMes || 0} target={Number(objetivo.objetivo_facturacion || 0)} money />
@@ -118,7 +118,7 @@ export default function ObjetivosPage() {
               </section>
 
               <section className="card p-6">
-                <h2 className="text-2xl font-black mb-1">Configurar objetivos</h2>
+                <h2 className="text-2xl font-bold mb-1">Configurar objetivos</h2>
                 <p className="text-zinc-500 mb-5">Objetivos del mes actual.</p>
                 <div className="space-y-4">
                   <label className="block"><span className="text-sm font-bold text-zinc-400">Facturación objetivo (€)</span><input type="number" className="input mt-1" value={objetivo.objetivo_facturacion || ''} onChange={(e) => setField('objetivo_facturacion', e.target.value)} /></label>

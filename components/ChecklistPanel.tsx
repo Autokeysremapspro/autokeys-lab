@@ -85,12 +85,12 @@ export default function ChecklistPanel({ expedienteId, suggestedItems, onEvent }
     <div className="card p-6">
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-5 mb-6">
         <div>
-          <h3 className="text-2xl font-black mb-2 flex items-center gap-2"><CheckCircle2 className="text-red-300" /> Checklist inteligente</h3>
+          <h3 className="text-2xl font-bold mb-2 flex items-center gap-2"><CheckCircle2 className="text-[#ffb870]" /> Checklist inteligente</h3>
           <p className="text-zinc-500">Checklist persistente de la OT. Todo queda guardado y registrado en el historial.</p>
         </div>
         <div className="min-w-[220px] rounded-2xl bg-[#0B1220] border border-white/10 p-4">
-          <div className="flex items-center justify-between text-sm mb-2"><span className="text-zinc-400 font-bold">Progreso</span><span className="font-black">{progress}%</span></div>
-          <div className="h-3 rounded-full bg-white/10 overflow-hidden"><div className="h-full bg-red-600" style={{ width: `${progress}%` }} /></div>
+          <div className="flex items-center justify-between text-sm mb-2"><span className="text-zinc-400 font-bold">Progreso</span><span className="font-bold">{progress}%</span></div>
+          <div className="h-3 rounded-full bg-white/10 overflow-hidden"><div className="h-full bg-[#e2954d]" style={{ width: `${progress}%` }} /></div>
         </div>
       </div>
 
@@ -99,8 +99,8 @@ export default function ChecklistPanel({ expedienteId, suggestedItems, onEvent }
 
       {!loading && !items.length && (
         <div className="rounded-3xl border border-dashed border-white/10 bg-[#0B1220] p-8 text-center">
-          <Wand2 className="mx-auto text-red-300 mb-3" size={34} />
-          <h4 className="text-xl font-black mb-2">No hay checklist todavía</h4>
+          <Wand2 className="mx-auto text-[#ffb870] mb-3" size={34} />
+          <h4 className="text-xl font-bold mb-2">No hay checklist todavía</h4>
           <p className="text-zinc-500 mb-5">Crea automáticamente una plantilla según el tipo de trabajo.</p>
           <button disabled={saving} onClick={createSuggested} className="btn btn-red">Crear checklist sugerido</button>
         </div>
@@ -115,7 +115,7 @@ export default function ChecklistPanel({ expedienteId, suggestedItems, onEvent }
                   {item.completado ? <CheckCircle2 className="text-emerald-300" /> : <Circle className="text-zinc-500" />}
                 </button>
                 <div className="flex-1">
-                  <p className={`font-black ${item.completado ? 'text-emerald-200 line-through decoration-emerald-300/60' : 'text-white'}`}>{item.titulo}</p>
+                  <p className={`font-bold ${item.completado ? 'text-emerald-200 line-through decoration-emerald-300/60' : 'text-white'}`}>{item.titulo}</p>
                   {item.completed_at && <p className="text-xs text-zinc-500 mt-1">Completado: {new Date(item.completed_at).toLocaleString('es-ES')}</p>}
                 </div>
                 <button disabled={saving} onClick={() => remove(item.id)} className="text-zinc-500 hover:text-red-300"><Trash2 size={18} /></button>

@@ -53,10 +53,10 @@ export default function Dashboard() {
 
   return (
     <AppShell>
-      <div className="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 card p-5 border-red-900/30">
+      <div className="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 card p-5 border-[#e2954d]/25">
         <div>
-          <p className="text-sm text-red-300 font-black uppercase tracking-[0.18em]">Autokeys Core v1.2</p>
-          <h2 className="text-2xl font-black mt-1">Panel conectado a datos reales</h2>
+          <p className="ak-mono text-sm text-[#ffb870] font-bold uppercase tracking-[0.18em]">Autokeys Core v1.2</p>
+          <h2 className="text-2xl font-bold mt-1">Panel conectado a datos reales</h2>
           <p className="text-zinc-500 mt-1">Clientes, vehículos, OT, facturación, stock y File Service desde Supabase.</p>
         </div>
         <button onClick={load} disabled={loading} className="btn btn-dark flex items-center justify-center gap-2">
@@ -65,13 +65,13 @@ export default function Dashboard() {
       </div>
 
       {error && (
-        <div className="mb-6 rounded-2xl border border-red-900/50 bg-red-950/20 p-4 text-red-300">
+        <div className="mb-6 rounded-2xl border border-[#8a4a1f]/50 bg-[#8a4a1f]/20 p-4 text-[#ffb870]">
           {error}
         </div>
       )}
 
       <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
-        <StatCard title="OT abiertas" value={stats.otAbiertas} subtitle="Trabajos activos" icon={<ClipboardList size={20} />} tone="red" />
+        <StatCard title="OT abiertas" value={stats.otAbiertas} subtitle="Trabajos activos" icon={<ClipboardList size={20} />} tone="copper" />
         <StatCard title="Terminadas hoy" value={stats.terminadasHoy} subtitle="Listas para entrega" icon={<Car size={20} />} tone="green" />
         <StatCard title="Facturación hoy" value={money(stats.facturacionHoy)} subtitle={`Mes: ${money(stats.facturacionMes)}`} icon={<Euro size={20} />} tone="blue" />
         <StatCard title="File Service" value={stats.fileServiceActivos} subtitle="Archivos activos" icon={<UploadCloud size={20} />} tone="amber" />
@@ -85,12 +85,12 @@ export default function Dashboard() {
         <div className="xl:col-span-2 card p-5">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-xl font-black">Últimos expedientes</h2>
+              <h2 className="text-xl font-bold">Últimos expedientes</h2>
               <p className="text-sm text-zinc-500">Actividad reciente del laboratorio</p>
             </div>
           </div>
           <DataTable columns={['OT', 'Cliente', 'Vehículo', 'Trabajo', 'Estado', 'Importe']} rows={overview.ultimosExpedientes.map((o: any) => [
-            <a href={`/expedientes/${o.id}`} className="font-black hover:text-red-400">{o.numero_ot}</a>,
+            <a href={`/expedientes/${o.id}`} className="font-bold hover:text-[#ffb870]">{o.numero_ot}</a>,
             o.cliente?.nombre || '-',
             `${o.vehiculo?.marca || ''} ${o.vehiculo?.modelo || ''} ${o.vehiculo?.matricula || ''}`.trim() || '-',
             o.tipo_trabajo,
@@ -102,7 +102,7 @@ export default function Dashboard() {
 
         <div className="space-y-6">
           <div className="card p-5">
-            <h2 className="text-xl font-black">Acciones rápidas</h2>
+            <h2 className="text-xl font-bold">Acciones rápidas</h2>
             <p className="text-sm text-zinc-500 mb-4">Crear trabajo, cliente o material</p>
             <div className="space-y-3">
               <QuickAction href="/expedientes/nueva" icon={<PlusCircle size={19} />} title="Nueva OT" description="Crear expediente de trabajo" />
@@ -113,9 +113,9 @@ export default function Dashboard() {
           </div>
 
           <div className="card p-5">
-            <h2 className="text-xl font-black mb-4">Actividad de OT</h2>
+            <h2 className="text-xl font-bold mb-4">Actividad de OT</h2>
             <div className="h-40 flex items-end gap-2">
-              {overview.actividad.map((h, i) => <div key={i} className="flex-1 rounded-t-xl bg-gradient-to-t from-red-900 to-red-500/80 transition-all" style={{ height: `${h}%` }} />)}
+              {overview.actividad.map((h, i) => <div key={i} className="flex-1 rounded-t-xl bg-gradient-to-t from-[#8a4a1f] to-[#e2954d]/80 transition-all" style={{ height: `${h}%` }} />)}
             </div>
             <p className="text-xs text-zinc-500 mt-3">Últimos 12 días según expedientes creados.</p>
           </div>
@@ -124,12 +124,12 @@ export default function Dashboard() {
 
       <div className="grid xl:grid-cols-3 gap-6">
         <div className="card p-5">
-          <h2 className="text-xl font-black mb-4">Últimos clientes</h2>
+          <h2 className="text-xl font-bold mb-4">Últimos clientes</h2>
           <div className="space-y-3">
             {overview.ultimosClientes.map((c: any) => (
               <a href={`/clientes/${c.id}`} key={c.id} className="flex items-center justify-between border border-white/10 rounded-2xl p-4 bg-white/[0.02] hover:bg-white/[0.04] transition">
                 <div>
-                  <p className="font-black">{c.nombre}</p>
+                  <p className="font-bold">{c.nombre}</p>
                   <p className="text-sm text-zinc-500">{c.telefono || c.email || 'Sin contacto'}</p>
                 </div>
                 <span className="badge bg-zinc-800 border border-zinc-700 text-zinc-300">Cliente</span>
@@ -140,16 +140,16 @@ export default function Dashboard() {
         </div>
 
         <div className="card p-5">
-          <h2 className="text-xl font-black mb-4">File Service activo</h2>
+          <h2 className="text-xl font-bold mb-4">File Service activo</h2>
           <div className="space-y-3">
             {overview.fileService.filter((f: any) => !['finalizado', 'cancelado'].includes(String(f.estado))).slice(0, 5).map((f: any) => (
               <a href="/file-service" key={f.id} className="block border border-white/10 rounded-2xl p-4 bg-white/[0.02] hover:bg-white/[0.04] transition">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-black">{f.taller || f.matricula || 'Solicitud'}</p>
+                    <p className="font-bold">{f.taller || f.matricula || 'Solicitud'}</p>
                     <p className="text-sm text-zinc-500">{[f.servicio, f.ecu, f.estado].filter(Boolean).join(' · ')}</p>
                   </div>
-                  <span className="text-zinc-300 font-black">{money(f.precio)}</span>
+                  <span className="text-zinc-300 font-bold">{money(f.precio)}</span>
                 </div>
               </a>
             ))}
@@ -158,15 +158,15 @@ export default function Dashboard() {
         </div>
 
         <div className="card p-5">
-          <h2 className="text-xl font-black mb-4">Avisos de stock bajo</h2>
+          <h2 className="text-xl font-bold mb-4">Avisos de stock bajo</h2>
           <div className="space-y-3">
             {overview.stockBajo.map((s: any) => (
-              <a href="/stock" key={s.id} className="flex items-center justify-between border border-red-900/40 rounded-2xl p-4 bg-red-950/10 hover:bg-red-950/20 transition">
+              <a href="/stock" key={s.id} className="flex items-center justify-between border border-[#8a4a1f]/40 rounded-2xl p-4 bg-[#8a4a1f]/10 hover:bg-[#8a4a1f]/20 transition">
                 <div>
-                  <p className="font-black">{s.referencia || s.descripcion}</p>
+                  <p className="font-bold">{s.referencia || s.descripcion}</p>
                   <p className="text-sm text-zinc-500">{s.tipo} · {s.ubicacion || 'Sin ubicación'}</p>
                 </div>
-                <span className="text-red-300 font-black">{s.cantidad}</span>
+                <span className="text-[#ffb870] font-bold">{s.cantidad}</span>
               </a>
             ))}
             {!loading && overview.stockBajo.length === 0 && <p className="text-zinc-500">Stock correcto.</p>}

@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-const supabase = createClient(supabaseUrl, serviceKey)
+function adminClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  return createClient(supabaseUrl, serviceKey)
+}
 
 function esc(value: any) {
   return String(value ?? '')
@@ -26,6 +28,7 @@ function fecha(value: any) {
 
 export async function GET(req: NextRequest, context: { params: { id: string } }) {
   try {
+    const supabase = adminClient()
     const id = context.params.id
     const print = req.nextUrl.searchParams.get('print') === '1'
 

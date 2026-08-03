@@ -5,6 +5,7 @@ import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { Download, FileArchive, FileText, FolderSearch, RefreshCw, Search, Trash2 } from 'lucide-react'
 import AppShell from '@/components/AppShell'
+import ConfirmModal from '@/components/ConfirmModal'
 import { ARCHIVO_CATEGORIAS, type ArchivoGlobal } from '@/types/archivosGlobal'
 import { eliminarArchivoGlobal, filtrarArchivos, formatBytes, getArchivosGlobales } from '@/lib/services/archivosGlobal'
 import { getSignedFileUrl } from '@/lib/services/storageAccess'
@@ -53,12 +54,20 @@ export default function ArchivosPage() {
     return { totalBytes, ori, mod, eeprom }
   }, [archivos])
 
-  async function deleteFile(archivo: ArchivoGlobal) {
-    if (!confirm(`¿Eliminar definitivamente el archivo ${archivo.nombre}?`)) return
+  const [pendingDelete, setPendingDelete] = useState<ArchivoGlobal | null>(null)
+
+  function deleteFile(archivo: ArchivoGlobal) {
+    setPendingDelete(archivo)
+  }
+
+  async function confirmDeleteFile() {
+    if (!pendingDelete) return
+    const archivo = pendingDelete
     setDeleting(archivo.id)
     try {
       await eliminarArchivoGlobal(archivo)
       toast.success('Archivo eliminado')
+      setPendingDelete(null)
       await load()
     } catch (error: any) {
       toast.error(error?.message || 'No se pudo eliminar el archivo')
@@ -80,10 +89,10 @@ export default function ArchivosPage() {
     <AppShell>
       <div className="mb-6 flex flex-col justify-between gap-4 xl:flex-row xl:items-center">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-red-400">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">
             <FolderSearch size={14} /> Biblioteca de archivos
           </div>
-          <h2 className="text-3xl font-black tracking-tight">Archivos técnicos</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Archivos técnicos</h2>
           <p className="mt-1 text-zinc-500">Busca ORI, MOD, EEPROM, FLASH, fotos y documentos en todos los expedientes.</p>
         </div>
         <button onClick={load} className="btn btn-dark inline-flex items-center justify-center gap-2">
@@ -108,15 +117,15 @@ export default function ArchivosPage() {
           ))}
         </select>
 
-        <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Archivos</p><p className="mt-1 text-2xl font-black">{archivos.length}</p></div>
-        <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Resultados</p><p className="mt-1 text-2xl font-black">{filtered.length}</p></div>
-        <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Tamaño</p><p className="mt-1 text-2xl font-black">{formatBytes(stats.totalBytes)}</p></div>
+        <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Archivos</p><p className="mt-1 text-2xl font-bold">{archivos.length}</p></div>
+        <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Resultados</p><p className="mt-1 text-2xl font-bold">{filtered.length}</p></div>
+        <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Tamaño</p><p className="mt-1 text-2xl font-bold">{formatBytes(stats.totalBytes)}</p></div>
       </div>
 
       <div className="mb-5 grid gap-4 md:grid-cols-3">
-        <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">ORI</p><p className="mt-1 text-2xl font-black text-emerald-300">{stats.ori}</p></div>
-        <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">MOD</p><p className="mt-1 text-2xl font-black text-red-300">{stats.mod}</p></div>
-        <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">EEPROM</p><p className="mt-1 text-2xl font-black text-blue-300">{stats.eeprom}</p></div>
+        <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">ORI</p><p className="mt-1 text-2xl font-bold text-emerald-300">{stats.ori}</p></div>
+        <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">MOD</p><p className="mt-1 text-2xl font-bold text-[#ffb870]">{stats.mod}</p></div>
+        <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">EEPROM</p><p className="mt-1 text-2xl font-bold text-blue-300">{stats.eeprom}</p></div>
       </div>
 
       {loading ? (
@@ -126,16 +135,16 @@ export default function ArchivosPage() {
       ) : (
         <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
           {filtered.map((archivo) => (
-            <div key={archivo.id} className="card p-5 transition hover:-translate-y-0.5 hover:border-red-500/35">
+            <div key={archivo.id} className="card p-5 transition hover:-translate-y-0.5 hover:border-[#e2954d]/35">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-red-400">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#ffb870]">
                     <FileArchive size={14} /> {archivo.categoria || 'OTRO'} · {formatBytes(archivo.tamano_bytes)}
                   </div>
-                  <h3 className="mt-2 line-clamp-1 text-xl font-black">{archivo.nombre}</h3>
+                  <h3 className="mt-2 line-clamp-1 text-xl font-bold">{archivo.nombre}</h3>
                   <p className="mt-1 text-sm text-zinc-500">{formatDate(archivo.created_at)}</p>
                 </div>
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-600/15 text-red-400"><FileText size={24} /></div>
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#e2954d]/15 text-[#ffb870]"><FileText size={24} /></div>
               </div>
 
               <div className="mt-5 grid gap-3 text-sm">
@@ -174,6 +183,16 @@ export default function ArchivosPage() {
           ))}
         </div>
       )}
+      <ConfirmModal
+        open={Boolean(pendingDelete)}
+        title={`Eliminar ${pendingDelete?.nombre || 'este archivo'}`}
+        description="Se eliminará el archivo definitivamente del almacenamiento."
+        confirmLabel="Sí, eliminar"
+        danger
+        loading={deleting === pendingDelete?.id}
+        onConfirm={confirmDeleteFile}
+        onCancel={() => setPendingDelete(null)}
+      />
     </AppShell>
   )
 }

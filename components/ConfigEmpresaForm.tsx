@@ -6,7 +6,7 @@ import { getConfiguracionEmpresa, saveConfiguracionEmpresa, type ConfiguracionEm
 
 type FormState = Partial<ConfiguracionEmpresa>
 
-const inputClass = 'w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-white outline-none ring-0 transition placeholder:text-slate-500 focus:border-red-500'
+const inputClass = 'w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-white outline-none ring-0 transition placeholder:text-slate-500 focus:border-[#e2954d]'
 const labelClass = 'mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400'
 
 export default function ConfigEmpresaForm() {
@@ -53,7 +53,7 @@ export default function ConfigEmpresaForm() {
             <h2 className="text-lg font-bold text-white">Datos de empresa</h2>
             <p className="text-sm text-slate-400">Estos datos se usarán en facturas, presupuestos, albaranes y garantías.</p>
           </div>
-          <button type="submit" disabled={saving} className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-500 disabled:opacity-50">
+          <button type="submit" disabled={saving} className="rounded-xl bg-[#e2954d] px-4 py-2 text-sm font-semibold text-[#0a0d12] transition hover:bg-[#ffb870] disabled:opacity-50">
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
         </div>

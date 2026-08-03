@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import AppShell from '@/components/AppShell'
 import FormModal from '@/components/FormModal'
+import ConfirmModal from '@/components/ConfirmModal'
 import { money } from '@/lib/status'
 import {
   METODOS_PAGO,
@@ -133,14 +134,25 @@ export default function PagosPage() {
     }
   }
 
-  async function borrarPago(id: string) {
-    if (!confirm('¿Eliminar este pago?')) return
+  const [pendingDeletePago, setPendingDeletePago] = useState<string | null>(null)
+  const [deletingPago, setDeletingPago] = useState(false)
+
+  function askBorrarPago(id: string) {
+    setPendingDeletePago(id)
+  }
+
+  async function borrarPago() {
+    if (!pendingDeletePago) return
+    setDeletingPago(true)
     try {
-      await eliminarPago(id)
+      await eliminarPago(pendingDeletePago)
       toast.success('Pago eliminado')
+      setPendingDeletePago(null)
       await load()
     } catch (error: any) {
       toast.error(error.message || 'No se pudo eliminar el pago')
+    } finally {
+      setDeletingPago(false)
     }
   }
 
@@ -150,8 +162,8 @@ export default function PagosPage() {
     <AppShell>
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
         <div>
-          <p className="text-sm text-red-400 font-bold uppercase tracking-[0.2em]">Administración</p>
-          <h2 className="text-3xl font-black mt-1">Cobros / Pagos</h2>
+          <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Administración</p>
+          <h2 className="text-3xl font-bold mt-1">Cobros / Pagos</h2>
           <p className="text-zinc-500 mt-2">Control de pagos parciales, facturas pendientes y métodos de cobro.</p>
         </div>
         <button onClick={() => nuevoPago()} className="btn btn-red flex items-center gap-2 justify-center">
@@ -165,37 +177,37 @@ export default function PagosPage() {
             <span className="text-sm font-bold uppercase tracking-wider">Facturado</span>
             <Banknote size={20} />
           </div>
-          <div className="text-2xl font-black mt-3">{money(resumen.totalFacturado)}</div>
+          <div className="text-2xl font-bold mt-3">{money(resumen.totalFacturado)}</div>
         </div>
         <div className="card p-5 border border-emerald-500/20">
           <div className="flex items-center justify-between text-emerald-400">
             <span className="text-sm font-bold uppercase tracking-wider">Cobrado</span>
             <CheckCircle2 size={20} />
           </div>
-          <div className="text-2xl font-black mt-3 text-emerald-300">{money(resumen.totalCobrado)}</div>
+          <div className="text-2xl font-bold mt-3 text-emerald-300">{money(resumen.totalCobrado)}</div>
         </div>
         <div className="card p-5 border border-amber-500/20">
           <div className="flex items-center justify-between text-amber-400">
             <span className="text-sm font-bold uppercase tracking-wider">Pendiente</span>
             <Wallet size={20} />
           </div>
-          <div className="text-2xl font-black mt-3 text-amber-300">{money(resumen.totalPendiente)}</div>
+          <div className="text-2xl font-bold mt-3 text-amber-300">{money(resumen.totalPendiente)}</div>
         </div>
         <div className="card p-5">
           <div className="text-zinc-500 text-sm">Facturas pendientes</div>
-          <div className="text-3xl font-black mt-2">{resumen.facturasPendientes}</div>
+          <div className="text-3xl font-bold mt-2">{resumen.facturasPendientes}</div>
         </div>
         <div className="card p-5">
           <div className="text-zinc-500 text-sm">Facturas pagadas</div>
-          <div className="text-3xl font-black mt-2">{resumen.facturasPagadas}</div>
+          <div className="text-3xl font-bold mt-2">{resumen.facturasPagadas}</div>
         </div>
       </div>
 
       <div className="card p-5 mb-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-3">
-            <CreditCard className="text-red-400" />
-            <h3 className="text-xl font-black">Estado de cobros</h3>
+            <CreditCard className="text-[#ffb870]" />
+            <h3 className="text-xl font-bold">Estado de cobros</h3>
           </div>
           <div className="flex items-center gap-2 bg-[#0B1220] border border-white/10 rounded-2xl px-4 py-3 w-full md:w-96">
             <Search size={18} className="text-zinc-500" />
@@ -260,7 +272,7 @@ export default function PagosPage() {
 
       <div className="grid xl:grid-cols-2 gap-6">
         <section className="card p-6">
-          <h3 className="text-xl font-black mb-4">Pagos registrados</h3>
+          <h3 className="text-xl font-bold mb-4">Pagos registrados</h3>
           <div className="space-y-3 max-h-[520px] overflow-auto pr-1">
             {facturas.flatMap((f) => (f.pagos || []).map((p) => ({ pago: p, factura: f }))).length === 0 ? (
               <div className="rounded-3xl border border-dashed border-white/10 p-8 text-center text-zinc-500">Todavía no hay pagos registrados.</div>
@@ -270,12 +282,12 @@ export default function PagosPage() {
                 .map(({ pago, factura }) => (
                   <div key={pago.id} className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 flex items-start justify-between gap-4">
                     <div>
-                      <div className="font-black text-lg">{money(pago.importe)}</div>
+                      <div className="font-bold text-lg">{money(pago.importe)}</div>
                       <div className="text-sm text-zinc-400 mt-1">{factura.numero_documento || 'Sin número'} · {factura.cliente_nombre || 'Sin cliente'}</div>
                       <div className="text-xs text-zinc-500 mt-1 uppercase">{pago.metodo_pago} · {pago.fecha_pago}</div>
                       {pago.referencia && <div className="text-xs text-zinc-500 mt-1">Ref: {pago.referencia}</div>}
                     </div>
-                    <button onClick={() => borrarPago(pago.id)} className="btn bg-red-950/40 border border-red-500/20 text-red-300 flex items-center gap-2">
+                    <button onClick={() => askBorrarPago(pago.id)} className="btn bg-red-950/40 border border-red-500/20 text-red-300 flex items-center gap-2">
                       <Trash2 size={15} /> Eliminar
                     </button>
                   </div>
@@ -285,7 +297,7 @@ export default function PagosPage() {
         </section>
 
         <section className="card p-6">
-          <h3 className="text-xl font-black mb-4">Pendientes de cobro</h3>
+          <h3 className="text-xl font-bold mb-4">Pendientes de cobro</h3>
           <div className="space-y-3 max-h-[520px] overflow-auto pr-1">
             {facturasConPendiente.length === 0 ? (
               <div className="rounded-3xl border border-dashed border-white/10 p-8 text-center text-zinc-500">No hay facturas pendientes.</div>
@@ -293,9 +305,9 @@ export default function PagosPage() {
               facturasConPendiente.map((factura) => (
                 <div key={factura.id} className="rounded-3xl border border-amber-500/20 bg-amber-500/[0.04] p-4 flex items-start justify-between gap-4">
                   <div>
-                    <div className="font-black">{factura.numero_documento || 'Sin número'}</div>
+                    <div className="font-bold">{factura.numero_documento || 'Sin número'}</div>
                     <div className="text-sm text-zinc-400 mt-1">{factura.cliente_nombre || 'Sin cliente'}</div>
-                    <div className="text-lg text-amber-300 font-black mt-2">Pendiente: {money(factura.pendiente)}</div>
+                    <div className="text-lg text-amber-300 font-bold mt-2">Pendiente: {money(factura.pendiente)}</div>
                   </div>
                   <button onClick={() => nuevoPago(factura)} className="btn btn-red flex items-center gap-2">
                     <Download size={15} /> Cobrar
@@ -336,6 +348,17 @@ export default function PagosPage() {
           </button>
         </form>
       </FormModal>
+
+      <ConfirmModal
+        open={Boolean(pendingDeletePago)}
+        title="Eliminar este pago"
+        description="Se eliminará el registro de cobro definitivamente. La factura volverá a aparecer como pendiente por ese importe."
+        confirmLabel="Sí, eliminar"
+        danger
+        loading={deletingPago}
+        onConfirm={borrarPago}
+        onCancel={() => setPendingDeletePago(null)}
+      />
     </AppShell>
   )
 }

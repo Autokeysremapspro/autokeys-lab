@@ -9,7 +9,7 @@ export default function ClienteTipoBadge({ tipo }: { tipo?: string | null }) {
   }
 
   return (
-    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-black uppercase tracking-wider ${classes[value] || classes.normal}`}>
+    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider ${classes[value] || classes.normal}`}>
       {value}
     </span>
   )

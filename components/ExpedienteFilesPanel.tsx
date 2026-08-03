@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArchivoService } from '@/lib/services/archivos'
+import ConfirmModal from '@/components/ConfirmModal'
 import type { ArchivoExpediente } from '@/types/autokeys'
 import { Download, FileArchive, FileCode2, FileText, Image as ImageIcon, Loader2, Plus, Trash2, UploadCloud } from 'lucide-react'
 
@@ -52,7 +53,7 @@ function formatDate(value?: string | null) {
 
 function iconFor(file: ArchivoExpediente) {
   if (file.tipo?.startsWith('foto_') || file.mime_type?.startsWith('image/')) return <ImageIcon className="text-emerald-300" />
-  if (file.nombre_archivo?.toLowerCase().endsWith('.bin')) return <FileCode2 className="text-red-300" />
+  if (file.nombre_archivo?.toLowerCase().endsWith('.bin')) return <FileCode2 className="text-[#ffb870]" />
   if (file.nombre_archivo?.toLowerCase().endsWith('.zip') || file.nombre_archivo?.toLowerCase().endsWith('.rar')) return <FileArchive className="text-yellow-300" />
   return <FileText className="text-zinc-300" />
 }
@@ -106,8 +107,15 @@ export default function ExpedienteFilesPanel({ expedienteId, mode, title, descri
     }
   }
 
-  async function remove(file: ArchivoExpediente) {
-    if (!confirm(`¿Eliminar ${file.nombre_archivo}?`)) return
+  const [pendingDelete, setPendingDelete] = useState<ArchivoExpediente | null>(null)
+
+  function remove(file: ArchivoExpediente) {
+    setPendingDelete(file)
+  }
+
+  async function confirmRemove() {
+    if (!pendingDelete) return
+    const file = pendingDelete
     setUploading(true)
     setError('')
     setOk('')
@@ -115,6 +123,7 @@ export default function ExpedienteFilesPanel({ expedienteId, mode, title, descri
       await ArchivoService.remove(file)
       await onEvent?.(mode === 'fotos' ? 'Foto eliminada' : 'Archivo eliminado', file.nombre_archivo)
       setOk('Eliminado correctamente')
+      setPendingDelete(null)
       await load()
     } catch (err: any) {
       setError(err.message || 'No se pudo eliminar')
@@ -126,19 +135,19 @@ export default function ExpedienteFilesPanel({ expedienteId, mode, title, descri
   return (
     <div className="grid xl:grid-cols-3 gap-5">
       <div className="card p-6 xl:col-span-1">
-        <h3 className="text-2xl font-black mb-2 flex items-center gap-2">{icon || <UploadCloud className="text-red-300" />} {title}</h3>
+        <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">{icon || <UploadCloud className="text-[#ffb870]" />} {title}</h3>
         <p className="text-zinc-500 mb-5">{description}</p>
 
         <div className="space-y-4">
           <label className="space-y-2 block">
-            <span className="text-xs font-black uppercase text-zinc-400">Categoría</span>
+            <span className="text-xs font-bold uppercase text-zinc-400">Categoría</span>
             <select value={tipo} onChange={e => setTipo(e.target.value)}>
               {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </label>
 
           <label className="space-y-2 block">
-            <span className="text-xs font-black uppercase text-zinc-400">Notas</span>
+            <span className="text-xs font-bold uppercase text-zinc-400">Notas</span>
             <textarea value={notas} onChange={e => setNotas(e.target.value)} placeholder="Ej: lectura con Flex en bench, foto etiqueta ECU..." rows={4} />
           </label>
 
@@ -155,7 +164,7 @@ export default function ExpedienteFilesPanel({ expedienteId, mode, title, descri
       <div className="card p-6 xl:col-span-2">
         <div className="flex items-center justify-between gap-3 mb-5">
           <div>
-            <h3 className="text-2xl font-black">{mode === 'fotos' ? 'Galería' : 'Repositorio técnico'}</h3>
+            <h3 className="text-2xl font-bold">{mode === 'fotos' ? 'Galería' : 'Repositorio técnico'}</h3>
             <p className="text-zinc-500 text-sm">{items.length} elementos asociados a esta OT.</p>
           </div>
           <button onClick={load} className="btn btn-dark" disabled={loading || uploading}>Actualizar</button>
@@ -164,11 +173,11 @@ export default function ExpedienteFilesPanel({ expedienteId, mode, title, descri
         {loading ? <div className="text-zinc-500">Cargando...</div> : (
           <div className="grid md:grid-cols-2 gap-3">
             {items.map(file => (
-              <div key={file.id} className="rounded-2xl border border-white/10 bg-[#0B1220] p-4 hover:border-red-500/30 transition">
+              <div key={file.id} className="rounded-2xl border border-white/10 bg-[#0B1220] p-4 hover:border-[#e2954d]/30 transition">
                 <div className="flex items-start gap-3">
                   <div className="mt-1">{iconFor(file)}</div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-black truncate" title={file.nombre_archivo}>{file.nombre_archivo}</p>
+                    <p className="font-bold truncate" title={file.nombre_archivo}>{file.nombre_archivo}</p>
                     <p className="text-xs text-zinc-500 mt-1">{file.tipo || '-'} · {humanSize(file.size_bytes)} · {formatDate(file.created_at)}</p>
                     {file.notas && <p className="text-sm text-zinc-400 mt-2 line-clamp-2">{file.notas}</p>}
                   </div>
@@ -183,7 +192,7 @@ export default function ExpedienteFilesPanel({ expedienteId, mode, title, descri
 
                 <div className="flex gap-2 mt-4">
                   {file.url && <a href={file.url} target="_blank" className="btn btn-dark flex-1 inline-flex items-center justify-center gap-2"><Download size={16} /> Abrir</a>}
-                  <button onClick={() => remove(file)} disabled={uploading} className="btn btn-dark text-red-300 inline-flex items-center justify-center gap-2"><Trash2 size={16} /></button>
+                  <button onClick={() => remove(file)} disabled={uploading} className="btn btn-dark text-red-400 inline-flex items-center justify-center gap-2"><Trash2 size={16} /></button>
                 </div>
               </div>
             ))}
@@ -191,6 +200,16 @@ export default function ExpedienteFilesPanel({ expedienteId, mode, title, descri
           </div>
         )}
       </div>
+      <ConfirmModal
+        open={Boolean(pendingDelete)}
+        title={`Eliminar ${pendingDelete?.nombre_archivo || 'este archivo'}`}
+        description="Se eliminará definitivamente del expediente."
+        confirmLabel="Sí, eliminar"
+        danger
+        loading={uploading}
+        onConfirm={confirmRemove}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   )
 }
