@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireStaff } from '@/lib/supabase/server'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -9,6 +10,7 @@ function money(value: number | null | undefined) {
 }
 
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
+  await requireStaff()
   const admin = createClient(supabaseUrl, serviceRole)
 
   const { data: factura, error } = await admin
