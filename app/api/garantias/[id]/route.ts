@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireStaff } from '@/lib/supabase/server'
 
 function adminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
@@ -27,6 +28,7 @@ function fecha(value: any) {
 }
 
 export async function GET(req: NextRequest, context: { params: { id: string } }) {
+  await requireStaff()
   try {
     const supabase = adminClient()
     const id = context.params.id
