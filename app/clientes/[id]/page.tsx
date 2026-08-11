@@ -7,7 +7,7 @@ import AppShell from '@/components/AppShell'
 import ClienteModal from '@/components/ClienteModal'
 import { ClienteService } from '@/lib/services/clientes'
 import type { Cliente, Expediente, Factura, Vehiculo } from '@/types/autokeys'
-import { ArrowLeft, Car, FileText, Mail, Pencil, Phone, ReceiptText } from 'lucide-react'
+import { ArrowLeft, Car, FileText, Globe2, Mail, Pencil, Phone, ReceiptText, Wrench } from 'lucide-react'
 
 export default function ClienteFichaPage() {
   const params = useParams()
@@ -26,10 +26,7 @@ export default function ClienteFichaPage() {
     setError('')
     try {
       const c = await ClienteService.getById(id)
-      if (!c) {
-        router.push('/clientes')
-        return
-      }
+      if (!c) { router.push('/clientes'); return }
       setCliente(c)
       const related = await ClienteService.getRelated(id)
       setVehiculos(related.vehiculos as Vehiculo[])
@@ -37,9 +34,7 @@ export default function ClienteFichaPage() {
       setFacturas(related.facturas as Factura[])
     } catch (e: any) {
       setError(e?.message || 'No se pudo cargar la ficha')
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }
 
   useEffect(() => { load() }, [id])
@@ -64,8 +59,10 @@ export default function ClienteFichaPage() {
                 {cliente.telefono && <span className="inline-flex items-center gap-2"><Phone size={17} /> {cliente.telefono}</span>}
                 {cliente.email && <span className="inline-flex items-center gap-2"><Mail size={17} /> {cliente.email}</span>}
                 {cliente.nif && <span>NIF/CIF: {cliente.nif}</span>}
+                {cliente.web && <a href={cliente.web.startsWith('http') ? cliente.web : `https://${cliente.web}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 hover:text-white"><Globe2 size={17}/>{cliente.web}</a>}
               </div>
               {(cliente.direccion || cliente.poblacion || cliente.provincia) && <p className="mt-3 text-slate-400">{cliente.direccion} {cliente.codigo_postal} {cliente.poblacion} {cliente.provincia}</p>}
+              {!!cliente.herramientas?.length && <div className="mt-5 flex flex-wrap items-center gap-2"><span className="mr-1 inline-flex items-center gap-2 text-sm font-bold text-slate-300"><Wrench size={16}/> Herramientas:</span>{cliente.herramientas.map(tool => <span key={tool} className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-bold text-cyan-200">{tool}</span>)}</div>}
             </div>
             <button onClick={() => setModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#e2954d] px-5 py-4 font-bold text-[#0a0d12] hover:bg-[#ffb870]"><Pencil size={18} /> Editar cliente</button>
           </div>
