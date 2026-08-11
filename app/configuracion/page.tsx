@@ -1,5 +1,6 @@
 import AppShell from '@/components/AppShell'
 import AdminCenter from '@/components/AdminCenter'
+import LaboratoryStatusPanel from '@/components/LaboratoryStatusPanel'
 
 export default function ConfiguracionPage() {
   return (
@@ -13,6 +14,7 @@ export default function ConfiguracionPage() {
           </p>
         </div>
 
+        <LaboratoryStatusPanel />
         <AdminCenter />
       </div>
     </AppShell>
