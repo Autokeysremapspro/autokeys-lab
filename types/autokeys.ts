@@ -8,6 +8,8 @@ export type Cliente = {
   codigo_postal?: string | null
   poblacion?: string | null
   provincia?: string | null
+  web?: string | null
+  herramientas?: string[] | null
   notas?: string | null
   created_at?: string
   updated_at?: string
@@ -188,7 +190,6 @@ export type LineaFactura = {
 export type DocumentoFacturacion = Factura & {
   lineas?: LineaFactura[]
 }
-
 
 export type StockItem = {
   id: string
