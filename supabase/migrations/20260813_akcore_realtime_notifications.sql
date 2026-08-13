@@ -1,5 +1,8 @@
 -- AK Core: avisos en tiempo real desde AK Cloud.
 -- file_service_pedidos ya estaba publicado; añadimos mensajes del cliente.
+-- Replica identity FULL permite detectar correctamente cambios de estado/prioridad.
+ALTER TABLE public.file_service_pedidos REPLICA IDENTITY FULL;
+
 DO $$
 BEGIN
   IF NOT EXISTS (
