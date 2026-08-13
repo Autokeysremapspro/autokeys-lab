@@ -1,6 +1,7 @@
 import AppShell from '@/components/AppShell'
 import AdminCenter from '@/components/AdminCenter'
 import LaboratoryStatusPanel from '@/components/LaboratoryStatusPanel'
+import LaboratoryHoursPanel from '@/components/LaboratoryHoursPanel'
 
 export default function ConfiguracionPage() {
   return (
@@ -9,12 +10,10 @@ export default function ConfiguracionPage() {
         <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-[#8a4a1f]/30 p-6 shadow-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#ffb870]">Autokeys Core</p>
           <h1 className="mt-2 text-3xl font-bold text-white lg:text-5xl">Centro de Administración</h1>
-          <p className="mt-3 max-w-4xl text-slate-400">
-            Configura empresa, usuarios, permisos, documentos, notificaciones, logs y mantenimiento general del ERP.
-          </p>
+          <p className="mt-3 max-w-4xl text-slate-400">Configura empresa, usuarios, permisos, documentos, notificaciones, logs y mantenimiento general del ERP.</p>
         </div>
-
         <LaboratoryStatusPanel />
+        <LaboratoryHoursPanel />
         <AdminCenter />
       </div>
     </AppShell>
