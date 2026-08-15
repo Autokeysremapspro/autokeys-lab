@@ -14,7 +14,9 @@ type BrowserPermission = NotificationPermission | 'unsupported'
 const iconByModule: Record<string, any> = {
   Expedientes: ClipboardList,
   'File Service': UploadCloud,
+  'file-service': UploadCloud,
   'AK Cloud': UploadCloud,
+  ak_cloud: UploadCloud,
   Stock: Package,
   Facturación: FileText,
 }
@@ -32,14 +34,34 @@ function iconFor(item: Item) {
   return iconByModule[item.modulo || ''] || Info
 }
 
-function realtimeBodyPedido(pedido: any) {
-  return [
-    pedido.numero,
-    pedido.cliente_nombre || pedido.cliente_email,
-    [pedido.marca, pedido.modelo].filter(Boolean).join(' '),
-    pedido.ecu,
-    Array.isArray(pedido.servicios) ? pedido.servicios.join(' + ') : null,
-  ].filter(Boolean).join(' · ')
+function playAlertSound(urgent = false) {
+  if (typeof window === 'undefined') return
+  try {
+    const AudioCtx = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext | undefined
+    if (!AudioCtx) return
+    const ctx = new AudioCtx()
+    const now = ctx.currentTime
+    const gain = ctx.createGain()
+    gain.connect(ctx.destination)
+    gain.gain.setValueAtTime(0.0001, now)
+    gain.gain.exponentialRampToValueAtTime(urgent ? 0.22 : 0.13, now + 0.01)
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + (urgent ? 0.85 : 0.45))
+
+    const frequencies = urgent ? [880, 660, 880] : [760, 980]
+    frequencies.forEach((frequency, index) => {
+      const oscillator = ctx.createOscillator()
+      oscillator.type = 'sine'
+      oscillator.frequency.value = frequency
+      oscillator.connect(gain)
+      const start = now + index * (urgent ? 0.22 : 0.16)
+      oscillator.start(start)
+      oscillator.stop(start + (urgent ? 0.18 : 0.12))
+    })
+
+    window.setTimeout(() => ctx.close().catch(() => undefined), 1200)
+  } catch (error) {
+    console.debug('Audio notification blocked by browser', error)
+  }
 }
 
 export default function NotificationCenter() {
@@ -53,7 +75,7 @@ export default function NotificationCenter() {
     setLoading(true)
     try {
       const [saved, generated] = await Promise.all([
-        getNotificacionesNoLeidas(12),
+        getNotificacionesNoLeidas(20),
         crearAvisosAutomaticosBasicos(),
       ])
       setPersisted(saved)
@@ -79,23 +101,31 @@ export default function NotificationCenter() {
       if (previous && now - previous < 30_000) return false
       window.localStorage.setItem(storageKey, String(now))
     } catch {
-      // Si localStorage no está disponible, seguimos: es mejor avisar que perder el pedido.
+      // Mejor avisar dos veces que perder un pedido si localStorage no está disponible.
     }
     return true
   }
 
-  function emitRealtimeAlert({ key, title, body, href, urgent = false }: { key: string; title: string; body: string; href: string; urgent?: boolean }) {
+  function emitRealtimeAlert(item: Notificacion) {
+    const key = String(item.metadata?.event_key || item.id)
     if (!shouldEmit(key)) return
 
-    toast(`${title}${body ? ` · ${body}` : ''}`, {
+    const urgent = item.prioridad === 'urgente' || item.tipo === 'danger'
+    const body = String(item.mensaje || '').slice(0, 260)
+    const href = item.href || '/notificaciones'
+
+    playAlertSound(urgent)
+    toast(`${item.titulo}${body ? ` · ${body}` : ''}`, {
       icon: urgent ? '🚨' : '🔔',
-      duration: urgent ? 10_000 : 7_000,
+      duration: urgent ? 12_000 : 8_000,
     })
 
-    if (typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') return
+    window.dispatchEvent(new CustomEvent('akcore:notification', { detail: item }))
+
+    if (!('Notification' in window) || Notification.permission !== 'granted') return
 
     try {
-      const notification = new Notification(title, {
+      const notification = new Notification(item.titulo, {
         body,
         tag: key,
         requireInteraction: urgent,
@@ -121,9 +151,10 @@ export default function NotificationCenter() {
       const permission = await Notification.requestPermission()
       setBrowserPermission(permission)
       if (permission === 'granted') {
-        toast.success('Avisos del navegador activados para AK Core')
+        playAlertSound(false)
+        toast.success('Avisos y sonido activados para AK Core')
         new Notification('AK Core · Avisos activados', {
-          body: 'Te avisaré cuando entren pedidos, revisiones o mensajes de AK Cloud.',
+          body: 'Te avisaré al instante de pedidos, pagos, altas y mensajes de AK Cloud.',
           tag: 'ak-core-notifications-enabled',
         })
       } else if (permission === 'denied') {
@@ -141,76 +172,25 @@ export default function NotificationCenter() {
     }
 
     load()
-    const timer = setInterval(load, 60_000)
+    const timer = setInterval(load, 30_000)
     return () => clearInterval(timer)
   }, [])
 
   useEffect(() => {
     const channel = supabase
-      .channel('ak-core-realtime-alerts')
+      .channel('ak-core-notification-bus')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'file_service_pedidos' },
+        { event: 'INSERT', schema: 'public', table: 'notificaciones' },
         (payload) => {
-          const pedido: any = payload.new
-          const urgent = pedido.prioridad === 'urgente'
-          emitRealtimeAlert({
-            key: `pedido-${pedido.id}-${pedido.created_at || ''}`,
-            title: urgent ? '🚨 Nuevo archivo URGENTE en AK Cloud' : 'Nuevo archivo solicitado en AK Cloud',
-            body: realtimeBodyPedido(pedido),
-            href: `/ak-cloud/${pedido.id}`,
-            urgent,
-          })
-          load()
+          const item = payload.new as Notificacion
+          setPersisted((current) => [item, ...current.filter((existing) => existing.id !== item.id)].slice(0, 20))
+          emitRealtimeAlert(item)
         },
       )
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'file_service_pedidos' },
-        (payload) => {
-          const next: any = payload.new
-          const previous: any = payload.old
-
-          if (next.estado === 'revision_solicitada' && previous?.estado !== 'revision_solicitada') {
-            emitRealtimeAlert({
-              key: `revision-${next.id}-${next.updated_at || ''}`,
-              title: 'Cliente solicita revisión',
-              body: realtimeBodyPedido(next),
-              href: `/ak-cloud/${next.id}`,
-              urgent: true,
-            })
-          }
-
-          if (next.prioridad === 'urgente' && previous?.prioridad !== 'urgente') {
-            emitRealtimeAlert({
-              key: `urgente-${next.id}-${next.updated_at || ''}`,
-              title: 'Pedido marcado como URGENTE',
-              body: realtimeBodyPedido(next),
-              href: `/ak-cloud/${next.id}`,
-              urgent: true,
-            })
-          }
-
-          load()
-        },
-      )
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'file_service_mensajes' },
-        (payload) => {
-          const mensaje: any = payload.new
-          if (mensaje.autor_tipo !== 'cliente') return
-          const text = String(mensaje.mensaje || '').trim()
-          emitRealtimeAlert({
-            key: `mensaje-${mensaje.id}`,
-            title: 'Nuevo mensaje de cliente en AK Cloud',
-            body: [mensaje.autor_nombre, text].filter(Boolean).join(' · ').slice(0, 220),
-            href: `/ak-cloud/${mensaje.pedido_id}`,
-          })
-          load()
-        },
-      )
-      .subscribe()
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR') console.error('AK Core notification realtime channel error')
+      })
 
     return () => {
       supabase.removeChannel(channel)
@@ -225,7 +205,7 @@ export default function NotificationCenter() {
       if (seen.has(key)) return false
       seen.add(key)
       return true
-    }).slice(0, 12)
+    }).slice(0, 20)
   }, [persisted, virtuals])
 
   async function markOne(item: Item) {
@@ -253,7 +233,7 @@ export default function NotificationCenter() {
           <div className="p-4 border-b border-white/10 flex items-center justify-between gap-3">
             <div>
               <div className="font-bold">Centro de avisos</div>
-              <div className="text-xs text-zinc-500 mt-1">AK Cloud, urgencias, cobros, file service y stock.</div>
+              <div className="text-xs text-zinc-500 mt-1">Pedidos, pagos, distribuidores, chat, soporte y operaciones.</div>
             </div>
             <button onClick={markAll} className="text-xs font-bold text-[#ffb870] hover:text-[#ffd39f] flex items-center gap-1">
               <CheckCheck size={14} /> Leer todo
@@ -268,13 +248,13 @@ export default function NotificationCenter() {
                 disabled={browserPermission === 'denied' || browserPermission === 'unsupported'}
                 className="w-full rounded-2xl border border-[#e2954d]/30 bg-[#e2954d]/10 px-4 py-3 text-left hover:bg-[#e2954d]/15 disabled:opacity-50"
               >
-                <div className="flex items-center gap-2 text-sm font-bold text-[#ffb870]"><BellRing size={16} /> Activar avisos del navegador</div>
+                <div className="flex items-center gap-2 text-sm font-bold text-[#ffb870]"><BellRing size={16} /> Activar avisos + sonido</div>
                 <div className="mt-1 text-xs text-zinc-500">
                   {browserPermission === 'denied'
                     ? 'Están bloqueados en los permisos del navegador.'
                     : browserPermission === 'unsupported'
                       ? 'Este navegador no admite Notification API.'
-                      : 'Recibe un aviso inmediato al entrar un pedido, una revisión o un mensaje.'}
+                      : 'Recibe avisos instantáneos aunque estés trabajando en otra pestaña.'}
                 </div>
               </button>
             </div>
@@ -282,7 +262,7 @@ export default function NotificationCenter() {
 
           {browserPermission === 'granted' && (
             <div className="flex items-center gap-2 border-b border-white/10 bg-emerald-500/5 px-4 py-2 text-xs font-bold text-emerald-300">
-              <BellRing size={14} /> Avisos del navegador activos
+              <BellRing size={14} /> Avisos y sonido activos
             </div>
           )}
 
