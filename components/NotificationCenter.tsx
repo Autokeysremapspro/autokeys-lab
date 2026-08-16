@@ -41,7 +41,9 @@ function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
   const raw = window.atob(base64)
-  return Uint8Array.from([...raw].map((char) => char.charCodeAt(0)))
+  const output = new Uint8Array(raw.length)
+  for (let index = 0; index < raw.length; index += 1) output[index] = raw.charCodeAt(index)
+  return output
 }
 
 function playAlertSound(urgent = false) {
@@ -138,8 +140,6 @@ export default function NotificationCenter() {
 
     window.dispatchEvent(new CustomEvent('akcore:notification', { detail: item }))
 
-    // Si Web Push real está activo, el service worker se encarga del aviso del sistema.
-    // Dejamos la Notification API clásica solo como respaldo en navegadores sin Push.
     if (pushActiveRef.current || !('Notification' in window) || Notification.permission !== 'granted') return
 
     try {
@@ -241,7 +241,7 @@ export default function NotificationCenter() {
         return
       }
       try {
-        const registration = await navigator.serviceWorker.getRegistration('/akcore-push-sw.js')
+        const registration = await navigator.serviceWorker.getRegistration('/')
         const subscription = await registration?.pushManager.getSubscription()
         if (subscription) {
           await persistPushSubscription(subscription)
