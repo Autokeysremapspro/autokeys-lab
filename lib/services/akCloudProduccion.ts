@@ -10,10 +10,19 @@ export type AkCloudProduccionPedido = {
   marca?: string | null
   modelo?: string | null
   motor?: string | null
+  anio?: string | null
+  cv?: string | null
+  cambio?: string | null
+  vin?: string | null
+  matricula?: string | null
   ecu?: string | null
   hw?: string | null
   sw?: string | null
   servicios?: string[] | null
+  observaciones?: string | null
+  dtc_codes?: string | string[] | null
+  herramienta_lectura?: string | null
+  tipo_lectura?: string | null
   estado?: ProduccionEstado | string | null
   prioridad?: string | null
   urgente?: boolean | null
@@ -23,8 +32,13 @@ export type AkCloudProduccionPedido = {
   notas_core?: string | null
   notas_internas?: string | null
   ori_nombre?: string | null
+  ori_path?: string | null
   mod_nombre?: string | null
+  mod_path?: string | null
+  version_final_id?: string | null
   core_expediente_id?: string | null
+  iniciado_at?: string | null
+  finalizado_at?: string | null
   created_at?: string | null
   updated_at?: string | null
 }
@@ -111,6 +125,19 @@ export async function getPedidosProduccion(): Promise<AkCloudProduccionPedido[]>
 }
 
 export async function actualizarEstadoProduccion(id: string, estado: ProduccionEstado) {
+  if (estado === 'finalizado') {
+    const { data: actual, error: readError } = await supabase
+      .from('file_service_pedidos')
+      .select('id, mod_path, mod_nombre, version_final_id')
+      .eq('id', id)
+      .single()
+
+    if (readError) throw new Error(readError.message)
+    if (!actual?.mod_path && !actual?.mod_nombre && !actual?.version_final_id) {
+      throw new Error('No se puede finalizar: sube al menos un archivo MOD o una versión antes de cerrar el pedido.')
+    }
+  }
+
   const payload: Record<string, any> = {
     estado,
     updated_at: new Date().toISOString(),
@@ -135,6 +162,18 @@ export async function asignarTecnicoProduccion(id: string, tecnico: string) {
   const { data, error } = await supabase
     .from('file_service_pedidos')
     .update({ tecnico_asignado: tecnico || null, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select('*')
+    .single()
+
+  if (error) throw new Error(error.message)
+  return data as AkCloudProduccionPedido
+}
+
+export async function guardarNotasInternasProduccion(id: string, notas: string) {
+  const { data, error } = await supabase
+    .from('file_service_pedidos')
+    .update({ notas_internas: notas.trim() || null, updated_at: new Date().toISOString() })
     .eq('id', id)
     .select('*')
     .single()
