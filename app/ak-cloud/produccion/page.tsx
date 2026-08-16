@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import AppShell from '@/components/AppShell'
 import CustomSelect from '@/components/ak/CustomSelect'
 import { supabase } from '@/lib/supabase'
+import { AkCloudVersion, getVersionesAkCloud } from '@/lib/services/akCloud'
 import {
   AkCloudProduccionPedido,
   ProduccionEstado,
@@ -14,6 +15,7 @@ import {
   estadoClass,
   estadoLabel,
   getPedidosProduccion,
+  guardarNotasInternasProduccion,
   minutosDesde,
   normalizarEstado,
   serviciosTexto,
@@ -24,17 +26,20 @@ import {
   AlertTriangle,
   ArrowRight,
   CheckCircle2,
+  ClipboardList,
   CloudCog,
   Factory,
-  Filter,
-  RefreshCw,
-  Search,
-  Timer,
-  UserCog,
   FileCode2,
   Gauge,
+  GitBranch,
   Inbox,
+  RefreshCw,
+  Save,
+  Search,
   SlidersHorizontal,
+  Timer,
+  UserCog,
+  Wrench,
   X,
 } from 'lucide-react'
 
@@ -102,8 +107,12 @@ export default function ProduccionAkCloudPage() {
       if (filtro === 'urgentes' && !urgente) return false
       if (filtro === 'finalizados' && estado !== 'finalizado') return false
       if (tecnicoFiltro && pedido.tecnico_asignado !== tecnicoFiltro) return false
-      const texto = [pedido.numero, pedido.cliente_nombre, pedido.cliente_email, pedido.marca, pedido.modelo, pedido.motor, pedido.ecu, pedido.hw, pedido.sw, ...(pedido.servicios || [])]
-        .filter(Boolean).join(' ').toLowerCase()
+      const texto = [
+        pedido.numero, pedido.cliente_nombre, pedido.cliente_email, pedido.marca, pedido.modelo, pedido.motor,
+        pedido.vin, pedido.matricula, pedido.ecu, pedido.hw, pedido.sw, pedido.herramienta_lectura, pedido.tipo_lectura,
+        pedido.observaciones, pedido.notas_core, pedido.notas_internas, formatDtc(pedido.dtc_codes), pedido.ori_nombre, pedido.mod_nombre,
+        ...(pedido.servicios || []),
+      ].filter(Boolean).join(' ').toLowerCase()
       return !q || texto.includes(q)
     })
 
@@ -118,10 +127,16 @@ export default function ProduccionAkCloudPage() {
   const selected = useMemo(() => pedidos.find((p) => p.id === selectedId) || filtrados[0] || null, [pedidos, filtrados, selectedId])
 
   async function moverPedido(id: string, estado: ProduccionEstado) {
+    const pedido = pedidos.find((p) => p.id === id)
+    if (estado === 'finalizado' && pedido && !pedido.mod_path && !pedido.mod_nombre && !pedido.version_final_id) {
+      toast.error('No se puede finalizar sin MOD. Sube una versión desde la mesa completa del pedido.')
+      return
+    }
+
     setWorking(id)
     try {
-      await actualizarEstadoProduccion(id, estado)
-      setPedidos((rows) => rows.map((p) => p.id === id ? { ...p, estado, updated_at: new Date().toISOString() } : p))
+      const updated = await actualizarEstadoProduccion(id, estado)
+      setPedidos((rows) => rows.map((p) => p.id === id ? { ...p, ...updated } : p))
       toast.success(`Estado: ${estadoLabel(estado)}`)
     } catch (error: any) {
       toast.error(error?.message || 'No se pudo cambiar el estado')
@@ -131,12 +146,16 @@ export default function ProduccionAkCloudPage() {
   async function asignar(id: string, tecnico: string) {
     setWorking(id)
     try {
-      await asignarTecnicoProduccion(id, tecnico)
-      setPedidos((rows) => rows.map((p) => p.id === id ? { ...p, tecnico_asignado: tecnico || null } : p))
+      const updated = await asignarTecnicoProduccion(id, tecnico)
+      setPedidos((rows) => rows.map((p) => p.id === id ? { ...p, ...updated } : p))
       toast.success(tecnico ? `Asignado a ${tecnico}` : 'Pedido sin técnico')
     } catch (error: any) {
       toast.error(error?.message || 'No se pudo asignar técnico')
     } finally { setWorking(null) }
+  }
+
+  function notasGuardadas(id: string, notas: string) {
+    setPedidos((rows) => rows.map((p) => p.id === id ? { ...p, notas_internas: notas || null, updated_at: new Date().toISOString() } : p))
   }
 
   return (
@@ -173,7 +192,7 @@ export default function ProduccionAkCloudPage() {
           <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
             <div className="flex flex-1 items-center gap-2 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
               <Search size={17} className="text-zinc-500" />
-              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Pedido, distribuidor, vehículo, ECU, HW, SW o servicio…" className="w-full bg-transparent outline-none" />
+              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Pedido, cliente, VIN, matrícula, DTC, ECU, HW, SW, herramienta o archivo…" className="w-full bg-transparent outline-none" />
               {query && <button onClick={() => setQuery('')} className="text-zinc-500 hover:text-white"><X size={16} /></button>}
             </div>
             <div className="min-w-[220px] rounded-2xl border border-white/10 bg-black/20 px-3 py-2">
@@ -199,7 +218,7 @@ export default function ProduccionAkCloudPage() {
                   return (
                     <button key={pedido.id} onClick={() => setSelectedId(pedido.id)} className={`grid w-full grid-cols-[minmax(0,1.6fr)_minmax(150px,.7fr)_minmax(120px,.55fr)_110px] gap-3 border-b border-white/5 px-5 py-4 text-left transition ${active ? 'bg-[#e2954d]/10' : 'hover:bg-white/[0.035]'}`}>
                       <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-2"><span className="font-mono text-xs font-bold text-[#ffb870]">{pedido.numero || 'FS-SIN-NUM'}</span>{urgente && <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-[9px] font-bold uppercase text-red-300">Urgente</span>}</div>
+                        <div className="flex flex-wrap items-center gap-2"><span className="font-mono text-xs font-bold text-[#ffb870]">{pedido.numero || 'FS-SIN-NUM'}</span>{urgente && <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-[9px] font-bold uppercase text-red-300">Urgente</span>}{pedido.mod_nombre && <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold uppercase text-emerald-300">MOD</span>}</div>
                         <div className="mt-1 truncate font-bold">{tituloPedido(pedido)}</div>
                         <div className="mt-1 truncate text-xs text-zinc-500">{pedido.cliente_nombre || pedido.cliente_email || 'Distribuidor'} · {serviciosTexto(pedido.servicios)}</div>
                       </div>
@@ -213,7 +232,7 @@ export default function ProduccionAkCloudPage() {
             </section>
 
             <aside className="2xl:sticky 2xl:top-5 2xl:self-start">
-              {selected ? <WorkPanel pedido={selected} working={working === selected.id} onMove={moverPedido} onAssign={asignar} /> : <div className="rounded-[2rem] border border-dashed border-white/10 p-10 text-center text-zinc-500">Selecciona un trabajo.</div>}
+              {selected ? <WorkPanel pedido={selected} working={working === selected.id} onMove={moverPedido} onAssign={asignar} onNotesSaved={notasGuardadas} /> : <div className="rounded-[2rem] border border-dashed border-white/10 p-10 text-center text-zinc-500">Selecciona un trabajo.</div>}
             </aside>
           </div>
         )}
@@ -222,9 +241,37 @@ export default function ProduccionAkCloudPage() {
   )
 }
 
-function WorkPanel({ pedido, working, onMove, onAssign }: { pedido: AkCloudProduccionPedido; working: boolean; onMove: (id: string, estado: ProduccionEstado) => void; onAssign: (id: string, tecnico: string) => void }) {
+function WorkPanel({ pedido, working, onMove, onAssign, onNotesSaved }: { pedido: AkCloudProduccionPedido; working: boolean; onMove: (id: string, estado: ProduccionEstado) => void; onAssign: (id: string, tecnico: string) => void; onNotesSaved: (id: string, notas: string) => void }) {
   const estado = normalizarEstado(pedido.estado)
   const urgente = pedido.urgente || pedido.prioridad === 'urgente'
+  const [notas, setNotas] = useState(pedido.notas_internas || '')
+  const [savingNotes, setSavingNotes] = useState(false)
+  const [versiones, setVersiones] = useState<AkCloudVersion[]>([])
+  const [loadingVersions, setLoadingVersions] = useState(false)
+
+  useEffect(() => {
+    setNotas(pedido.notas_internas || '')
+    setLoadingVersions(true)
+    getVersionesAkCloud(pedido.id)
+      .then(setVersiones)
+      .finally(() => setLoadingVersions(false))
+  }, [pedido.id, pedido.notas_internas, pedido.mod_nombre])
+
+  async function saveNotes() {
+    setSavingNotes(true)
+    try {
+      await guardarNotasInternasProduccion(pedido.id, notas)
+      onNotesSaved(pedido.id, notas.trim())
+      toast.success('Notas internas guardadas')
+    } catch (error: any) {
+      toast.error(error?.message || 'No se pudieron guardar las notas')
+    } finally {
+      setSavingNotes(false)
+    }
+  }
+
+  const hasMod = Boolean(pedido.mod_path || pedido.mod_nombre || pedido.version_final_id || versiones.length)
+
   return (
     <div className="rounded-[2rem] border border-white/10 bg-gradient-to-b from-[#111827] to-[#090e17] p-5 shadow-2xl shadow-black/30">
       <div className="flex items-start justify-between gap-3">
@@ -233,16 +280,31 @@ function WorkPanel({ pedido, working, onMove, onAssign }: { pedido: AkCloudProdu
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-2"><Info label="ECU" value={pedido.ecu} /><Info label="HW" value={pedido.hw} /><Info label="SW" value={pedido.sw} /><Info label="Precio" value={pedido.precio != null ? `${pedido.precio} €` : '—'} /></div>
+      <div className="mt-2 grid grid-cols-2 gap-2"><Info label="VIN" value={pedido.vin} /><Info label="Matrícula" value={pedido.matricula} /><Info label="Herramienta" value={pedido.herramienta_lectura} /><Info label="Lectura" value={pedido.tipo_lectura} /></div>
+
       <div className="mt-3 rounded-2xl border border-white/5 bg-black/20 p-4"><div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Servicios solicitados</div><div className="mt-2 font-bold text-[#ffb870]">{serviciosTexto(pedido.servicios)}</div></div>
+
+      {formatDtc(pedido.dtc_codes) && <div className="mt-3 rounded-2xl border border-red-500/15 bg-red-500/5 p-4"><div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-red-300"><Wrench size={14} /> DTC solicitados</div><div className="mt-2 break-words font-mono text-sm font-bold text-zinc-200">{formatDtc(pedido.dtc_codes)}</div></div>}
+      {pedido.observaciones && <div className="mt-3 rounded-2xl border border-white/5 bg-black/20 p-4"><div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500"><ClipboardList size={14} /> Observaciones cliente</div><div className="mt-2 whitespace-pre-wrap text-sm text-zinc-300">{pedido.observaciones}</div></div>}
 
       <div className="mt-5 space-y-3">
         <div><div className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Técnico responsable</div><div className="rounded-2xl border border-white/10 bg-black/20 p-2"><CustomSelect value={pedido.tecnico_asignado || ''} onChange={(value) => onAssign(pedido.id, value)} disabled={working} placeholder="Sin técnico" options={[{ value: '', label: 'Sin técnico' }, ...tecnicos.map((t) => ({ value: t, label: t }))]} /></div></div>
-        <div><div className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Estado operativo</div><div className="rounded-2xl border border-white/10 bg-black/20 p-2"><CustomSelect value={estado} onChange={(value) => onMove(pedido.id, value as ProduccionEstado)} disabled={working} options={estados} /></div></div>
+        <div><div className="mb-2 flex items-center justify-between gap-2"><span className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Estado operativo</span>{!hasMod && <span className="text-[9px] font-bold uppercase text-amber-300">Finalizar bloqueado sin MOD</span>}</div><div className="rounded-2xl border border-white/10 bg-black/20 p-2"><CustomSelect value={estado} onChange={(value) => onMove(pedido.id, value as ProduccionEstado)} disabled={working} options={estados} /></div></div>
       </div>
 
-      {(pedido.notas_core || pedido.notas_internas) && <div className="mt-4 rounded-2xl border border-amber-500/15 bg-amber-500/5 p-4"><div className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-300">Notas</div><div className="mt-2 whitespace-pre-wrap text-sm text-zinc-300">{pedido.notas_core || pedido.notas_internas}</div></div>}
+      {pedido.notas_core && <div className="mt-4 rounded-2xl border border-cyan-500/15 bg-cyan-500/5 p-4"><div className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300">Notas Core</div><div className="mt-2 whitespace-pre-wrap text-sm text-zinc-300">{pedido.notas_core}</div></div>}
 
-      <div className="mt-5 grid grid-cols-2 gap-2"><div className="rounded-2xl border border-white/10 bg-black/20 p-3"><FileCode2 size={17} className="text-zinc-500" /><div className="mt-2 text-[10px] uppercase text-zinc-600">ORI</div><div className="truncate text-xs font-bold">{pedido.ori_nombre || 'Pendiente'}</div></div><div className="rounded-2xl border border-white/10 bg-black/20 p-3"><FileCode2 size={17} className="text-zinc-500" /><div className="mt-2 text-[10px] uppercase text-zinc-600">MOD</div><div className="truncate text-xs font-bold">{pedido.mod_nombre || 'Sin entregar'}</div></div></div>
+      <div className="mt-4 rounded-2xl border border-amber-500/15 bg-amber-500/5 p-4">
+        <div className="flex items-center justify-between gap-3"><div className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-300">Notas internas de producción</div><button onClick={saveNotes} disabled={savingNotes} className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 px-2.5 py-1.5 text-[10px] font-bold uppercase text-amber-200 disabled:opacity-50"><Save size={13} /> {savingNotes ? 'Guardando' : 'Guardar'}</button></div>
+        <textarea value={notas} onChange={(e) => setNotas(e.target.value)} rows={3} placeholder="Información solo para el equipo: pruebas, cambios, incidencias, instrucciones…" className="mt-3 w-full resize-y rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-zinc-200 outline-none focus:border-amber-500/30" />
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-2"><div className="rounded-2xl border border-white/10 bg-black/20 p-3"><FileCode2 size={17} className="text-zinc-500" /><div className="mt-2 text-[10px] uppercase text-zinc-600">ORI</div><div className="truncate text-xs font-bold">{pedido.ori_nombre || 'Pendiente'}</div></div><div className={`rounded-2xl border p-3 ${hasMod ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-white/10 bg-black/20'}`}><FileCode2 size={17} className={hasMod ? 'text-emerald-300' : 'text-zinc-500'} /><div className="mt-2 text-[10px] uppercase text-zinc-600">MOD</div><div className="truncate text-xs font-bold">{pedido.mod_nombre || (versiones.length ? `${versiones.length} versión(es)` : 'Sin entregar')}</div></div></div>
+
+      <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4">
+        <div className="flex items-center justify-between"><div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500"><GitBranch size={14} /> Historial de versiones</div><span className="text-[10px] font-bold text-zinc-600">{versiones.length}</span></div>
+        {loadingVersions ? <div className="mt-3 text-xs text-zinc-600">Cargando versiones…</div> : versiones.length === 0 ? <div className="mt-3 text-xs text-zinc-600">Todavía no hay revisiones MOD.</div> : <div className="mt-3 space-y-2">{versiones.slice(0, 4).map((version) => <div key={version.id} className="rounded-xl border border-white/5 bg-white/[0.025] p-3"><div className="flex items-center justify-between gap-2"><div className="min-w-0 truncate text-xs font-bold">V{version.numero_version} · {version.nombre_archivo}</div>{version.es_final && <span className="shrink-0 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold uppercase text-emerald-300">Final</span>}</div>{version.nota_interna && <div className="mt-1 line-clamp-2 text-[11px] text-amber-200/80">Interna: {version.nota_interna}</div>}{version.nota_cliente && <div className="mt-1 line-clamp-2 text-[11px] text-zinc-500">Cliente: {version.nota_cliente}</div>}</div>)}</div>}
+      </div>
 
       <Link href={`/ak-cloud/${pedido.id}`} className="mt-5 flex items-center justify-center gap-2 rounded-2xl bg-[#e2954d] px-4 py-3.5 text-sm font-bold text-[#0a0d12] shadow-lg shadow-[#8a4a1f]/30 hover:bg-[#ffb870]">Abrir mesa completa del pedido <ArrowRight size={16} /></Link>
     </div>
@@ -255,4 +317,9 @@ function QuickFilter({ active, onClick, label, value, icon: Icon, danger = false
 
 function Info({ label, value }: { label: string; value?: string | null }) {
   return <div className="rounded-2xl border border-white/5 bg-black/20 p-3"><div className="text-[10px] font-bold uppercase tracking-wide text-zinc-600">{label}</div><div className="mt-1 truncate text-sm font-bold text-zinc-200">{value || '—'}</div></div>
+}
+
+function formatDtc(value?: string | string[] | null) {
+  if (!value) return ''
+  return Array.isArray(value) ? value.filter(Boolean).join(', ') : String(value)
 }
