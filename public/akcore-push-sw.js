@@ -1,3 +1,4 @@
+// AK Core Web Push service worker v1
 self.addEventListener('install', () => self.skipWaiting())
 
 self.addEventListener('activate', (event) => {
