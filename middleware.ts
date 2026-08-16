@@ -49,8 +49,9 @@ export const config = {
     /*
      * Aplica a todas las rutas excepto:
      * - archivos estáticos y de Next.js internos
+     * - service worker / manifest PWA (deben poder cargarse sin pasar por login)
      * - la API (cada route.ts valida su propia autorización con requireStaff/requireAdmin)
      */
-    '/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|webp|gif|ico)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|akcore-push-sw.js|manifest.webmanifest|api|.*\\.(?:svg|png|jpg|jpeg|webp|gif|ico)$).*)',
   ],
 }
