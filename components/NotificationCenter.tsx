@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { Bell, BellRing, CheckCheck, ClipboardList, FileText, Info, Package, UploadCloud, AlertTriangle, ShieldAlert } from 'lucide-react'
@@ -10,6 +10,9 @@ import type { Notificacion } from '@/types/notificaciones'
 
 type Item = Notificacion & { virtual?: boolean }
 type BrowserPermission = NotificationPermission | 'unsupported'
+type PushState = 'unsupported' | 'inactive' | 'activating' | 'active' | 'error'
+
+const VAPID_PUBLIC_KEY = 'BL0mn3NRKXxxI_03V0ws7nYH2_c3IpTZq1-hkSNIwYQbwRDHCdtpYYz7jUzbdiSQzqbcziDhxS_AOYJOg2xE_fA'
 
 const iconByModule: Record<string, any> = {
   Expedientes: ClipboardList,
@@ -32,6 +35,13 @@ function iconFor(item: Item) {
   if (item.tipo === 'danger') return ShieldAlert
   if (item.tipo === 'warning') return AlertTriangle
   return iconByModule[item.modulo || ''] || Info
+}
+
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+  const raw = window.atob(base64)
+  return Uint8Array.from([...raw].map((char) => char.charCodeAt(0)))
 }
 
 function playAlertSound(urgent = false) {
@@ -70,6 +80,12 @@ export default function NotificationCenter() {
   const [virtuals, setVirtuals] = useState<Item[]>([])
   const [loading, setLoading] = useState(false)
   const [browserPermission, setBrowserPermission] = useState<BrowserPermission>('unsupported')
+  const [pushState, setPushState] = useState<PushState>('inactive')
+  const pushActiveRef = useRef(false)
+
+  useEffect(() => {
+    pushActiveRef.current = pushState === 'active'
+  }, [pushState])
 
   async function load() {
     setLoading(true)
@@ -122,7 +138,9 @@ export default function NotificationCenter() {
 
     window.dispatchEvent(new CustomEvent('akcore:notification', { detail: item }))
 
-    if (!('Notification' in window) || Notification.permission !== 'granted') return
+    // Si Web Push real está activo, el service worker se encarga del aviso del sistema.
+    // Dejamos la Notification API clásica solo como respaldo en navegadores sin Push.
+    if (pushActiveRef.current || !('Notification' in window) || Notification.permission !== 'granted') return
 
     try {
       const notification = new Notification(item.titulo, {
@@ -140,37 +158,104 @@ export default function NotificationCenter() {
     }
   }
 
-  async function enableBrowserNotifications() {
+  async function persistPushSubscription(subscription: PushSubscription) {
+    const { data: sessionData } = await supabase.auth.getSession()
+    const userId = sessionData.session?.user?.id
+    if (!userId) throw new Error('Sesión no disponible para registrar Web Push')
+
+    const json = subscription.toJSON()
+    const p256dh = json.keys?.p256dh
+    const auth = json.keys?.auth
+    if (!p256dh || !auth) throw new Error('El navegador no devolvió las claves Push')
+
+    const { error } = await supabase
+      .from('ak_push_subscriptions')
+      .upsert({
+        user_id: userId,
+        endpoint: subscription.endpoint,
+        p256dh,
+        auth,
+        user_agent: navigator.userAgent,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'endpoint' })
+
+    if (error) throw error
+  }
+
+  async function enableWebPush() {
     if (typeof window === 'undefined' || !('Notification' in window)) {
       setBrowserPermission('unsupported')
+      setPushState('unsupported')
       toast.error('Este navegador no admite notificaciones web')
       return
     }
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      setPushState('unsupported')
+      toast.error('Este navegador no admite Web Push persistente')
+      return
+    }
 
+    setPushState('activating')
     try {
-      const permission = await Notification.requestPermission()
+      const permission = Notification.permission === 'granted'
+        ? 'granted'
+        : await Notification.requestPermission()
       setBrowserPermission(permission)
-      if (permission === 'granted') {
-        playAlertSound(false)
-        toast.success('Avisos y sonido activados para AK Core')
-        new Notification('AK Core · Avisos activados', {
-          body: 'Te avisaré al instante de pedidos, pagos, altas y mensajes de AK Cloud.',
-          tag: 'ak-core-notifications-enabled',
-        })
-      } else if (permission === 'denied') {
-        toast.error('El navegador ha bloqueado las notificaciones de AK Core')
+
+      if (permission !== 'granted') {
+        setPushState('inactive')
+        if (permission === 'denied') toast.error('El navegador ha bloqueado las notificaciones de AK Core')
+        return
       }
-    } catch (error) {
-      console.error('Notification permission error', error)
-      toast.error('No se pudieron activar los avisos del navegador')
+
+      const registration = await navigator.serviceWorker.register('/akcore-push-sw.js', { scope: '/' })
+      await navigator.serviceWorker.ready
+      let subscription = await registration.pushManager.getSubscription()
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        })
+      }
+
+      await persistPushSubscription(subscription)
+      setPushState('active')
+      playAlertSound(false)
+      toast.success('Push real activado en AK Core')
+    } catch (error: any) {
+      console.error('Web Push activation error', error)
+      setPushState('error')
+      toast.error(error?.message || 'No se pudo activar Web Push')
     }
   }
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      setBrowserPermission(Notification.permission)
+    if (typeof window === 'undefined') return
+
+    if ('Notification' in window) setBrowserPermission(Notification.permission)
+    else setBrowserPermission('unsupported')
+
+    async function inspectPush() {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        setPushState('unsupported')
+        return
+      }
+      try {
+        const registration = await navigator.serviceWorker.getRegistration('/akcore-push-sw.js')
+        const subscription = await registration?.pushManager.getSubscription()
+        if (subscription) {
+          await persistPushSubscription(subscription)
+          setPushState('active')
+        } else {
+          setPushState('inactive')
+        }
+      } catch (error) {
+        console.warn('No se pudo comprobar la suscripción Web Push', error)
+        setPushState('inactive')
+      }
     }
 
+    inspectPush()
     load()
     const timer = setInterval(load, 30_000)
     return () => clearInterval(timer)
@@ -221,6 +306,8 @@ export default function NotificationCenter() {
     await load()
   }
 
+  const pushReady = browserPermission === 'granted' && pushState === 'active'
+
   return (
     <div className="relative">
       <button onClick={() => setOpen(!open)} className="relative h-12 w-12 rounded-2xl bg-[#0B1220] border border-white/10 flex items-center justify-center hover:bg-white/5 transition" title="Centro de avisos">
@@ -240,29 +327,29 @@ export default function NotificationCenter() {
             </button>
           </div>
 
-          {browserPermission !== 'granted' && (
+          {!pushReady && (
             <div className="p-3 border-b border-white/10 bg-[#e2954d]/5">
               <button
                 type="button"
-                onClick={enableBrowserNotifications}
-                disabled={browserPermission === 'denied' || browserPermission === 'unsupported'}
+                onClick={enableWebPush}
+                disabled={browserPermission === 'denied' || browserPermission === 'unsupported' || pushState === 'unsupported' || pushState === 'activating'}
                 className="w-full rounded-2xl border border-[#e2954d]/30 bg-[#e2954d]/10 px-4 py-3 text-left hover:bg-[#e2954d]/15 disabled:opacity-50"
               >
-                <div className="flex items-center gap-2 text-sm font-bold text-[#ffb870]"><BellRing size={16} /> Activar avisos + sonido</div>
+                <div className="flex items-center gap-2 text-sm font-bold text-[#ffb870]"><BellRing size={16} /> {pushState === 'activating' ? 'Activando push...' : 'Activar push real + sonido'}</div>
                 <div className="mt-1 text-xs text-zinc-500">
                   {browserPermission === 'denied'
-                    ? 'Están bloqueados en los permisos del navegador.'
-                    : browserPermission === 'unsupported'
-                      ? 'Este navegador no admite Notification API.'
-                      : 'Recibe avisos instantáneos aunque estés trabajando en otra pestaña.'}
+                    ? 'Las notificaciones están bloqueadas en los permisos del navegador.'
+                    : pushState === 'unsupported' || browserPermission === 'unsupported'
+                      ? 'Este navegador no admite Web Push persistente.'
+                      : 'Recibe pedidos y mensajes aunque AK Core no esté en primer plano.'}
                 </div>
               </button>
             </div>
           )}
 
-          {browserPermission === 'granted' && (
+          {pushReady && (
             <div className="flex items-center gap-2 border-b border-white/10 bg-emerald-500/5 px-4 py-2 text-xs font-bold text-emerald-300">
-              <BellRing size={14} /> Avisos y sonido activos
+              <BellRing size={14} /> Push real y sonido activos
             </div>
           )}
 
