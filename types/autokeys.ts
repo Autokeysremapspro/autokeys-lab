@@ -8,8 +8,6 @@ export type Cliente = {
   codigo_postal?: string | null
   poblacion?: string | null
   provincia?: string | null
-  web?: string | null
-  herramientas?: string[] | null
   notas?: string | null
   created_at?: string
   updated_at?: string
@@ -32,14 +30,12 @@ export type Vehiculo = {
   updated_at?: string
 }
 
-export type VehiculoConCliente = Vehiculo & { cliente?: Cliente | null }
-
 export type Expediente = {
   id: string
   numero_ot?: string | null
   cliente_id?: string | null
   vehiculo_id?: string | null
-  tipo_trabajo: string
+  tipo_trabajo?: string | null
   descripcion?: string | null
   estado?: string | null
   prioridad?: string | null
@@ -48,11 +44,7 @@ export type Expediente = {
   fecha_entrega?: string | null
   precio_estimado?: number | null
   precio_final?: number | null
-  pagado?: boolean | null
-  metodo_pago?: string | null
-  notas_cliente?: string | null
-  notas_internas?: string | null
-  visible_admin?: boolean | null
+  notas?: string | null
   created_at?: string
   updated_at?: string
 }
@@ -62,21 +54,10 @@ export type ExpedienteECU = {
   expediente_id: string
   marca_ecu?: string | null
   modelo_ecu?: string | null
-  hw?: string | null
-  sw?: string | null
-  vin_original?: string | null
-  vin_nuevo?: string | null
-  cvn?: string | null
-  password?: string | null
-  pin?: string | null
-  cs?: string | null
-  mac?: string | null
-  isn?: string | null
-  estado_immo?: string | null
-  stage?: string | null
-  dpf?: string | null
-  egr?: string | null
-  adblue?: string | null
+  hardware?: string | null
+  software?: string | null
+  referencia?: string | null
+  protocolo?: string | null
   checksum?: string | null
   lectura?: string | null
   herramienta?: string | null
@@ -145,6 +126,8 @@ export type ArchivoExpediente = {
   id: string
   expediente_id: string
   nombre_archivo: string
+  /** Compatibility alias used by compact rebuilt views. */
+  nombre?: string
   tipo?: string | null
   url?: string | null
   notas?: string | null
