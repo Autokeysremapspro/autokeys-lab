@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { ArrowDownRight, ArrowUpRight } from 'lucide-react'
 import { toneIconTile, type LabTone } from './theme'
 import LabSparkline from './LabSparkline'
 
@@ -22,28 +21,27 @@ export default function LabStatCard({
 }) {
   const positive = typeof trend === 'number' && trend >= 0
   return (
-    <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.035] to-white/[0.015] p-4">
+    <div className="min-h-[108px] rounded-xl border border-white/[0.085] bg-[linear-gradient(180deg,rgba(18,21,25,.95),rgba(10,12,15,.95))] px-4 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,.018)]">
       <div className="flex items-start gap-3">
-        <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${toneIconTile[tone]}`}>{icon}</div>
+        <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${toneIconTile[tone]}`}>{icon}</div>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[13px] font-semibold text-zinc-400">{label}</div>
+          <div className="truncate text-[11px] font-medium text-zinc-400">{label}</div>
           <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-white">{value}</span>
+            <span className="text-[25px] font-semibold leading-none tracking-[-0.03em] text-white">{value}</span>
             {typeof trend === 'number' && (
-              <span className={`flex items-center gap-0.5 text-xs font-bold ${positive ? 'text-[#4ade95]' : 'text-[#ff5468]'}`}>
-                {positive ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
+              <span className={`text-[11px] font-semibold ${positive ? 'text-[#57c85e]' : 'text-[#ff413f]'}`}>
                 {positive ? '+' : ''}{trend}%
               </span>
             )}
           </div>
-          {subtitle && <div className="mt-1 truncate text-[11px] text-zinc-600">{subtitle}</div>}
         </div>
       </div>
-      {sparkline && sparkline.length > 1 && (
-        <div className="mt-3 h-8">
-          <LabSparkline values={sparkline} positive={positive} />
+      <div className="mt-2.5 flex items-end justify-between gap-3">
+        <div className="h-[22px] min-w-0 flex-1">
+          {sparkline && sparkline.length > 1 ? <LabSparkline values={sparkline} positive={positive} /> : null}
         </div>
-      )}
+        {subtitle && <div className="shrink-0 text-right text-[9px] text-zinc-600">{subtitle}</div>}
+      </div>
     </div>
   )
 }
