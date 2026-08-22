@@ -13,7 +13,9 @@ const config: Config = {
       md: '768px',
       lg: '1024px',
       xl: '1280px',
-      '2xl': '1360px',
+      // Keep master-detail / 3-column mockup layouts for genuinely wide screens.
+      // 1366/1440 laptops retain readable stacked layouts instead of shrinking everything.
+      '2xl': '1536px',
     },
     extend: {
       fontFamily: {
@@ -26,7 +28,6 @@ const config: Config = {
         akred: '#EF202D',
         ink: '#07080A',
         copper: {
-          // Compatibility aliases for older components: visually resolve to AK red.
           DEFAULT: '#EF202D',
           bright: '#FF5460',
           deep: '#B51620',
