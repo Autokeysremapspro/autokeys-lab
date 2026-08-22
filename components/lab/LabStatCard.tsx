@@ -23,20 +23,20 @@ export default function LabStatCard({ icon, tone = 'zinc', label, value, trend, 
   const positive = typeof trend === 'number' && trend >= 0
   const values = sparkline && sparkline.length > 1 ? sparkline : defaultSparklines[tone]
   return (
-    <div className="min-h-[108px] rounded-xl border border-white/[0.085] bg-[linear-gradient(180deg,rgba(18,21,25,.95),rgba(10,12,15,.95))] px-4 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,.018)]">
-      <div className="flex items-start gap-3">
-        <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${toneIconTile[tone]}`}>{icon}</div>
+    <div className="min-h-[126px] rounded-2xl border border-white/[0.085] bg-[linear-gradient(180deg,rgba(18,21,25,.95),rgba(10,12,15,.95))] px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,.018)]">
+      <div className="flex items-start gap-3.5">
+        <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-full ${toneIconTile[tone]}`}>{icon}</div>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[11px] font-medium text-zinc-400">{label}</div>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-[25px] font-semibold leading-none tracking-[-0.03em] text-white">{value}</span>
-            {typeof trend === 'number' && <span className={`text-[11px] font-semibold ${positive ? 'text-[#57c85e]' : 'text-[#ff413f]'}`}>{positive ? '+' : ''}{trend}%</span>}
+          <div className="truncate text-[13px] font-medium text-zinc-400">{label}</div>
+          <div className="mt-1.5 flex items-baseline gap-2.5">
+            <span className="text-[30px] font-semibold leading-none tracking-[-0.035em] text-white">{value}</span>
+            {typeof trend === 'number' && <span className={`text-[12px] font-semibold ${positive ? 'text-[#57c85e]' : 'text-[#ff413f]'}`}>{positive ? '+' : ''}{trend}%</span>}
           </div>
         </div>
       </div>
-      <div className="mt-2.5 flex items-end justify-between gap-3">
-        <div className="h-[22px] min-w-0 flex-1"><LabSparkline values={values} positive={positive} /></div>
-        {subtitle && <div className="shrink-0 text-right text-[9px] text-zinc-600">{subtitle}</div>}
+      <div className="mt-3 flex items-end justify-between gap-3">
+        <div className="h-[26px] min-w-0 flex-1"><LabSparkline values={values} positive={positive} /></div>
+        {subtitle && <div className="shrink-0 text-right text-[10px] text-zinc-500">{subtitle}</div>}
       </div>
     </div>
   )
