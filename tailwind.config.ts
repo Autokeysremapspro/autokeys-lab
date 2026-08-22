@@ -13,9 +13,9 @@ const config: Config = {
       md: '768px',
       lg: '1024px',
       xl: '1280px',
-      // Keep master-detail / 3-column mockup layouts for genuinely wide screens.
-      // 1366/1440 laptops retain readable stacked layouts instead of shrinking everything.
-      '2xl': '1536px',
+      // Master-detail and 3-column compositions need real content width after the sidebar.
+      // Keep 1366/1440/1536 screens in the readable laptop layout; wide mode starts at 1600px.
+      '2xl': '1600px',
     },
     extend: {
       fontFamily: {
