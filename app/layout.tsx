@@ -1,6 +1,7 @@
 import './globals.css'
 import './visual-polish.css'
 import './login-art.css'
+import './login-responsive.css'
 import type { Metadata } from 'next'
 import { Space_Grotesk, JetBrains_Mono, Inter } from 'next/font/google'
 import { Toaster } from 'react-hot-toast'
