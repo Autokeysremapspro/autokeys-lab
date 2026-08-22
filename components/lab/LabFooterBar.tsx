@@ -38,15 +38,15 @@ export default function LabFooterBar() {
   ]
 
   return (
-    <div className="mt-4 grid shrink-0 border-t border-white/[0.075] bg-[#08090c]/88 md:grid-cols-5">
+    <div className="mt-4 hidden shrink-0 grid-cols-5 border-t border-white/[0.075] bg-[#08090c]/88 lg:grid">
       {items.map((item, index) => {
         const Icon = item.icon
         return (
-          <div key={item.label} className={`flex min-h-[58px] items-center gap-3 px-4 py-2.5 ${index > 0 ? 'border-t border-white/[0.055] md:border-l md:border-t-0' : ''}`}>
-            <Icon size={18} strokeWidth={1.8} className="shrink-0 text-[#ef202d]" />
+          <div key={item.label} className={`flex min-h-[52px] items-center gap-2.5 px-3 py-2 2xl:min-h-[58px] 2xl:gap-3 2xl:px-4 2xl:py-2.5 ${index > 0 ? 'border-l border-white/[0.055]' : ''}`}>
+            <Icon size={17} strokeWidth={1.8} className="shrink-0 text-[#ef202d] 2xl:h-[18px] 2xl:w-[18px]" />
             <div className="min-w-0">
-              <div className="truncate text-[11px] font-medium text-zinc-300">{item.label}</div>
-              <div className="truncate text-[9px] text-zinc-500">{item.value}</div>
+              <div className="truncate text-[10px] font-medium text-zinc-300 2xl:text-[11px]">{item.label}</div>
+              <div className="truncate text-[8px] text-zinc-500 2xl:text-[9px]">{item.value}</div>
             </div>
           </div>
         )
