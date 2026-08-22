@@ -1,0 +1,26 @@
+/* Screen-specific crop for the supplied Autokeys ERP login artwork. */
+main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{
+  background-size:cover!important;
+  background-position:50% 48%!important;
+}
+@media (min-width:1700px){
+  main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{background-position:50% 48%!important}
+}
+@media (min-width:1440px) and (max-width:1699px){
+  main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{background-position:48% 50%!important}
+}
+@media (min-width:1280px) and (max-width:1439px){
+  main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{background-position:45% 50%!important}
+}
+@media (min-width:1024px) and (max-width:1279px){
+  main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{background-position:40% 50%!important}
+}
+@media (max-width:1023px){
+  main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{background-position:46% 50%!important}
+}
+@media (max-width:640px){
+  main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{background-position:43% 48%!important}
+}
+@media (max-height:760px) and (min-width:1024px){
+  main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{background-position:48% 45%!important}
+}
