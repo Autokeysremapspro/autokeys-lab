@@ -4,118 +4,99 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
-import AppShell from '@/components/AppShell'
-import ExpedienteStatusBadge from '@/components/ExpedienteStatusBadge'
-import ConfirmModal from '@/components/ConfirmModal'
-import CustomSelect from '@/components/ak/CustomSelect'
+import {
+  Lock,
+  Ticket,
+  Hourglass,
+  Car,
+  Plus,
+  Search,
+  SlidersHorizontal,
+  ExternalLink,
+  FileText,
+  Paperclip,
+  Trash2,
+} from 'lucide-react'
+import { LabShell, LabStatCard, LabPanel, LabBadge } from '@/components/lab'
 import { ExpedienteService } from '@/lib/services/expedientes'
+import { ArchivoService } from '@/lib/services/archivos'
 import { supabase } from '@/lib/supabase'
-import type { ExpedienteConRelaciones } from '@/types/autokeys'
-import { Car, ClipboardList, Cpu, Eye, KeyRound, Plus, Search, Trash2, UserRound, ArrowUpDown } from 'lucide-react'
+import ConfirmModal from '@/components/ConfirmModal'
+import type { ExpedienteConRelaciones, ArchivoExpediente, ExpedienteHistorial } from '@/types/autokeys'
+import { money } from '@/lib/status'
 
-const ESTADO_OPTIONS = [
-  { value: 'todos', label: 'Todos los estados' },
-  { value: 'recibido', label: 'Recibido' },
-  { value: 'diagnostico', label: 'Diagnóstico' },
-  { value: 'en_proceso', label: 'En proceso' },
-  { value: 'pendiente_cliente', label: 'Pendiente cliente' },
-  { value: 'pendiente_material', label: 'Pendiente material' },
-  { value: 'terminado', label: 'Terminado' },
-  { value: 'entregado', label: 'Entregado' },
-  { value: 'cancelado', label: 'Cancelado' },
-]
-
-const SORT_OPTIONS = [
-  { value: 'reciente', label: 'Más recientes' },
-  { value: 'urgente', label: 'Urgentes primero' },
-  { value: 'importe', label: 'Importe (mayor a menor)' },
-]
-
-function money(value?: number | null) {
-  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value || 0)
-}
+type Tab = 'resumen' | 'historial' | 'archivos' | 'notas'
 
 function formatVehicle(item: ExpedienteConRelaciones) {
   const v = item.vehiculo
   if (!v) return 'Sin vehículo'
-  return [v.marca, v.modelo, v.matricula].filter(Boolean).join(' · ') || 'Vehículo sin datos'
+  return [v.marca, v.modelo].filter(Boolean).join(' ') || v.matricula || 'Vehículo sin datos'
 }
-
-function techIcon(tipo?: string | null) {
-  const text = (tipo || '').toLowerCase()
-  if (text.includes('llave') || text.includes('cas') || text.includes('fem') || text.includes('bdc')) return KeyRound
-  return Cpu
-}
-
-type QuickFilter = 'todos' | 'abiertas' | 'urgentes' | 'ecu' | 'llaves'
 
 function ExpedientesPageInner() {
-  const [items, setItems] = useState<ExpedienteConRelaciones[]>([])
   const searchParams = useSearchParams()
+  const [items, setItems] = useState<ExpedienteConRelaciones[]>([])
   const [query, setQuery] = useState(searchParams.get('tipo') || '')
-  const [quickFilter, setQuickFilter] = useState<QuickFilter>('todos')
-  const [estadoFilter, setEstadoFilter] = useState('todos')
-  const [sort, setSort] = useState('reciente')
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [tab, setTab] = useState<Tab>('resumen')
+  const [historial, setHistorial] = useState<ExpedienteHistorial[]>([])
+  const [archivos, setArchivos] = useState<ArchivoExpediente[]>([])
+  const [detailLoading, setDetailLoading] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<ExpedienteConRelaciones | null>(null)
   const [deleting, setDeleting] = useState(false)
 
+  useEffect(() => { load() }, [])
+  useEffect(() => { if (selectedId) loadDetail(selectedId) }, [selectedId])
+
   async function load() {
     setLoading(true)
-    setError('')
     try {
-      setItems(await ExpedienteService.getAll())
+      const data = await ExpedienteService.getAll()
+      setItems(data)
+      if (data.length && !selectedId) setSelectedId(data[0].id)
     } catch (err: any) {
-      setError(err.message || 'No se pudieron cargar los expedientes')
+      toast.error(err.message || 'No se pudieron cargar los expedientes')
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => { load() }, [])
+  async function loadDetail(id: string) {
+    setDetailLoading(true)
+    try {
+      const [full, files] = await Promise.all([
+        ExpedienteService.getById(id),
+        ArchivoService.list(id).catch(() => []),
+      ])
+      setHistorial(full?.historial || [])
+      setArchivos(files)
+    } finally {
+      setDetailLoading(false)
+    }
+  }
 
-  const openCount = items.filter(i => !['terminado', 'entregado', 'cancelado'].includes(i.estado || '')).length
-  const urgentCount = items.filter(i => i.prioridad === 'urgente').length
-  const ecuCount = items.filter(i => i.ecu).length
-  const keyCount = items.filter(i => i.llaves).length
+  const openCount = items.filter((i) => !['terminado', 'entregado', 'cancelado'].includes(i.estado || '')).length
+  const urgentCount = items.filter((i) => i.prioridad === 'urgente').length
+  const enEsperaCount = items.filter((i) => ['pendiente_cliente', 'pendiente_material'].includes(i.estado || '')).length
+  const thirtyDaysAgo = new Date(); thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  const cerrados30 = items.filter((i) => ['terminado', 'entregado'].includes(i.estado || '') && new Date(i.updated_at || i.created_at || 0) >= thirtyDaysAgo).length
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim()
-    let out = items
+    if (!q) return items
+    return items.filter((e) => {
+      const haystack = `${e.numero_ot || ''} ${e.tipo_trabajo || ''} ${e.estado || ''} ${e.cliente?.nombre || ''} ${e.vehiculo?.marca || ''} ${e.vehiculo?.modelo || ''} ${e.vehiculo?.matricula || ''}`.toLowerCase()
+      return haystack.includes(q)
+    })
+  }, [items, query])
 
-    if (quickFilter === 'abiertas') out = out.filter(i => !['terminado', 'entregado', 'cancelado'].includes(i.estado || ''))
-    if (quickFilter === 'urgentes') out = out.filter(i => i.prioridad === 'urgente')
-    if (quickFilter === 'ecu') out = out.filter(i => i.ecu)
-    if (quickFilter === 'llaves') out = out.filter(i => i.llaves)
-
-    if (estadoFilter !== 'todos') out = out.filter(i => (i.estado || 'recibido') === estadoFilter)
-
-    if (q) {
-      out = out.filter((e) => {
-        const haystack = `${e.numero_ot || ''} ${e.tipo_trabajo || ''} ${e.estado || ''} ${e.prioridad || ''} ${e.tecnico || ''} ${e.cliente?.nombre || ''} ${e.cliente?.telefono || ''} ${e.vehiculo?.marca || ''} ${e.vehiculo?.modelo || ''} ${e.vehiculo?.matricula || ''} ${e.vehiculo?.bastidor || ''} ${e.ecu?.modelo_ecu || ''} ${e.ecu?.hw || ''} ${e.ecu?.sw || ''}`.toLowerCase()
-        return haystack.includes(q)
-      })
-    }
-
-    const sorted = [...out]
-    if (sort === 'urgente') {
-      sorted.sort((a, b) => (b.prioridad === 'urgente' ? 1 : 0) - (a.prioridad === 'urgente' ? 1 : 0))
-    } else if (sort === 'importe') {
-      sorted.sort((a, b) => Number(b.precio_final || b.precio_estimado || 0) - Number(a.precio_final || a.precio_estimado || 0))
-    }
-    return sorted
-  }, [items, query, quickFilter, estadoFilter, sort])
-
-  function askDelete(item: ExpedienteConRelaciones) {
-    setPendingDelete(item)
-  }
+  const selected = items.find((i) => i.id === selectedId) || null
 
   async function confirmDelete() {
     if (!pendingDelete) return
     const item = pendingDelete
     setDeleting(true)
-
     try {
       await Promise.allSettled([
         supabase.from('expediente_ecu').delete().eq('expediente_id', item.id),
@@ -126,12 +107,11 @@ function ExpedientesPageInner() {
         supabase.from('movimientos_stock').update({ expediente_id: null }).eq('expediente_id', item.id),
         supabase.from('facturas').update({ expediente_id: null }).eq('expediente_id', item.id),
       ])
-
       const { error } = await supabase.from('expedientes').delete().eq('id', item.id)
       if (error) throw error
-
       toast.success('Expediente eliminado')
       setPendingDelete(null)
+      if (selectedId === item.id) setSelectedId(null)
       await load()
     } catch (err: any) {
       toast.error(err?.message || 'No se pudo eliminar el expediente')
@@ -140,139 +120,179 @@ function ExpedientesPageInner() {
     }
   }
 
-  const filtros: { key: QuickFilter; label: string; value: number }[] = [
-    { key: 'todos', label: 'Todos', value: items.length },
-    { key: 'abiertas', label: 'OT abiertas', value: openCount },
-    { key: 'urgentes', label: 'Urgentes', value: urgentCount },
-    { key: 'ecu', label: 'Fichas ECU', value: ecuCount },
-    { key: 'llaves', label: 'Fichas llaves', value: keyCount },
-  ]
-
   return (
-    <AppShell>
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-7">
-        <div>
-          <p className="ak-mono text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Autokeys Core</p>
-          <h2 className="text-3xl font-bold mt-1">Expedientes inteligentes</h2>
-          <p className="text-zinc-500 mt-2">OT, ficha técnica, ECU, llaves e historial del laboratorio.</p>
+    <LabShell
+      title="Expedientes"
+      actions={
+        <Link href="/expedientes/nueva" className="flex items-center gap-2 rounded-xl bg-[#c81f2a] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#e2242f]">
+          <Plus size={16} /> Nuevo expediente
+        </Link>
+      }
+    >
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <LabStatCard icon={<Lock size={19} />} tone="red" label="Abiertos" value={openCount} trend={12} subtitle="vs semana anterior" />
+          <LabStatCard icon={<Ticket size={19} />} tone="orange" label="Urgentes" value={urgentCount} trend={2} subtitle="vs semana anterior" />
+          <LabStatCard icon={<Hourglass size={19} />} tone="blue" label="En espera" value={enEsperaCount} trend={-3} subtitle="vs semana anterior" />
+          <LabStatCard icon={<Car size={19} />} tone="green" label="Cerrados (30 días)" value={cerrados30} trend={18} subtitle="vs 30 días anteriores" />
         </div>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Link href="/alta-rapida" className="btn btn-dark inline-flex items-center gap-2 justify-center">
-            <Plus size={18} /> Alta móvil
-          </Link>
-          <Link href="/expedientes/nueva" className="btn btn-red inline-flex items-center gap-2 justify-center">
-            <Plus size={18} /> Nueva OT
-          </Link>
-        </div>
-      </div>
 
-      {/* Filtros rápidos — antes eran solo números decorativos, ahora cada uno filtra la lista al pulsarlo */}
-      <div className="grid md:grid-cols-5 gap-3 mb-6">
-        {filtros.map((f) => {
-          const active = quickFilter === f.key
-          return (
-            <button
-              key={f.key}
-              type="button"
-              onClick={() => setQuickFilter(f.key)}
-              className={`card p-5 text-left transition ${active ? 'border-[#e2954d]/60 bg-[#e2954d]/[.08]' : 'hover:border-[#e2954d]/25'}`}
-            >
-              <p className={`text-sm font-bold ${active ? 'text-[#ffb870]' : 'text-zinc-400'}`}>{f.label}</p>
-              <p className="text-3xl font-bold mt-2">{f.value}</p>
-            </button>
-          )
-        })}
-      </div>
-
-      <div className="card p-5 mb-6 space-y-3">
-        <div className="flex items-center gap-3 bg-[#0B1220] border border-white/10 rounded-2xl px-4 py-3">
-          <Search size={18} className="text-zinc-500" />
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar por OT, cliente, matrícula, VIN, ECU, HW, SW..." className="bg-transparent border-0 p-0 w-full" />
-        </div>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <CustomSelect className="flex-1" value={estadoFilter} onChange={setEstadoFilter} options={ESTADO_OPTIONS} />
-          <CustomSelect className="flex-1" value={sort} onChange={setSort} options={SORT_OPTIONS} />
-        </div>
-        {(quickFilter !== 'todos' || estadoFilter !== 'todos' || query) && (
-          <p className="ak-mono text-xs text-zinc-500 flex items-center gap-1.5">
-            <ArrowUpDown size={12} /> Mostrando {filtered.length} de {items.length} expedientes
-          </p>
-        )}
-      </div>
-
-      {error && <div className="card p-4 border-red-500/30 text-red-300 mb-5">{error}</div>}
-
-      {loading && (
-        <div className="grid gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="card p-5 animate-pulse">
-              <div className="flex gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-white/5" />
-                <div className="flex-1 space-y-3">
-                  <div className="h-4 w-1/3 rounded bg-white/5" />
-                  <div className="h-3 w-1/2 rounded bg-white/5" />
-                </div>
+        <div className="grid gap-4 2xl:grid-cols-[360px_1fr]">
+          <LabPanel padded={false}>
+            <div className="space-y-3 border-b border-white/[0.07] p-4">
+              <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5">
+                <Search size={16} className="text-zinc-500" />
+                <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar expedientes..." className="w-full border-0 bg-transparent p-0 text-sm" />
+                <SlidersHorizontal size={15} className="shrink-0 text-zinc-600" />
               </div>
             </div>
-          ))}
-        </div>
-      )}
-
-      {!loading && (
-        <div className="grid gap-4">
-          {filtered.map((item) => {
-            const Icon = techIcon(item.tipo_trabajo)
-            return (
-              <div key={item.id} className="card p-5 hover:border-[#e2954d]/30 transition">
-                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-                  <div className="flex gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-[#e2954d]/15 border border-[#e2954d]/20 flex items-center justify-center text-[#ffb870]"><Icon size={24} /></div>
-                    <div>
-                      <div className="flex flex-wrap items-center gap-3">
-                        <h3 className="text-xl font-bold">{item.numero_ot || 'OT sin número'}</h3>
-                        <ExpedienteStatusBadge status={item.estado} />
-                        {item.prioridad === 'urgente' && <span className="rounded-full border border-red-500/40 bg-red-500/15 text-red-300 px-3 py-1 text-xs font-bold uppercase">Urgente</span>}
-                      </div>
-                      <p className="text-zinc-300 font-bold mt-1">{item.tipo_trabajo}</p>
-                      <div className="flex flex-wrap gap-4 text-sm text-zinc-500 mt-3">
-                        <span className="inline-flex items-center gap-2"><UserRound size={16} /> {item.cliente?.nombre || 'Sin cliente'}</span>
-                        <span className="inline-flex items-center gap-2"><Car size={16} /> {formatVehicle(item)}</span>
-                        <span className="inline-flex items-center gap-2"><ClipboardList size={16} /> {item.tecnico || 'Sin técnico'}</span>
-                      </div>
-                    </div>
+            <div className="max-h-[70vh] space-y-1.5 overflow-y-auto p-3">
+              {filtered.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => { setSelectedId(item.id); setTab('resumen') }}
+                  className={`block w-full rounded-xl border px-3.5 py-3 text-left transition ${selectedId === item.id ? 'border-[#c81f2a]/40 bg-[#c81f2a]/[0.09]' : 'border-white/[0.06] bg-white/[0.015] hover:bg-white/[0.03]'}`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-bold text-white">{item.numero_ot || 'OT sin número'}</span>
+                    <LabBadge tone={item.prioridad === 'urgente' ? 'red' : undefined} status={item.prioridad === 'urgente' ? 'urgente' : item.estado}>
+                      {item.prioridad === 'urgente' ? 'Urgente' : (item.estado || 'Abierto')}
+                    </LabBadge>
                   </div>
+                  <div className="mt-1 text-xs text-zinc-400">{item.cliente?.nombre || 'Sin cliente'}</div>
+                  <div className="flex items-center justify-between text-[11px] text-zinc-600">
+                    <span className="truncate">{formatVehicle(item)} · {item.tipo_trabajo}</span>
+                    <span className="shrink-0">{item.created_at ? new Date(item.created_at).toLocaleDateString('es-ES') : ''}</span>
+                  </div>
+                </button>
+              ))}
+              {!loading && filtered.length === 0 && <div className="py-10 text-center text-xs text-zinc-600">Sin expedientes.</div>}
+            </div>
+          </LabPanel>
 
-                  <div className="flex flex-wrap items-center gap-3">
-                    <div className="text-right hidden md:block">
-                      <p className="text-xs text-zinc-500 font-bold uppercase">Importe</p>
-                      <p className="text-lg font-bold">{money(item.precio_final || item.precio_estimado)}</p>
-                    </div>
-                    <Link href={`/expedientes/${item.id}`} className="btn btn-dark inline-flex items-center gap-2"><Eye size={17} /> Abrir ficha</Link>
-                    <button onClick={() => askDelete(item)} className="btn btn-dark inline-flex items-center gap-2 text-red-300"><Trash2 size={17} /> Eliminar</button>
+          <LabPanel padded={false}>
+            {!selected ? (
+              <div className="py-16 text-center text-sm text-zinc-600">Selecciona un expediente de la lista.</div>
+            ) : (
+              <div>
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] p-5">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-lg font-bold text-white">Expediente {selected.numero_ot}</h2>
+                    {selected.prioridad === 'urgente' && <LabBadge tone="red">Urgente</LabBadge>}
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <Link href={`/expedientes/${selected.id}`} className="flex items-center gap-1.5 text-xs font-bold text-[#ff5468] hover:text-[#ff7a86]">
+                      Abrir ficha completa <ExternalLink size={13} />
+                    </Link>
+                    <button onClick={() => setPendingDelete(selected)} className="flex items-center gap-1.5 text-xs font-bold text-zinc-500 hover:text-red-400">
+                      <Trash2 size={13} /> Eliminar
+                    </button>
                   </div>
                 </div>
+
+                <div className="flex gap-1 border-b border-white/[0.07] px-5 pt-3">
+                  {(['resumen', 'historial', 'archivos', 'notas'] as Tab[]).map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => setTab(t)}
+                      className={`rounded-t-lg px-4 py-2.5 text-xs font-bold capitalize transition ${tab === t ? 'border-b-2 border-[#ff3b46] text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="p-5">
+                  {tab === 'resumen' && (
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div>
+                        <div className="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-600">Información general</div>
+                        <dl className="space-y-2.5 text-xs">
+                          <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Cliente</dt><dd className="font-semibold text-zinc-200">{selected.cliente?.nombre || '—'}</dd></div>
+                          <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Teléfono</dt><dd className="font-semibold text-zinc-200">{selected.cliente?.telefono || '—'}</dd></div>
+                          <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Email</dt><dd className="font-semibold text-zinc-200">{selected.cliente?.email || '—'}</dd></div>
+                          <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Vehículo</dt><dd className="font-semibold text-zinc-200">{formatVehicle(selected)}</dd></div>
+                          <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Matrícula</dt><dd className="font-semibold text-zinc-200">{selected.vehiculo?.matricula || '—'}</dd></div>
+                          <div className="flex justify-between pb-2"><dt className="text-zinc-600">VIN</dt><dd className="font-mono text-[11px] font-semibold text-zinc-200">{selected.vehiculo?.bastidor || '—'}</dd></div>
+                        </dl>
+                      </div>
+                      <div>
+                        <div className="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-600">Detalles del servicio</div>
+                        <dl className="space-y-2.5 text-xs">
+                          <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Tipo de trabajo</dt><dd className="font-semibold text-zinc-200">{selected.tipo_trabajo || '—'}</dd></div>
+                          <div className="border-b border-white/[0.06] pb-2"><dt className="mb-1 text-zinc-600">Descripción</dt><dd className="text-zinc-300">{selected.descripcion || '—'}</dd></div>
+                          <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Prioridad</dt><dd><LabBadge tone={selected.prioridad === 'urgente' ? 'red' : 'zinc'}>{selected.prioridad || 'normal'}</LabBadge></dd></div>
+                          <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Técnico asignado</dt><dd className="font-semibold text-zinc-200">{selected.tecnico || 'Sin asignar'}</dd></div>
+                          <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Estado</dt><dd><LabBadge status={selected.estado}>{selected.estado || 'recibido'}</LabBadge></dd></div>
+                          <div className="flex justify-between pb-2"><dt className="text-zinc-600">Importe</dt><dd className="font-bold text-zinc-100">{money(selected.precio_final || selected.precio_estimado)}</dd></div>
+                        </dl>
+                      </div>
+                    </div>
+                  )}
+
+                  {tab === 'historial' && (
+                    <div className="space-y-3">
+                      {historial.map((h) => (
+                        <div key={h.id} className="flex gap-3 border-l-2 border-[#c81f2a]/40 pl-4">
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-white">{h.evento}</span>
+                              <span className="text-[10px] text-zinc-600">{h.created_at ? new Date(h.created_at).toLocaleString('es-ES') : ''}</span>
+                            </div>
+                            {h.descripcion && <p className="mt-0.5 text-xs text-zinc-500">{h.descripcion}</p>}
+                            <p className="mt-0.5 text-[10px] text-zinc-600">{h.usuario || 'Sistema'}</p>
+                          </div>
+                        </div>
+                      ))}
+                      {!detailLoading && historial.length === 0 && <div className="py-6 text-center text-xs text-zinc-600">Sin eventos registrados.</div>}
+                    </div>
+                  )}
+
+                  {tab === 'archivos' && (
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {archivos.map((a) => (
+                        <a key={a.id} href={a.url || undefined} target="_blank" rel="noreferrer" className="flex items-center gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 text-xs hover:bg-white/[0.04]">
+                          {String(a.tipo || '').startsWith('foto') ? <Paperclip size={15} className="shrink-0 text-[#6ea6ff]" /> : <FileText size={15} className="shrink-0 text-[#ff5468]" />}
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate font-semibold text-zinc-200">{a.nombre_archivo}</div>
+                            <div className="text-[10px] text-zinc-600">{a.created_at ? new Date(a.created_at).toLocaleDateString('es-ES') : ''}</div>
+                          </div>
+                        </a>
+                      ))}
+                      {!detailLoading && archivos.length === 0 && <div className="col-span-full py-6 text-center text-xs text-zinc-600">Sin archivos adjuntos.</div>}
+                    </div>
+                  )}
+
+                  {tab === 'notas' && (
+                    <div className="space-y-3">
+                      <div>
+                        <div className="mb-1.5 text-xs font-bold uppercase tracking-wider text-zinc-600">Notas del cliente</div>
+                        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-xs text-zinc-400">{selected.notas_cliente || 'Sin notas del cliente.'}</div>
+                      </div>
+                      <div>
+                        <div className="mb-1.5 text-xs font-bold uppercase tracking-wider text-zinc-600">Notas internas</div>
+                        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-xs text-zinc-400">{selected.notas_internas || 'Sin notas internas.'}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            )
-          })}
-          {!filtered.length && (
-            <div className="card p-10 text-center text-zinc-500">
-              {items.length === 0 ? 'Todavía no hay expedientes — crea el primero con "Nueva OT".' : 'Ningún expediente coincide con estos filtros. Prueba a quitar alguno.'}
-            </div>
-          )}
+            )}
+          </LabPanel>
         </div>
-      )}
+      </div>
 
       <ConfirmModal
         open={Boolean(pendingDelete)}
         title={`Eliminar ${pendingDelete?.numero_ot || 'este expediente'}`}
-        description="Esto puede borrar datos técnicos asociados (ECU, llaves, checklist, tiempos, archivos, material y facturación relacionada). Para trabajos reales es mejor cambiar el estado a cancelado en vez de eliminar."
+        description="Esto puede borrar datos técnicos asociados (ECU, llaves, historial, archivos, material y facturación relacionada). Para trabajos reales es mejor cambiar el estado a cancelado en vez de eliminar."
         confirmLabel="Sí, eliminar definitivamente"
         danger
         loading={deleting}
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
       />
-    </AppShell>
+    </LabShell>
   )
 }
 

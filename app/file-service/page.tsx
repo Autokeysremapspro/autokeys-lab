@@ -1,223 +1,247 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import AppShell from '@/components/AppShell'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import toast from 'react-hot-toast'
+import { UploadCloud, Users, Car, ShieldAlert, Clock, FileCheck2, Send, Pencil, Trash2 } from 'lucide-react'
+import { LabShell, LabStatCard, LabPanel, LabBadge } from '@/components/lab'
 import ConfirmModal from '@/components/ConfirmModal'
 import FileServiceModal from '@/components/FileServiceModal'
 import type { FileServiceJob } from '@/types/autokeys'
-import {
-  createFileServiceJob,
-  deleteFileServiceJob,
-  filterFileServiceJobs,
-  getFileServiceJobs,
-  updateFileServiceJob,
-} from '@/lib/services/fileService'
-import { Edit, Plus, RefreshCw, Search, Trash2, UploadCloud } from 'lucide-react'
+import { createFileServiceJob, deleteFileServiceJob, getFileServiceJobs, updateFileServiceJob } from '@/lib/services/fileService'
+import { money } from '@/lib/status'
 
-const statusClass: Record<string, string> = {
-  pendiente: 'bg-yellow-500/15 text-yellow-300 border-yellow-500/30',
-  en_proceso: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
-  enviado: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-  revision: 'bg-orange-500/15 text-orange-300 border-orange-500/30',
-  finalizado: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
-  cancelado: 'bg-zinc-500/15 text-zinc-300 border-zinc-500/30',
+const TIPOS = ['Stage 1', 'Stage 2', 'DPF OFF', 'EGR OFF', 'AdBlue / SCR OFF', 'IMMO OFF', 'Pops & Bangs', 'Hardcut', 'Clone / Repair', 'DTC Off', 'Speed Limit Off', 'Otro']
+
+const ESTADO_STAGE: Record<string, number> = { pendiente: 5, en_proceso: 45, revision: 70, enviado: 85, finalizado: 100, cancelado: 0 }
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
 }
 
 export default function FileServicePage() {
   const [jobs, setJobs] = useState<FileServiceJob[]>([])
-  const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [tipo, setTipo] = useState('Stage 1')
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [dragOver, setDragOver] = useState(false)
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<FileServiceJob | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<FileServiceJob | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => { loadJobs() }, [])
 
   async function loadJobs() {
     setLoading(true)
-    setError(null)
     try {
       const rows = await getFileServiceJobs()
       setJobs(rows)
+      if (rows.length && !selectedId) setSelectedId(rows[0].id)
     } catch (err: any) {
-      setError(err?.message || 'Error cargando File Service')
+      toast.error(err?.message || 'Error cargando File Service')
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    loadJobs()
-  }, [])
+  const pendientes = jobs.filter((j) => j.estado === 'pendiente')
+  const hoy = new Date().toISOString().slice(0, 10)
+  const entregadosHoy = jobs.filter((j) => j.estado === 'finalizado' && String(j.updated_at || '').startsWith(hoy))
+  const urgentes = pendientes.filter((j) => Date.now() - new Date(j.created_at || 0).getTime() > 24 * 3600 * 1000)
+  const finalizados = jobs.filter((j) => j.estado === 'finalizado' && j.created_at && j.updated_at)
+  const mediaHoras = finalizados.length
+    ? finalizados.reduce((a, j) => a + (new Date(j.updated_at!).getTime() - new Date(j.created_at!).getTime()) / 3600000, 0) / finalizados.length
+    : 0
+  const mediaLabel = mediaHoras ? `${Math.floor(mediaHoras)}h ${Math.round((mediaHoras % 1) * 60)}m` : '—'
 
-  const filtered = useMemo(() => filterFileServiceJobs(jobs, query), [jobs, query])
+  const selected = jobs.find((j) => j.id === selectedId) || null
 
-  const stats = useMemo(() => {
-    const abiertos = jobs.filter((j) => !['finalizado', 'cancelado'].includes(j.estado || '')).length
-    const pendientes = jobs.filter((j) => j.estado === 'pendiente').length
-    const finalizados = jobs.filter((j) => j.estado === 'finalizado').length
-    const facturado = jobs.reduce((sum, j) => sum + Number(j.precio || 0), 0)
-    return { abiertos, pendientes, finalizados, facturado }
-  }, [jobs])
-
-  async function saveJob(payload: Partial<FileServiceJob>) {
-    if (editing?.id) {
-      await updateFileServiceJob(editing.id, payload)
-    } else {
-      await createFileServiceJob(payload)
-    }
-    await loadJobs()
+  function onDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setDragOver(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file) setPendingFile(file)
   }
 
-  const [pendingDelete, setPendingDelete] = useState<FileServiceJob | null>(null)
-  const [deletingJob, setDeletingJob] = useState(false)
-
-  function removeJob(job: FileServiceJob) {
-    setPendingDelete(job)
+  function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) setPendingFile(file)
   }
 
-  async function confirmRemoveJob() {
-    if (!pendingDelete) return
-    setDeletingJob(true)
-    await deleteFileServiceJob(pendingDelete.id)
-    setDeletingJob(false)
-    setPendingDelete(null)
-    await loadJobs()
-  }
-
-  function openNew() {
+  function enviarAnalizar() {
     setEditing(null)
     setOpen(true)
   }
 
-  function openEdit(job: FileServiceJob) {
-    setEditing(job)
-    setOpen(true)
+  async function saveJob(payload: Partial<FileServiceJob>) {
+    const finalPayload = {
+      ...payload,
+      servicio: payload.servicio || tipo,
+      notas: pendingFile && !editing ? `Archivo: ${pendingFile.name} (${formatBytes(pendingFile.size)})${payload.notas ? ` — ${payload.notas}` : ''}` : payload.notas,
+    }
+    if (editing?.id) await updateFileServiceJob(editing.id, finalPayload)
+    else await createFileServiceJob(finalPayload)
+    setPendingFile(null)
+    await loadJobs()
+  }
+
+  async function confirmDelete() {
+    if (!pendingDelete) return
+    setDeleting(true)
+    await deleteFileServiceJob(pendingDelete.id)
+    setDeleting(false)
+    setPendingDelete(null)
+    if (selectedId === pendingDelete.id) setSelectedId(null)
+    loadJobs()
   }
 
   return (
-    <AppShell>
-      <div className="space-y-6">
-        <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
-          <div>
-            <p className="text-sm text-[#ffb870] font-bold tracking-[0.22em] uppercase">Autokeys Core</p>
-            <h1 className="text-4xl font-bold mt-1">File Service</h1>
-            <p className="text-zinc-500 mt-2">Control de archivos de distribuidores, talleres y trabajos externos.</p>
-          </div>
-          <div className="flex gap-3">
-            <button onClick={loadJobs} className="rounded-2xl border border-white/10 px-4 py-3 font-bold hover:bg-white/5 flex items-center gap-2">
-              <RefreshCw size={18} /> Actualizar
-            </button>
-            <button onClick={openNew} className="rounded-2xl bg-[#e2954d] px-5 py-3 font-bold text-[#0a0d12] hover:bg-[#ffb870] flex items-center gap-2">
-              <Plus size={18} /> Nueva solicitud
-            </button>
-          </div>
+    <LabShell title="File Service">
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <LabStatCard icon={<Users size={19} />} tone="red" label="Archivos pendientes" value={pendientes.length} trend={12} subtitle="vs. ayer" />
+          <LabStatCard icon={<Car size={19} />} tone="green" label="Entregados hoy" value={entregadosHoy.length} trend={8} subtitle="vs. ayer" />
+          <LabStatCard icon={<ShieldAlert size={19} />} tone="orange" label="Urgentes" value={urgentes.length} subtitle="Pendientes +24h" />
+          <LabStatCard icon={<Clock size={19} />} tone="blue" label="Media de tiempo" value={mediaLabel} trend={-15} subtitle="vs. semana anterior" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Stat label="Abiertos" value={stats.abiertos} />
-          <Stat label="Pendientes" value={stats.pendientes} />
-          <Stat label="Finalizados" value={stats.finalizados} />
-          <Stat label="Importe total" value={`${stats.facturado.toFixed(2)} €`} />
-        </div>
-
-        <div className="rounded-3xl border border-white/10 bg-[#0B1220] p-5">
-          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#111827] px-4 py-3 mb-5">
-            <Search size={18} className="text-zinc-500" />
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar por taller, matrícula, ECU, HW, SW, servicio..." className="w-full bg-transparent outline-none" />
-          </div>
-
-          {error && <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-red-300 mb-4">{error}</div>}
-          {loading && <div className="text-zinc-500 p-6">Cargando solicitudes...</div>}
-
-          {!loading && filtered.length === 0 && (
-            <div className="rounded-3xl border border-dashed border-white/10 p-10 text-center">
-              <UploadCloud className="mx-auto text-zinc-600 mb-3" size={42} />
-              <h3 className="text-xl font-bold">No hay solicitudes</h3>
-              <p className="text-zinc-500 mt-2">Crea la primera solicitud de File Service.</p>
-              <button onClick={openNew} className="rounded-2xl bg-[#e2954d] px-5 py-3 font-bold text-[#0a0d12] hover:bg-[#ffb870] mt-5">Crear solicitud</button>
+        <div className="grid gap-4 xl:grid-cols-[1fr_1fr_320px]">
+          <LabPanel title="Nuevo archivo">
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={onDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={`grid cursor-pointer place-items-center rounded-2xl border-2 border-dashed p-8 text-center transition ${dragOver ? 'border-[#ff5468] bg-[#c81f2a]/[0.06]' : 'border-white/10 bg-white/[0.015] hover:border-white/20'}`}
+            >
+              <UploadCloud size={34} className="mb-3 text-[#ff5468]" />
+              <div className="text-sm font-bold text-white">{pendingFile ? pendingFile.name : 'Arrastra tu archivo BIN aquí'}</div>
+              <div className="mt-1 text-xs text-zinc-500">{pendingFile ? formatBytes(pendingFile.size) : 'o haz clic para seleccionar'}</div>
+              <button type="button" onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click() }} className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-bold text-zinc-300 hover:bg-white/[0.08]">Seleccionar archivo</button>
+              <input ref={fileInputRef} type="file" accept=".bin,.hex,.dat" onChange={onPickFile} className="hidden" />
             </div>
-          )}
+            <div className="mt-2 text-center text-[11px] text-zinc-600">Formatos soportados: .bin .hex .dat</div>
+          </LabPanel>
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            {filtered.map((job) => (
-              <article key={job.id} className="rounded-3xl border border-white/10 bg-[#111827] p-5 hover:border-[#e2954d]/40 transition">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-xl font-bold">{job.taller || 'Sin taller'}</h3>
-                      <span className={`text-xs rounded-full border px-3 py-1 font-bold uppercase ${statusClass[job.estado || 'pendiente'] || statusClass.pendiente}`}>
-                        {(job.estado || 'pendiente').replace('_', ' ')}
-                      </span>
-                      {job.pagado && <span className="text-xs rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-bold text-emerald-300">Pagado</span>}
-                    </div>
-                    <p className="text-zinc-500 mt-1">{[job.marca, job.modelo, job.motor].filter(Boolean).join(' · ') || 'Vehículo sin definir'}</p>
+          <LabPanel title="Tipo de solicitud">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {TIPOS.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTipo(t)}
+                  className={`rounded-xl border px-3 py-2.5 text-xs font-bold transition ${tipo === t ? 'border-[#c81f2a]/50 bg-[#c81f2a]/15 text-white' : 'border-white/10 bg-white/[0.02] text-zinc-400 hover:bg-white/[0.05]'}`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </LabPanel>
+
+          <LabPanel title="Analizador de archivo">
+            {pendingFile ? (
+              <div className="space-y-2.5 text-xs">
+                <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-zinc-600">Archivo</span><span className="max-w-[60%] truncate text-right font-bold text-zinc-200">{pendingFile.name}</span></div>
+                <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-zinc-600">Solicitud</span><span className="font-bold text-zinc-200">{tipo}</span></div>
+                <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-zinc-600">Tamaño</span><span className="font-bold text-zinc-200">{formatBytes(pendingFile.size)}</span></div>
+                <div className="flex items-center justify-between pb-1"><span className="text-zinc-600">Estado</span><span className="flex items-center gap-1.5 font-bold text-[#4ade95]"><FileCheck2 size={13} /> Archivo listo</span></div>
+                <button onClick={enviarAnalizar} className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-[#c81f2a] py-2.5 text-xs font-bold text-white hover:bg-[#e2242f]">
+                  <Send size={14} /> Enviar a analizar
+                </button>
+              </div>
+            ) : (
+              <div className="py-8 text-center text-xs text-zinc-600">Selecciona un archivo para ver su análisis.</div>
+            )}
+          </LabPanel>
+        </div>
+
+        <div className="grid gap-4 2xl:grid-cols-[1fr_360px]">
+          <LabPanel title="Cola de solicitudes" padded={false}>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-[11px] uppercase tracking-wider text-zinc-600">
+                    <th className="px-5 py-3 font-bold">Fecha</th>
+                    <th className="px-3 py-3 font-bold">Cliente</th>
+                    <th className="px-3 py-3 font-bold">Vehículo / ECU</th>
+                    <th className="px-3 py-3 font-bold">Solicitud</th>
+                    <th className="px-3 py-3 font-bold">Estado</th>
+                    <th className="px-3 py-3 font-bold">Progreso</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {jobs.map((job) => {
+                    const progress = ESTADO_STAGE[job.estado || 'pendiente'] ?? 5
+                    return (
+                      <tr key={job.id} onClick={() => setSelectedId(job.id)} className={`cursor-pointer border-t border-white/[0.06] hover:bg-white/[0.03] ${selectedId === job.id ? 'bg-[#c81f2a]/[0.07]' : ''}`}>
+                        <td className="px-5 py-3 text-zinc-500">{job.created_at ? new Date(job.created_at).toLocaleDateString('es-ES') : '—'}</td>
+                        <td className="px-3 py-3 font-bold text-white">{job.taller || '—'}</td>
+                        <td className="px-3 py-3 text-zinc-400">{[job.marca, job.modelo].filter(Boolean).join(' ')} {job.ecu ? `/ ${job.ecu}` : ''}</td>
+                        <td className="px-3 py-3 text-zinc-300">{job.servicio}</td>
+                        <td className="px-3 py-3"><LabBadge status={job.estado}>{(job.estado || 'pendiente').replace('_', ' ')}</LabBadge></td>
+                        <td className="px-3 py-3">
+                          <div className="flex items-center gap-2">
+                            <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/[0.06]"><div className="h-full rounded-full bg-[#c81f2a]" style={{ width: `${progress}%` }} /></div>
+                            <span className="text-[11px] font-bold text-zinc-500">{progress}%</span>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  {!loading && jobs.length === 0 && <tr><td colSpan={6} className="px-5 py-10 text-center text-zinc-600">Sin solicitudes todavía.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </LabPanel>
+
+          <LabPanel
+            title="Detalle de la solicitud"
+            action={selected && (
+              <div className="flex gap-1">
+                <button onClick={() => { setEditing(selected); setOpen(true) }} className="rounded-lg p-1.5 text-zinc-500 hover:bg-white/5 hover:text-white"><Pencil size={14} /></button>
+                <button onClick={() => setPendingDelete(selected)} className="rounded-lg p-1.5 text-zinc-500 hover:bg-white/5 hover:text-red-400"><Trash2 size={14} /></button>
+              </div>
+            )}
+          >
+            {!selected ? (
+              <div className="py-10 text-center text-sm text-zinc-600">Selecciona una solicitud de la cola.</div>
+            ) : (
+              <div className="space-y-3 text-xs">
+                <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-zinc-600">Cliente</span><span className="font-bold text-zinc-200">{selected.taller || '—'}</span></div>
+                <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-zinc-600">Vehículo</span><span className="font-bold text-zinc-200">{[selected.marca, selected.modelo, selected.motor].filter(Boolean).join(' ') || '—'}</span></div>
+                <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-zinc-600">ECU</span><span className="font-bold text-zinc-200">{selected.ecu || '—'}</span></div>
+                <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-zinc-600">HW / SW</span><span className="font-bold text-zinc-200">{selected.hw || '—'} / {selected.sw || '—'}</span></div>
+                <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-zinc-600">Solicitud</span><span className="font-bold text-zinc-200">{selected.servicio}</span></div>
+                <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-zinc-600">Estado</span><LabBadge status={selected.estado}>{selected.estado || 'pendiente'}</LabBadge></div>
+                <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-zinc-600">Precio</span><span className="font-bold text-zinc-200">{money(selected.precio)} {selected.pagado && <span className="text-[#4ade95]">· Pagado</span>}</span></div>
+                <div className="flex justify-between pb-1"><span className="text-zinc-600">Fecha de entrega</span><span className="font-bold text-zinc-200">{selected.updated_at ? new Date(selected.updated_at).toLocaleString('es-ES') : '—'}</span></div>
+
+                {selected.notas && (
+                  <div className="pt-1">
+                    <div className="mb-1.5 text-xs font-bold uppercase tracking-wider text-zinc-600">Notas</div>
+                    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-zinc-400">{selected.notas}</div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold">{Number(job.precio || 0).toFixed(2)} €</div>
-                    <div className="text-xs text-zinc-500">{job.created_at ? new Date(job.created_at).toLocaleDateString('es-ES') : ''}</div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
-                  <Mini label="Matrícula" value={job.matricula || '—'} />
-                  <Mini label="ECU" value={job.ecu || '—'} />
-                  <Mini label="HW" value={job.hw || '—'} />
-                  <Mini label="SW" value={job.sw || '—'} />
-                </div>
-
-                <div className="mt-4 rounded-2xl bg-black/20 border border-white/5 p-4">
-                  <div className="text-xs uppercase tracking-[0.16em] text-zinc-500 font-bold mb-1">Servicio</div>
-                  <div className="font-bold text-[#ffb870]">{job.servicio || 'Sin definir'}</div>
-                  {job.notas && <p className="text-sm text-zinc-400 mt-2 line-clamp-2">{job.notas}</p>}
-                </div>
-
-                <div className="flex justify-end gap-2 mt-5">
-                  <button onClick={() => openEdit(job)} className="rounded-2xl border border-white/10 px-4 py-2 font-bold hover:bg-white/5 flex items-center gap-2">
-                    <Edit size={16} /> Editar
-                  </button>
-                  <button onClick={() => removeJob(job)} className="rounded-2xl border border-red-500/30 px-4 py-2 font-bold text-red-400 hover:bg-red-500/10 flex items-center gap-2">
-                    <Trash2 size={16} /> Eliminar
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
+                )}
+              </div>
+            )}
+          </LabPanel>
         </div>
       </div>
 
-      <FileServiceModal
-        open={open}
-        job={editing}
-        onClose={() => setOpen(false)}
-        onSubmit={saveJob}
-      />
+      <FileServiceModal open={open} job={editing} onClose={() => setOpen(false)} onSubmit={saveJob} />
       <ConfirmModal
         open={Boolean(pendingDelete)}
         title={`Eliminar solicitud de ${pendingDelete?.taller || 'File Service'}`}
         description="Se eliminará la solicitud histórica definitivamente."
         confirmLabel="Sí, eliminar"
         danger
-        loading={deletingJob}
-        onConfirm={confirmRemoveJob}
+        loading={deleting}
+        onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
       />
-    </AppShell>
-  )
-}
-
-function Stat({ label, value }: { label: string; value: any }) {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-[#0B1220] p-5">
-      <div className="text-sm text-zinc-500 font-bold">{label}</div>
-      <div className="text-3xl font-bold mt-2">{value}</div>
-    </div>
-  )
-}
-
-function Mini({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-white/5 bg-black/20 p-3">
-      <div className="text-[10px] uppercase tracking-[0.16em] text-zinc-500 font-bold">{label}</div>
-      <div className="font-bold truncate mt-1">{value}</div>
-    </div>
+    </LabShell>
   )
 }

@@ -80,7 +80,7 @@ export default function FileServiceModal({ open, job, onClose, onSubmit }: Props
               onChange={(v) => setField('servicio', v)}
               options={[
                 'Stage 1', 'Stage 2', 'DPF OFF', 'EGR OFF', 'AdBlue / SCR OFF',
-                'IMMO OFF', 'Clonación', 'Hardcut', 'Pops & Bangs', 'Otro',
+                'IMMO OFF', 'Clone / Repair', 'Hardcut', 'Pops & Bangs', 'DTC Off', 'Speed Limit Off', 'Otro',
               ].map((s) => ({ value: s, label: s }))}
             />
           </label>
