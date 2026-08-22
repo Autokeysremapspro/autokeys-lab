@@ -13,7 +13,7 @@ export default function LabBadge({
 }) {
   const resolvedTone = tone || statusTone(status)
   return (
-    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-bold ${badgeClasses[resolvedTone]}`}>
+    <span className={`inline-flex min-h-[26px] items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[12px] font-bold ${badgeClasses[resolvedTone]}`}>
       {dot && <span className="h-1.5 w-1.5 rounded-full bg-current" />}
       {children}
     </span>
