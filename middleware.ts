@@ -3,7 +3,7 @@ import { createMiddlewareSupabaseClient } from '@/lib/supabase/middleware'
 
 // Rutas accesibles sin sesión: login, registro de distribuidor y su confirmación.
 // Todo lo demás es interior de Autokeys Core y exige sesión de staff.
-const PUBLIC_PATHS = ['/login', '/register', '/portal-distribuidores', '/solicitud-enviada']
+const PUBLIC_PATHS = ['/login', '/register', '/portal-distribuidores', '/solicitud-enviada', '/restablecer-password']
 
 // Cuenta de distribuidor: exige sesión, pero NO staff en usuarios_app —
 // un distribuidor activo en akcloud_distribuidores puede entrar aquí.

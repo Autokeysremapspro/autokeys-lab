@@ -140,7 +140,7 @@ function LoginContent() {
     setResetLoading(true)
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(resetEmail.trim().toLowerCase(), {
-        redirectTo: `${window.location.origin}/login`,
+        redirectTo: `${window.location.origin}/restablecer-password`,
       })
       if (error) throw error
       toast.success('Te hemos enviado un email para restablecer tu contraseña')
