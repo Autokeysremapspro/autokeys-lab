@@ -7,6 +7,8 @@ import LabSidebar from './LabSidebar'
 import LabTopbar from './LabTopbar'
 import LabFooterBar from './LabFooterBar'
 
+const headerlessRoutes = new Set(['/', '/clientes', '/facturas', '/file-service'])
+
 export default function LabShell({
   title,
   subtitle,
@@ -22,7 +24,7 @@ export default function LabShell({
   footer?: boolean
   children: ReactNode
 }) {
-  const pathname = usePathname()
+  const pathname = usePathname() || '/'
   const router = useRouter()
   const [checkingSession, setCheckingSession] = useState(true)
   const [authorized, setAuthorized] = useState(false)
@@ -30,22 +32,19 @@ export default function LabShell({
 
   useEffect(() => {
     let alive = true
-
     async function checkSession() {
       const { data } = await supabase.auth.getSession()
       if (!alive) return
       if (!data.session) {
         setAuthorized(false)
         setCheckingSession(false)
-        router.replace(`/login?next=${encodeURIComponent(pathname || '/')}`)
+        router.replace(`/login?next=${encodeURIComponent(pathname)}`)
         return
       }
       setAuthorized(true)
       setCheckingSession(false)
     }
-
     checkSession()
-
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!alive) return
       if (!session) {
@@ -56,7 +55,6 @@ export default function LabShell({
       setAuthorized(true)
       setCheckingSession(false)
     })
-
     return () => {
       alive = false
       listener.subscription.unsubscribe()
@@ -74,16 +72,17 @@ export default function LabShell({
     )
   }
 
+  const hideHeader = headerlessRoutes.has(pathname)
+  const showHeader = !hideHeader && (title || actions)
+
   return (
     <div className="min-h-screen bg-[#07080a] text-zinc-100">
       <div className="flex min-h-screen">
         <LabSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
         <div className="flex min-w-0 flex-1 flex-col bg-[radial-gradient(circle_at_70%_-15%,rgba(255,255,255,.025),transparent_28%),linear-gradient(180deg,#090a0d_0%,#07080a_100%)]">
           <LabTopbar onMenu={() => setSidebarOpen(true)} />
-
           <main className="flex min-h-0 flex-1 flex-col px-4 pb-0 pt-4 sm:px-5 lg:px-6 lg:pt-5">
-            {(title || actions) && (
+            {showHeader && (
               <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                 <div>
                   {breadcrumb && <p className="mb-1 text-[10px] font-semibold text-zinc-600">{breadcrumb}</p>}
@@ -93,7 +92,6 @@ export default function LabShell({
                 {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
               </div>
             )}
-
             <div className="min-h-0 flex-1">{children}</div>
             {footer && <LabFooterBar />}
           </main>
