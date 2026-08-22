@@ -15,19 +15,21 @@ const config: Config = {
         sans: ['var(--font-body)', 'ui-sans-serif', 'system-ui'],
       },
       colors: {
-        akdark: '#0a0d12',
-        akred: '#e2954d',
-        ink: '#0A0D12',
+        akdark: '#07080b',
+        akred: '#ff3b46',
+        ink: '#090a0e',
+        /* Compatibility alias: legacy components still reference `copper`,
+           but it now resolves to the current Autokeys Lab red family. */
         copper: {
-          DEFAULT: '#E2954D',
-          bright: '#FFB870',
-          deep: '#8A4A1F',
+          DEFAULT: '#FF3B46',
+          bright: '#FF6972',
+          deep: '#B91F2A',
         },
         signal: {
           DEFAULT: '#5EEAD4',
           bright: '#99F6E4',
         },
-        chalk: '#F5F1E8',
+        chalk: '#F5F7FB',
       },
     },
   },
