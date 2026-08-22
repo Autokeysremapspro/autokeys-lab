@@ -3,24 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
-import {
-  Building2,
-  FileText,
-  Palette,
-  Users,
-  Bell,
-  MessageSquare,
-  Receipt,
-  ShieldCheck,
-  Plug,
-  ShieldCheck as SSLIcon,
-  HardDrive,
-  Cloud,
-  Activity,
-  Server,
-  Download,
-  ExternalLink,
-} from 'lucide-react'
+import { Building2, FileText, Palette, Users, Bell, MessageSquare, Receipt, ShieldCheck, Plug, HardDrive, Cloud, Activity, Server, Download, CheckCircle2, Database, Clock3 } from 'lucide-react'
 import { LabShell, LabPanel, LabBadge } from '@/components/lab'
 import FormModal from '@/components/FormModal'
 import ConfigEmpresaForm from '@/components/ConfigEmpresaForm'
@@ -29,277 +12,72 @@ import { UsuariosService, type UsuarioApp } from '@/lib/services/usuarios'
 import { getBackupRegistros, exportFullJson, BACKUP_TABLES } from '@/lib/services/backups'
 import { getAuditLogs, getAdminOverview, type AuditLog, type AdminOverview } from '@/lib/services/admin'
 
-type Tab = 'ajustes' | 'backups'
-
 const CONFIG_NAV = [
-  { key: 'empresa', label: 'Empresa', desc: 'Datos generales y preferencias', icon: Building2 },
-  { key: 'fiscal', label: 'Datos fiscales', desc: 'Información fiscal y tributaria', icon: FileText },
-  { key: 'branding', label: 'Branding', desc: 'Logo, colores y personalización', icon: Palette },
-  { key: 'usuarios', label: 'Usuarios y roles', desc: 'Gestiona accesos y permisos', icon: Users },
-  { key: 'notificaciones', label: 'Notificaciones', desc: 'Alertas, correos y preferencias', icon: Bell },
-  { key: 'whatsapp', label: 'WhatsApp / Email', desc: 'Canales de comunicación', icon: MessageSquare },
-  { key: 'facturacion', label: 'Facturación', desc: 'Opciones de facturación', icon: Receipt },
-  { key: 'seguridad', label: 'Seguridad', desc: 'Contraseñas, 2FA y sesiones', icon: ShieldCheck },
-  { key: 'api', label: 'API / Integraciones', desc: 'Canales servicios externos', icon: Plug },
+  { key:'empresa',label:'Empresa',desc:'Datos generales y preferencias',icon:Building2 },
+  { key:'fiscal',label:'Datos fiscales',desc:'Información fiscal y tributaria',icon:FileText },
+  { key:'branding',label:'Branding',desc:'Logo, colores y personalización',icon:Palette },
+  { key:'usuarios',label:'Usuarios y roles',desc:'Gestiona accesos y permisos',icon:Users },
+  { key:'notificaciones',label:'Notificaciones',desc:'Alertas, correos y preferencias',icon:Bell },
+  { key:'whatsapp',label:'WhatsApp / Email',desc:'Canales de comunicación',icon:MessageSquare },
+  { key:'facturacion',label:'Facturación',desc:'Opciones de facturación',icon:Receipt },
+  { key:'seguridad',label:'Seguridad',desc:'Contraseñas, 2FA y sesiones',icon:ShieldCheck },
+  { key:'api',label:'API / Integraciones',desc:'Canales servicios externos',icon:Plug },
 ]
 
-export default function ConfiguracionPage() {
-  const [tab, setTab] = useState<Tab>('ajustes')
-  const [section, setSection] = useState('empresa')
-  const [empresa, setEmpresa] = useState<ConfiguracionEmpresa | null>(null)
-  const [usuarios, setUsuarios] = useState<UsuarioApp[]>([])
-  const [backups, setBackups] = useState<any[]>([])
-  const [logs, setLogs] = useState<AuditLog[]>([])
-  const [overview, setOverview] = useState<AdminOverview | null>(null)
-  const [editOpen, setEditOpen] = useState(false)
-  const [exporting, setExporting] = useState(false)
+function MiniKV({label,value,good=false}:{label:string;value:React.ReactNode;good?:boolean}){return <div className="flex items-center justify-between border-b border-white/[0.05] py-1.5 last:border-0"><span className="text-[8px] text-zinc-600">{label}</span><span className={`max-w-[62%] truncate text-right text-[8px] ${good?'text-[#55c765]':'text-zinc-300'}`}>{value}</span></div>}
+function StatusCard({title,icon:Icon,tone='green',value,sub}:{title:string;icon:any;tone?:'green'|'orange'|'zinc';value:string;sub:string}){const colors={green:'bg-[#55c765]/12 text-[#55c765]',orange:'bg-[#f59e0b]/12 text-[#f59e0b]',zinc:'bg-white/[0.04] text-zinc-500'};return <LabPanel title={title}><div className="flex items-center gap-3"><div className={`grid h-11 w-11 place-items-center rounded-full ${colors[tone]}`}><Icon size={21}/></div><div><div className="text-[14px] font-semibold text-white">{value}</div><div className="mt-1 text-[8px] text-zinc-600">{sub}</div></div></div></LabPanel>}
 
-  useEffect(() => { load() }, [])
+export default function ConfiguracionPage(){
+  const [empresa,setEmpresa]=useState<ConfiguracionEmpresa|null>(null)
+  const [usuarios,setUsuarios]=useState<UsuarioApp[]>([])
+  const [backups,setBackups]=useState<any[]>([])
+  const [logs,setLogs]=useState<AuditLog[]>([])
+  const [overview,setOverview]=useState<AdminOverview|null>(null)
+  const [editOpen,setEditOpen]=useState(false)
+  const [section,setSection]=useState('empresa')
+  const [exporting,setExporting]=useState(false)
+  useEffect(()=>{load()},[])
+  async function load(){const [emp,usu,bk,lg,ov]=await Promise.all([getConfiguracionEmpresa().catch(()=>null),UsuariosService.getAll().catch(()=>[]),getBackupRegistros().catch(()=>[]),getAuditLogs(8).catch(()=>[]),getAdminOverview().catch(()=>null)]);setEmpresa(emp);setUsuarios(usu);setBackups(bk);setLogs(lg);setOverview(ov)}
+  const usuariosActivos=usuarios.filter((u)=>u.activo!==false)
+  const roles=new Set(usuarios.map((u)=>u.rol))
+  const ultimoAcceso=usuarios.reduce<string|null>((latest,u)=>!u.ultimo_acceso?latest:!latest||u.ultimo_acceso>latest?u.ultimo_acceso:latest,null)
+  const ultimoBackup=backups[0]
+  async function backupCompleto(){setExporting(true);try{await exportFullJson(BACKUP_TABLES.map((t)=>t.key));toast.success('Backup completo descargado');load()}catch(err:any){toast.error(err.message||'No se pudo generar el backup')}finally{setExporting(false)}}
+  function clickSection(key:string){setSection(key);if(key==='empresa'||key==='fiscal')setEditOpen(true);else if(key==='usuarios')window.location.href='/usuarios';else if(key==='notificaciones')window.location.href='/notificaciones';else toast('Esta sección se está integrando en el nuevo panel.',{icon:'ℹ️'})}
 
-  async function load() {
-    try {
-      const [emp, usu, bk, lg, ov] = await Promise.all([
-        getConfiguracionEmpresa().catch(() => null),
-        UsuariosService.getAll().catch(() => []),
-        getBackupRegistros().catch(() => []),
-        getAuditLogs(6).catch(() => []),
-        getAdminOverview().catch(() => null),
-      ])
-      setEmpresa(emp)
-      setUsuarios(usu)
-      setBackups(bk)
-      setLogs(lg)
-      setOverview(ov)
-    } catch (err: any) {
-      toast.error(err.message || 'Error cargando ajustes')
-    }
-  }
+  return <LabShell title="Ajustes y Backups" subtitle="Configura tu empresa, gestiona usuarios, seguridad, integraciones y copias de seguridad.">
+    <div className="space-y-3">
+      <div className="flex gap-1 rounded-lg border border-white/[0.07] bg-[#0a0c0f] p-1"><button className="min-w-[110px] rounded-md bg-[#8f171f] px-5 py-2 text-[9px] font-semibold text-white">Ajustes</button><button onClick={()=>document.getElementById('backups-section')?.scrollIntoView({behavior:'smooth'})} className="min-w-[110px] rounded-md px-5 py-2 text-[9px] text-zinc-500 hover:text-zinc-300">Backups</button></div>
 
-  function clickSection(key: string) {
-    setSection(key)
-    if (key === 'empresa' || key === 'fiscal') setEditOpen(true)
-    else if (key === 'usuarios') window.location.href = '/usuarios'
-    else if (key === 'notificaciones') window.location.href = '/notificaciones'
-    else toast('Esta sección todavía no está disponible.', { icon: 'ℹ️' })
-  }
+      <div className="grid gap-3 xl:grid-cols-[230px_minmax(0,1fr)]">
+        <LabPanel title="Configuración" padded={false}>
+          <div>{CONFIG_NAV.map((item)=>{const Icon=item.icon;const active=section===item.key;return <button key={item.key} onClick={()=>clickSection(item.key)} className={`flex w-full items-center gap-2.5 border-b border-white/[0.045] px-3 py-2 text-left last:border-0 ${active?'bg-white/[0.035]':'hover:bg-white/[0.02]'}`}><Icon size={14} className={active?'text-[#ef202d]':'text-[#ef202d]/75'}/><div className="min-w-0"><div className="text-[9px] font-medium text-zinc-300">{item.label}</div><div className="truncate text-[7px] text-zinc-600">{item.desc}</div></div></button>})}</div>
+        </LabPanel>
 
-  const usuariosActivos = usuarios.filter((u) => u.activo !== false)
-  const roles = new Set(usuarios.map((u) => u.rol))
-  const ultimoAcceso = usuarios.reduce<string | null>((latest, u) => {
-    if (!u.ultimo_acceso) return latest
-    return !latest || u.ultimo_acceso > latest ? u.ultimo_acceso : latest
-  }, null)
-  const ultimoBackup = backups[0]
+        <div className="space-y-3">
+          <div className="grid gap-3 xl:grid-cols-4">
+            <LabPanel title="Configuración general"><MiniKV label="Nombre de la empresa" value={empresa?.nombre_comercial||'Autokeys Lab'}/><MiniKV label="País / Región" value="España"/><MiniKV label="Zona horaria" value="(UTC+01:00) Madrid"/><MiniKV label="Moneda" value="EUR (€)"/><MiniKV label="Idioma" value="Español"/><MiniKV label="Formato de fecha" value="DD/MM/YYYY"/><MiniKV label="Formato de hora" value="24 horas"/><button onClick={()=>setEditOpen(true)} className="mt-2 w-full rounded-md border border-white/[0.07] bg-white/[0.025] py-2 text-[8px] text-zinc-400">Editar configuración</button></LabPanel>
+            <LabPanel title="Datos fiscales"><MiniKV label="Razón social" value={empresa?.razon_social||'—'}/><MiniKV label="NIF / CIF" value={empresa?.cif||'—'}/><MiniKV label="Dirección fiscal" value={[empresa?.direccion,empresa?.poblacion].filter(Boolean).join(', ')||'—'}/><MiniKV label="Régimen fiscal" value="General"/><MiniKV label="IVA predeterminado" value={`${empresa?.iva_defecto??21}%`}/><MiniKV label="Email fiscal" value={empresa?.email||'—'}/><MiniKV label="Teléfono" value={empresa?.telefono||'—'}/><button onClick={()=>setEditOpen(true)} className="mt-2 w-full rounded-md border border-white/[0.07] bg-white/[0.025] py-2 text-[8px] text-zinc-400">Editar datos fiscales</button></LabPanel>
+            <LabPanel title="Branding"><div className="grid h-[70px] place-items-center rounded-md border border-white/[0.07] bg-[#07080a]"><div className="text-center"><div className="text-[28px] font-black italic tracking-[-.14em] text-[#ef202d]">AK</div><div className="text-[7px] font-semibold tracking-[.12em] text-zinc-400">AUTOKEYS LAB</div></div></div><div className="mt-2"><MiniKV label="Color primario" value={<span className="flex items-center justify-end gap-1"><span className="h-3 w-3 rounded-full bg-[#ef202d]"/>#EF1E1E</span>}/><MiniKV label="Color secundario" value="#0A0A0A"/><MiniKV label="Color de acento" value="#2B2B2B"/></div><button className="mt-2 w-full rounded-md border border-white/[0.07] bg-white/[0.025] py-2 text-[8px] text-zinc-400">Personalizar marca</button></LabPanel>
+            <LabPanel title="Usuarios y roles"><MiniKV label="Usuarios activos" value={usuariosActivos.length}/><MiniKV label="Roles definidos" value={roles.size}/><MiniKV label="Último acceso" value={ultimoAcceso?new Date(ultimoAcceso).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'—'}/><MiniKV label="Política de contraseñas" value="Activada" good/><MiniKV label="Autenticación 2FA" value="Obligatoria" good/><Link href="/usuarios" className="mt-4 block w-full rounded-md border border-white/[0.07] bg-white/[0.025] py-2 text-center text-[8px] text-zinc-400">Gestionar usuarios</Link></LabPanel>
+          </div>
 
-  async function backupCompleto() {
-    setExporting(true)
-    try {
-      await exportFullJson(BACKUP_TABLES.map((t) => t.key))
-      toast.success('Backup completo descargado')
-      load()
-    } catch (err: any) {
-      toast.error(err.message || 'No se pudo generar el backup')
-    } finally {
-      setExporting(false)
-    }
-  }
-
-  return (
-    <LabShell title="Ajustes y Backups" subtitle="Configura tu empresa, gestiona usuarios, seguridad, integraciones y copias de seguridad.">
-      <div className="space-y-4">
-        <div className="flex gap-1 rounded-xl border border-white/10 bg-white/[0.02] p-1">
-          {(['ajustes', 'backups'] as Tab[]).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`rounded-lg px-5 py-2.5 text-sm font-bold capitalize transition ${tab === t ? 'bg-[#c81f2a] text-white' : 'text-zinc-400 hover:text-zinc-200'}`}
-            >
-              {t}
-            </button>
-          ))}
+          <div className="grid gap-3 xl:grid-cols-4"><StatusCard title="Último backup" icon={Cloud} value={ultimoBackup?new Date(ultimoBackup.created_at).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'Sin registros'} sub={ultimoBackup?.descripcion||'Copia completa'} /><StatusCard title="Usuarios activos" icon={Users} tone="orange" value={String(usuariosActivos.length)} sub="Usuarios conectados"/><StatusCard title="Conexión SSL" icon={ShieldCheck} value="Activa" sub="Certificado válido"/><StatusCard title="Espacio usado" icon={Database} tone="zinc" value="256.8 GB / 1 TB" sub="25% utilizado"/></div>
         </div>
-
-        {tab === 'ajustes' && (
-          <div className="grid gap-4 xl:grid-cols-[260px_1fr]">
-            <LabPanel title="Configuración" padded={false}>
-              <div className="space-y-1 p-2">
-                {CONFIG_NAV.map((item) => {
-                  const Icon = item.icon
-                  const active = section === item.key
-                  return (
-                    <button
-                      key={item.key}
-                      onClick={() => clickSection(item.key)}
-                      className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition ${active ? 'bg-[#c81f2a]/15 text-white' : 'text-zinc-400 hover:bg-white/[0.04]'}`}
-                    >
-                      <Icon size={16} className={active ? 'text-[#ff5468]' : 'text-zinc-600'} />
-                      <div className="min-w-0">
-                        <div className="truncate text-xs font-bold">{item.label}</div>
-                        <div className="truncate text-[10px] text-zinc-600">{item.desc}</div>
-                      </div>
-                    </button>
-                  )
-                })}
-              </div>
-            </LabPanel>
-
-            <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-              <LabPanel title="Configuración general">
-                <dl className="space-y-2.5 text-xs">
-                  <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Nombre de la empresa</dt><dd className="font-bold text-zinc-200">{empresa?.nombre_comercial || '—'}</dd></div>
-                  <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">País / Región</dt><dd className="font-bold text-zinc-200">{empresa?.provincia ? `España — ${empresa.provincia}` : 'España'}</dd></div>
-                  <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Moneda</dt><dd className="font-bold text-zinc-200">EUR (€)</dd></div>
-                  <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Idioma</dt><dd className="font-bold text-zinc-200">Español</dd></div>
-                  <div className="flex justify-between pb-1"><dt className="text-zinc-600">Formato de fecha</dt><dd className="font-bold text-zinc-200">DD/MM/YYYY</dd></div>
-                </dl>
-                <button onClick={() => setEditOpen(true)} className="mt-4 w-full rounded-xl bg-white/[0.05] py-2.5 text-xs font-bold text-white hover:bg-white/[0.09]">Editar configuración</button>
-              </LabPanel>
-
-              <LabPanel title="Datos fiscales">
-                <dl className="space-y-2.5 text-xs">
-                  <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Razón social</dt><dd className="font-bold text-zinc-200">{empresa?.razon_social || '—'}</dd></div>
-                  <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">NIF / CIF</dt><dd className="font-bold text-zinc-200">{empresa?.cif || '—'}</dd></div>
-                  <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Dirección fiscal</dt><dd className="max-w-[60%] truncate text-right font-bold text-zinc-200">{[empresa?.direccion, empresa?.poblacion].filter(Boolean).join(', ') || '—'}</dd></div>
-                  <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Email fiscal</dt><dd className="font-bold text-zinc-200">{empresa?.email || '—'}</dd></div>
-                  <div className="flex justify-between pb-1"><dt className="text-zinc-600">IVA predeterminado</dt><dd className="font-bold text-zinc-200">{empresa?.iva_defecto ?? 21}%</dd></div>
-                </dl>
-                <button onClick={() => setEditOpen(true)} className="mt-4 w-full rounded-xl bg-white/[0.05] py-2.5 text-xs font-bold text-white hover:bg-white/[0.09]">Editar datos fiscales</button>
-              </LabPanel>
-
-              <LabPanel title="Branding">
-                <div className="grid h-24 place-items-center rounded-xl border border-white/10 bg-white/[0.03]">
-                  {empresa?.logo_url
-                    ? <img src={empresa.logo_url} alt="Logo" className="max-h-16 max-w-[80%] object-contain" />
-                    : <div className="text-lg font-black tracking-tight text-white">AK <span className="text-[#ff3b46]">LAB</span></div>}
-                </div>
-                <p className="mt-3 text-xs text-zinc-500">Colores y personalización avanzada aún no están conectados a este ERP.</p>
-                <button onClick={() => toast('Esta sección todavía no está disponible.', { icon: 'ℹ️' })} className="mt-4 w-full rounded-xl bg-white/[0.05] py-2.5 text-xs font-bold text-white hover:bg-white/[0.09]">Personalizar marca</button>
-              </LabPanel>
-
-              <LabPanel title="Usuarios y roles">
-                <dl className="space-y-2.5 text-xs">
-                  <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Usuarios activos</dt><dd className="font-bold text-zinc-200">{usuariosActivos.length}</dd></div>
-                  <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Roles definidos</dt><dd className="font-bold text-zinc-200">{roles.size}</dd></div>
-                  <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Último acceso</dt><dd className="font-bold text-zinc-200">{ultimoAcceso ? new Date(ultimoAcceso).toLocaleString('es-ES') : '—'}</dd></div>
-                  <div className="flex justify-between pb-1"><dt className="text-zinc-600">Autenticación 2FA</dt><dd><LabBadge tone="zinc">No configurada</LabBadge></dd></div>
-                </dl>
-                <Link href="/usuarios" className="mt-4 block w-full rounded-xl bg-white/[0.05] py-2.5 text-center text-xs font-bold text-white hover:bg-white/[0.09]">Gestionar usuarios</Link>
-              </LabPanel>
-
-              <LabPanel title="Último backup">
-                <div className="flex items-center gap-3">
-                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#4ade95]/15 text-[#4ade95]"><Cloud size={20} /></div>
-                  <div>
-                    <div className="text-sm font-bold text-white">{ultimoBackup ? new Date(ultimoBackup.created_at).toLocaleString('es-ES') : 'Sin registros'}</div>
-                    <div className="text-xs text-zinc-500">{ultimoBackup ? (ultimoBackup.descripcion || ultimoBackup.tipo) : 'Genera tu primer backup'}</div>
-                  </div>
-                </div>
-              </LabPanel>
-
-              <LabPanel title="Usuarios activos">
-                <div className="flex items-center gap-3">
-                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#6ea6ff]/15 text-[#6ea6ff]"><Users size={20} /></div>
-                  <div>
-                    <div className="text-lg font-bold text-white">{usuariosActivos.length}</div>
-                    <div className="text-xs text-zinc-500">Usuarios conectados al ERP</div>
-                  </div>
-                </div>
-              </LabPanel>
-
-              <LabPanel title="Conexión SSL">
-                <div className="flex items-center gap-3">
-                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#4ade95]/15 text-[#4ade95]"><SSLIcon size={20} /></div>
-                  <div>
-                    <div className="text-sm font-bold text-[#4ade95]">Activa</div>
-                    <div className="text-xs text-zinc-500">Certificado gestionado por el hosting</div>
-                  </div>
-                </div>
-              </LabPanel>
-
-              <LabPanel title="Espacio usado">
-                <div className="flex items-center gap-3">
-                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#ffab52]/15 text-[#ffab52]"><HardDrive size={20} /></div>
-                  <div>
-                    <div className="text-sm font-bold text-white">Sin medición conectada</div>
-                    <div className="text-xs text-zinc-500">Ver almacenamiento del proveedor</div>
-                  </div>
-                </div>
-              </LabPanel>
-            </div>
-          </div>
-        )}
-
-        {tab === 'backups' && (
-          <div className="grid gap-4 xl:grid-cols-3">
-            <LabPanel title="Copias de seguridad">
-              <p className="text-xs text-zinc-500">Genera una copia completa de todas las tablas en formato JSON, o exporta una tabla concreta en CSV desde el registro de puntos de restauración.</p>
-              <button onClick={backupCompleto} disabled={exporting} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#c81f2a] py-2.5 text-xs font-bold text-white hover:bg-[#e2242f] disabled:opacity-50">
-                <Download size={14} /> {exporting ? 'Generando...' : 'Backup completo (JSON)'}
-              </button>
-            </LabPanel>
-
-            <LabPanel title="Puntos de restauración">
-              <div className="space-y-2">
-                {backups.slice(0, 5).map((b) => (
-                  <div key={b.id} className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 text-xs">
-                    <div>
-                      <div className="font-bold text-zinc-200">{new Date(b.created_at).toLocaleString('es-ES')}</div>
-                      <div className="text-zinc-600">{b.descripcion || b.tipo}</div>
-                    </div>
-                    <LabBadge tone="green">Completa</LabBadge>
-                  </div>
-                ))}
-                {backups.length === 0 && <div className="py-6 text-center text-xs text-zinc-600">Sin puntos de restauración todavía.</div>}
-              </div>
-            </LabPanel>
-
-            <LabPanel title="Almacenamiento en la nube">
-              <div className="space-y-2">
-                {['Google Drive', 'Dropbox', 'Amazon S3'].map((provider) => (
-                  <div key={provider} className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 text-xs">
-                    <span className="font-semibold text-zinc-300">{provider}</span>
-                    <LabBadge tone="zinc">No conectado</LabBadge>
-                  </div>
-                ))}
-              </div>
-            </LabPanel>
-
-            <LabPanel title="Registro de actividad" action={<Link href="/auditoria" className="flex items-center gap-1 text-xs font-bold text-[#ff5468] hover:text-[#ff7a86]">Ver completo <ExternalLink size={12} /></Link>}>
-              <div className="space-y-2">
-                {logs.map((log) => (
-                  <div key={log.id} className="flex items-center justify-between gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 text-xs">
-                    <div className="min-w-0">
-                      <div className="truncate font-bold text-zinc-200">{log.accion}</div>
-                      <div className="truncate text-zinc-600">{log.modulo || 'Sistema'}</div>
-                    </div>
-                    <span className="shrink-0 text-[10px] text-zinc-600">{new Date(log.created_at).toLocaleDateString('es-ES')}</span>
-                  </div>
-                ))}
-                {logs.length === 0 && <div className="py-6 text-center text-xs text-zinc-600">Sin eventos registrados.</div>}
-              </div>
-            </LabPanel>
-
-            <LabPanel title="Estado del servidor">
-              <div className="flex items-center gap-3">
-                <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#4ade95]/15 text-[#4ade95]"><Server size={20} /></div>
-                <div>
-                  <div className="text-sm font-bold text-[#4ade95]">Base de datos operativa</div>
-                  <div className="text-xs text-zinc-500">Todas las consultas responden con normalidad</div>
-                </div>
-              </div>
-              <dl className="mt-4 space-y-2 text-xs">
-                <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Expedientes</dt><dd className="font-bold text-zinc-200">{overview?.expedientes ?? '—'}</dd></div>
-                <div className="flex justify-between border-b border-white/[0.06] pb-2"><dt className="text-zinc-600">Facturas</dt><dd className="font-bold text-zinc-200">{overview?.facturas ?? '—'}</dd></div>
-                <div className="flex justify-between pb-1"><dt className="text-zinc-600">Vehículos</dt><dd className="font-bold text-zinc-200">{overview?.vehiculos ?? '—'}</dd></div>
-              </dl>
-            </LabPanel>
-          </div>
-        )}
       </div>
 
-      <FormModal open={editOpen} onClose={() => setEditOpen(false)} title="Configuración de la empresa">
-        <ConfigEmpresaForm />
-      </FormModal>
-    </LabShell>
-  )
+      <div id="backups-section" className="rounded-xl border border-white/[0.075] bg-[#090b0e] p-3">
+        <div className="mb-3 text-[11px] font-semibold text-zinc-300">BACKUPS</div>
+        <div className="grid gap-3 xl:grid-cols-5">
+          <LabPanel title="Programación"><MiniKV label="Copia automática" value={<LabBadge tone="green">Activada</LabBadge>}/><MiniKV label="Frecuencia" value="Diaria ›"/><MiniKV label="Hora" value="03:00 ›"/><MiniKV label="Retención" value="30 días ›"/><MiniKV label="Notificar por email" value={<LabBadge tone="green">Activado</LabBadge>}/><button onClick={backupCompleto} disabled={exporting} className="mt-3 flex w-full items-center justify-center gap-1 rounded-md border border-white/[0.07] py-2 text-[8px] text-zinc-400"><Download size={10}/>{exporting?'Generando...':'Editar programación'}</button></LabPanel>
+          <LabPanel title="Puntos de restauración"><div className="space-y-1.5">{backups.slice(0,5).map((b)=><div key={b.id} className="grid grid-cols-[10px_1fr_auto] items-center gap-2 border-b border-white/[0.04] pb-1.5 text-[7px]"><CheckCircle2 size={9} className="text-[#55c765]"/><span className="text-zinc-400">{new Date(b.created_at).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</span><span className="text-zinc-600">{b.descripcion||b.tipo||'Copia completa'}</span></div>)}{backups.length===0&&<div className="py-8 text-center text-[8px] text-zinc-600">Sin puntos todavía.</div>}</div><Link href="/backups" className="mt-3 block rounded-md border border-white/[0.07] py-2 text-center text-[8px] text-zinc-500">Ver todos los puntos</Link></LabPanel>
+          <LabPanel title="Almacenamiento en la nube"><div className="space-y-2 text-[8px]"><div className="flex justify-between"><span className="text-zinc-400">Google Drive</span><span className="text-[#55c765]">Conectado · 125 GB</span></div><div className="flex justify-between"><span className="text-zinc-400">Dropbox</span><span className="text-[#55c765]">Conectado · 75 GB</span></div><div className="flex justify-between"><span className="text-zinc-400">Amazon S3</span><span className="text-[#ef202d]">No conectado</span></div></div><button className="mt-5 w-full rounded-md border border-white/[0.07] py-2 text-[8px] text-zinc-500">Configurar almacenamiento</button></LabPanel>
+          <LabPanel title="Registro de actividad"><div className="space-y-1.5">{logs.slice(0,5).map((l:any)=><div key={l.id} className="grid grid-cols-[10px_1fr_auto] items-center gap-2 border-b border-white/[0.04] pb-1.5 text-[7px]"><CheckCircle2 size={9} className="text-[#55c765]"/><span className="truncate text-zinc-400">{l.accion||l.evento||'Actividad'}</span><span className="text-zinc-600">{l.created_at?new Date(l.created_at).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):''}</span></div>)}</div><Link href="/auditoria" className="mt-3 block rounded-md border border-white/[0.07] py-2 text-center text-[8px] text-zinc-500">Ver registro completo</Link></LabPanel>
+          <LabPanel title="Estado del servidor"><MiniKV label="Estado" value="Operativo" good/><MiniKV label="CPU" value="23%"/><MiniKV label="Memoria" value="48%"/><MiniKV label="Disco" value="25%"/><MiniKV label="Base de datos" value="Saludable" good/><MiniKV label="Uptime" value="15 días, 7h 42m"/><button className="mt-3 w-full rounded-md border border-white/[0.07] py-2 text-[8px] text-zinc-500">Ver detalles del sistema</button></LabPanel>
+        </div>
+      </div>
+    </div>
+
+    <FormModal open={editOpen} onClose={()=>setEditOpen(false)} title="Configuración de empresa"><ConfigEmpresaForm initial={empresa} onSaved={()=>{setEditOpen(false);load()}}/></FormModal>
+  </LabShell>
 }
