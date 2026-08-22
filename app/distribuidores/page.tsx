@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
-import { Building2, UserPlus, TrendingUp, Percent, Search, SlidersHorizontal, Download, Phone, Mail, Send } from 'lucide-react'
+import { Building2, UserPlus, TrendingUp, Percent, Search, SlidersHorizontal, Download, Phone, Mail, Send, Tag, X } from 'lucide-react'
 import { LabShell, LabStatCard, LabPanel, LabBadge } from '@/components/lab'
 import { money } from '@/lib/status'
 
@@ -32,11 +32,14 @@ type Distribuidor = {
   ordenes_recientes: { id: string; servicio: string; precio: number; created_at: string }[]
   tickets: { id: string; numero: string | null; asunto: string; estado: string; created_at: string }[]
   tickets_abiertos: number
+  precios: { id: string; servicio: string; precio: number }[]
 }
 
 const NIVEL_TONE: Record<string, 'purple' | 'amber' | 'zinc' | 'blue'> = { Platinum: 'purple', Gold: 'amber', Silver: 'blue', Bronze: 'zinc' }
 
-type Tab = 'resumen' | 'condiciones' | 'documentos'
+const SERVICIOS_TARIFA = ['Stage 1', 'Stage 2', 'DPF OFF', 'EGR OFF', 'AdBlue / SCR OFF', 'IMMO OFF', 'Pops & Bangs', 'Hardcut', 'Clone / Repair', 'DTC Off', 'Speed Limit Off']
+
+type Tab = 'resumen' | 'condiciones' | 'precios' | 'documentos'
 
 export default function DistribuidoresPage() {
   const [rows, setRows] = useState<Distribuidor[]>([])
@@ -48,6 +51,8 @@ export default function DistribuidoresPage() {
   const [tab, setTab] = useState<Tab>('resumen')
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<Partial<Distribuidor>>({})
+  const [precioDraft, setPrecioDraft] = useState<Record<string, string>>({})
+  const [savingPrecio, setSavingPrecio] = useState<string | null>(null)
 
   useEffect(() => { load() }, [])
 
@@ -77,7 +82,12 @@ export default function DistribuidoresPage() {
   const selected = rows.find((r) => r.id === selectedId) || null
 
   useEffect(() => {
-    if (selected) setForm(selected)
+    if (selected) {
+      setForm(selected)
+      const draft: Record<string, string> = {}
+      for (const p of selected.precios) draft[p.servicio] = String(p.precio)
+      setPrecioDraft(draft)
+    }
   }, [selectedId])
 
   const activos = rows.filter((r) => r.estado === 'activo').length
@@ -111,6 +121,51 @@ export default function DistribuidoresPage() {
       toast.error(err.message || 'No se pudo guardar')
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function guardarPrecio(servicio: string) {
+    if (!selected) return
+    const raw = precioDraft[servicio]
+    const precio = Number(raw)
+    if (raw === undefined || raw === '' || !Number.isFinite(precio) || precio < 0) {
+      toast.error('Introduce un precio válido')
+      return
+    }
+    setSavingPrecio(servicio)
+    try {
+      const res = await fetch('/api/distribuidores/precios', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ distribuidor_id: selected.id, servicio, precio }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      toast.success(`Precio de "${servicio}" actualizado para ${selected.empresa}`)
+      await load()
+    } catch (err: any) {
+      toast.error(err.message || 'No se pudo guardar el precio')
+    } finally {
+      setSavingPrecio(null)
+    }
+  }
+
+  async function quitarPrecio(servicio: string) {
+    if (!selected) return
+    const existing = selected.precios.find((p) => p.servicio === servicio)
+    if (!existing) return
+    setSavingPrecio(servicio)
+    try {
+      const res = await fetch(`/api/distribuidores/precios?id=${existing.id}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setPrecioDraft((prev) => { const next = { ...prev }; delete next[servicio]; return next })
+      toast.success(`"${servicio}" vuelve a la tarifa estándar`)
+      await load()
+    } catch (err: any) {
+      toast.error(err.message || 'No se pudo quitar el precio')
+    } finally {
+      setSavingPrecio(null)
     }
   }
 
@@ -204,7 +259,7 @@ export default function DistribuidoresPage() {
                 </div>
 
                 <div className="mt-4 flex gap-1 border-b border-white/[0.07]">
-                  {(['resumen', 'condiciones', 'documentos'] as Tab[]).map((t) => (
+                  {(['resumen', 'condiciones', 'precios', 'documentos'] as Tab[]).map((t) => (
                     <button key={t} onClick={() => setTab(t)} className={`rounded-t-lg px-3.5 py-2 text-xs font-bold capitalize ${tab === t ? 'border-b-2 border-[#ff3b46] text-white' : 'text-zinc-500 hover:text-zinc-300'}`}>{t}</button>
                   ))}
                 </div>
@@ -304,6 +359,46 @@ export default function DistribuidoresPage() {
                       <button onClick={guardarCondiciones} disabled={saving} className="w-full rounded-xl bg-[#c81f2a] py-2.5 text-xs font-bold text-white hover:bg-[#e2242f] disabled:opacity-50">
                         {saving ? 'Guardando...' : 'Guardar condiciones'}
                       </button>
+                    </div>
+                  )}
+
+                  {tab === 'precios' && (
+                    <div>
+                      <p className="mb-3 text-xs text-zinc-500">Fija un precio manual por servicio para <b className="text-zinc-300">{selected.empresa}</b>. Los servicios sin precio propio usan la tarifa estándar.</p>
+                      <div className="space-y-2">
+                        {SERVICIOS_TARIFA.map((servicio) => {
+                          const tieneOverride = selected.precios.some((p) => p.servicio === servicio)
+                          return (
+                            <div key={servicio} className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2">
+                              <Tag size={13} className="shrink-0 text-zinc-600" />
+                              <span className="flex-1 truncate text-xs font-semibold text-zinc-300">{servicio}</span>
+                              <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1">
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="Estándar"
+                                  value={precioDraft[servicio] ?? ''}
+                                  onChange={(e) => setPrecioDraft((prev) => ({ ...prev, [servicio]: e.target.value }))}
+                                  className="w-20 border-0 bg-transparent p-0 text-right text-xs"
+                                />
+                                <span className="text-[10px] text-zinc-600">€</span>
+                              </div>
+                              <button
+                                onClick={() => guardarPrecio(servicio)}
+                                disabled={savingPrecio === servicio}
+                                className="shrink-0 rounded-lg bg-[#c81f2a] px-2.5 py-1.5 text-[11px] font-bold text-white hover:bg-[#e2242f] disabled:opacity-50"
+                              >
+                                Guardar
+                              </button>
+                              {tieneOverride && (
+                                <button onClick={() => quitarPrecio(servicio)} disabled={savingPrecio === servicio} className="shrink-0 rounded-lg p-1.5 text-zinc-500 hover:bg-white/5 hover:text-red-400">
+                                  <X size={13} />
+                                </button>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
                     </div>
                   )}
 

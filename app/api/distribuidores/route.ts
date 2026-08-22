@@ -17,14 +17,16 @@ export async function GET() {
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-    const [{ data: distribuidores, error }, { data: ventas, error: ventasError }, { data: tickets, error: ticketsError }] = await Promise.all([
+    const [{ data: distribuidores, error }, { data: ventas, error: ventasError }, { data: tickets, error: ticketsError }, { data: precios, error: preciosError }] = await Promise.all([
       admin.from('akcloud_distribuidores').select('*').order('created_at', { ascending: false }),
       admin.from('file_service').select('id,taller,servicio,estado,precio,created_at').gte('created_at', thirtyDaysAgo).order('created_at', { ascending: false }),
       admin.from('distribuidor_tickets').select('*').order('created_at', { ascending: false }),
+      admin.from('distribuidor_precios').select('*'),
     ])
     if (error) throw error
     if (ventasError) throw ventasError
     if (ticketsError) throw ticketsError
+    if (preciosError) throw preciosError
 
     const rows = (distribuidores || []).map((d: any) => {
       const empresaLower = String(d.empresa || '').trim().toLowerCase()
@@ -33,6 +35,7 @@ export async function GET() {
         : []
       const facturacion30d = ventasDistribuidor.reduce((a: number, v: any) => a + Number(v.precio || 0), 0)
       const ticketsDistribuidor = (tickets || []).filter((t: any) => t.distribuidor_id === d.id)
+      const preciosDistribuidor = (precios || []).filter((p: any) => p.distribuidor_id === d.id)
 
       return {
         ...d,
@@ -42,6 +45,7 @@ export async function GET() {
         ordenes_recientes: ventasDistribuidor.slice(0, 4),
         tickets: ticketsDistribuidor.slice(0, 4),
         tickets_abiertos: ticketsDistribuidor.filter((t: any) => t.estado !== 'cerrado').length,
+        precios: preciosDistribuidor,
       }
     })
 
