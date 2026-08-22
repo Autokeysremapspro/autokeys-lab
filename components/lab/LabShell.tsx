@@ -65,40 +65,39 @@ export default function LabShell({
 
   if (checkingSession || !authorized) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[#07080b] p-6 text-zinc-100">
-        <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#0e0f14] p-8 text-center">
-          <div className="text-2xl font-bold tracking-tight">
-            Autokeys <span className="text-[#ff3b46]">Lab</span>
-          </div>
-          <p className="mt-3 text-zinc-500">Comprobando sesión segura...</p>
+      <main className="grid min-h-screen place-items-center bg-[#07080a] p-6 text-zinc-100">
+        <div className="w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#0d0f13] p-7 text-center shadow-2xl">
+          <div className="text-2xl font-bold tracking-tight">Autokeys <span className="text-[#ef202d]">Lab</span></div>
+          <p className="mt-3 text-sm text-zinc-500">Comprobando sesión segura...</p>
         </div>
       </main>
     )
   }
 
   return (
-    <div className="flex min-h-screen bg-[#07080b] text-zinc-100">
-      <LabSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <div className="min-h-screen bg-[#07080a] text-zinc-100">
+      <div className="flex min-h-screen">
+        <LabSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <LabTopbar onMenu={() => setSidebarOpen(true)} />
+        <div className="flex min-w-0 flex-1 flex-col bg-[radial-gradient(circle_at_70%_-15%,rgba(255,255,255,.025),transparent_28%),linear-gradient(180deg,#090a0d_0%,#07080a_100%)]">
+          <LabTopbar onMenu={() => setSidebarOpen(true)} />
 
-        <main className="mx-auto w-full max-w-[1700px] flex-1 p-4 sm:p-6">
-          {(title || actions) && (
-            <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
-              <div>
-                {breadcrumb && <p className="mb-1 text-xs font-semibold text-zinc-600">{breadcrumb}</p>}
-                {title && <h1 className="text-2xl font-bold tracking-tight text-white sm:text-[28px]">{title}</h1>}
-                {subtitle && <p className="mt-1 text-sm text-zinc-500">{subtitle}</p>}
+          <main className="flex min-h-0 flex-1 flex-col px-4 pb-0 pt-4 sm:px-5 lg:px-6 lg:pt-5">
+            {(title || actions) && (
+              <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  {breadcrumb && <p className="mb-1 text-[10px] font-semibold text-zinc-600">{breadcrumb}</p>}
+                  {title && <h1 className="text-[22px] font-semibold leading-tight tracking-[-0.025em] text-white">{title}</h1>}
+                  {subtitle && <p className="mt-1 text-[12px] text-zinc-500">{subtitle}</p>}
+                </div>
+                {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
               </div>
-              {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
-            </div>
-          )}
+            )}
 
-          {children}
-
-          {footer && <LabFooterBar />}
-        </main>
+            <div className="min-h-0 flex-1">{children}</div>
+            {footer && <LabFooterBar />}
+          </main>
+        </div>
       </div>
     </div>
   )
