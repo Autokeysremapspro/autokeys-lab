@@ -79,24 +79,46 @@ function LoginContent() {
         .maybeSingle()
       if (perfilError) throw perfilError
 
-      if (!perfil) {
-        await supabase.auth.signOut()
-        toast.error('Tu cuenta Auth existe, pero no tienes usuario interno vinculado')
-        return
-      }
-      if (perfil.activo === false) {
-        await supabase.auth.signOut()
-        toast.error('Usuario bloqueado. Contacta con administración')
-        return
-      }
-      if (!perfil.auth_user_id && authUserId) {
-        await supabase.from('usuarios_app').update({ auth_user_id: authUserId }).eq('id', perfil.id)
-      }
-      await supabase.from('usuarios_app').update({ ultimo_acceso: new Date().toISOString() }).eq('id', perfil.id)
+      if (perfil) {
+        if (perfil.activo === false) {
+          await supabase.auth.signOut()
+          toast.error('Usuario bloqueado. Contacta con administración')
+          return
+        }
+        if (!perfil.auth_user_id && authUserId) {
+          await supabase.from('usuarios_app').update({ auth_user_id: authUserId }).eq('id', perfil.id)
+        }
+        await supabase.from('usuarios_app').update({ ultimo_acceso: new Date().toISOString() }).eq('id', perfil.id)
 
-      toast.success(`Bienvenido, ${perfil.nombre || cleanEmail}`)
-      router.replace(next)
-      router.refresh()
+        toast.success(`Bienvenido, ${perfil.nombre || cleanEmail}`)
+        router.replace(next)
+        router.refresh()
+        return
+      }
+
+      // No es staff interno — comprobamos si es una cuenta de distribuidor
+      // (portal separado en /mi-cuenta, con su propia tarifa de precios).
+      const { data: distribuidor, error: distError } = await supabase
+        .from('akcloud_distribuidores')
+        .select('id, empresa, estado')
+        .eq('auth_user_id', authUserId)
+        .maybeSingle()
+      if (distError) throw distError
+
+      if (distribuidor) {
+        if (distribuidor.estado !== 'activo') {
+          await supabase.auth.signOut()
+          toast.error(`Tu cuenta está ${distribuidor.estado}. Contacta con Autokeys Lab.`)
+          return
+        }
+        toast.success(`Bienvenido, ${distribuidor.empresa}`)
+        router.replace(next.startsWith('/mi-cuenta') ? next : '/mi-cuenta')
+        router.refresh()
+        return
+      }
+
+      await supabase.auth.signOut()
+      toast.error('Tu cuenta no tiene un perfil vinculado en Autokeys Lab')
     } catch (error: any) {
       toast.error(error.message || 'No se pudo iniciar sesión')
     } finally {

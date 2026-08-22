@@ -5,8 +5,16 @@ import { createMiddlewareSupabaseClient } from '@/lib/supabase/middleware'
 // Todo lo demás es interior de Autokeys Core y exige sesión de staff.
 const PUBLIC_PATHS = ['/login', '/register', '/portal-distribuidores', '/solicitud-enviada']
 
+// Cuenta de distribuidor: exige sesión, pero NO staff en usuarios_app —
+// un distribuidor activo en akcloud_distribuidores puede entrar aquí.
+const DISTRIBUIDOR_PATHS = ['/mi-cuenta']
+
 function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))
+}
+
+function isDistribuidorPath(pathname: string) {
+  return DISTRIBUIDOR_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))
 }
 
 export async function middleware(request: NextRequest) {
@@ -25,6 +33,22 @@ export async function middleware(request: NextRequest) {
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('next', pathname)
     return NextResponse.redirect(loginUrl)
+  }
+
+  if (isDistribuidorPath(pathname)) {
+    const { data: distribuidor } = await supabase
+      .from('akcloud_distribuidores')
+      .select('estado')
+      .eq('auth_user_id', user.id)
+      .maybeSingle()
+
+    if (!distribuidor || distribuidor.estado !== 'activo') {
+      const loginUrl = new URL('/login', request.url)
+      loginUrl.searchParams.set('error', 'cuenta_no_autorizada')
+      return NextResponse.redirect(loginUrl)
+    }
+
+    return response
   }
 
   // Sesión válida: comprobamos que sigue siendo staff activo en usuarios_app.

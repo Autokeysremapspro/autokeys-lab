@@ -17,16 +17,18 @@ export async function GET() {
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-    const [{ data: distribuidores, error }, { data: ventas, error: ventasError }, { data: tickets, error: ticketsError }, { data: precios, error: preciosError }] = await Promise.all([
+    const [{ data: distribuidores, error }, { data: ventas, error: ventasError }, { data: tickets, error: ticketsError }, { data: precios, error: preciosError }, { data: tarifaEstandar, error: tarifaError }] = await Promise.all([
       admin.from('akcloud_distribuidores').select('*').order('created_at', { ascending: false }),
       admin.from('file_service').select('id,taller,servicio,estado,precio,created_at').gte('created_at', thirtyDaysAgo).order('created_at', { ascending: false }),
       admin.from('distribuidor_tickets').select('*').order('created_at', { ascending: false }),
       admin.from('distribuidor_precios').select('*'),
+      admin.from('precios_estandar').select('*'),
     ])
     if (error) throw error
     if (ventasError) throw ventasError
     if (ticketsError) throw ticketsError
     if (preciosError) throw preciosError
+    if (tarifaError) throw tarifaError
 
     const rows = (distribuidores || []).map((d: any) => {
       const empresaLower = String(d.empresa || '').trim().toLowerCase()
@@ -52,7 +54,7 @@ export async function GET() {
     const ventasCanal = (ventas || []).reduce((a: number, v: any) => a + Number(v.precio || 0), 0)
     const comisionesCanal = rows.reduce((a: number, r: any) => a + r.comision_30d, 0)
 
-    return NextResponse.json({ distribuidores: rows, ventasCanal, comisionesCanal })
+    return NextResponse.json({ distribuidores: rows, ventasCanal, comisionesCanal, tarifaEstandar: tarifaEstandar || [] })
   } catch (error: any) {
     const status = error.message === 'No autorizado' ? 401 : 500
     return NextResponse.json({ error: error.message || 'Error cargando distribuidores' }, { status })

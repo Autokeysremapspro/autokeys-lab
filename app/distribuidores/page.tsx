@@ -3,9 +3,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
-import { Building2, UserPlus, TrendingUp, Percent, Search, SlidersHorizontal, Download, Phone, Mail, Send, Tag, X } from 'lucide-react'
+import { Building2, UserPlus, TrendingUp, Percent, Search, SlidersHorizontal, Download, Phone, Mail, Send, Tag, X, Settings2 } from 'lucide-react'
 import { LabShell, LabStatCard, LabPanel, LabBadge } from '@/components/lab'
+import FormModal from '@/components/FormModal'
 import { money } from '@/lib/status'
+
+type TarifaEstandar = { id: string; servicio: string; precio: number }
 
 type Distribuidor = {
   id: string
@@ -53,6 +56,10 @@ export default function DistribuidoresPage() {
   const [form, setForm] = useState<Partial<Distribuidor>>({})
   const [precioDraft, setPrecioDraft] = useState<Record<string, string>>({})
   const [savingPrecio, setSavingPrecio] = useState<string | null>(null)
+  const [tarifaEstandar, setTarifaEstandar] = useState<TarifaEstandar[]>([])
+  const [tarifaModalOpen, setTarifaModalOpen] = useState(false)
+  const [tarifaDraft, setTarifaDraft] = useState<Record<string, string>>({})
+  const [savingTarifa, setSavingTarifa] = useState<string | null>(null)
 
   useEffect(() => { load() }, [])
 
@@ -65,11 +72,50 @@ export default function DistribuidoresPage() {
       setRows(data.distribuidores)
       setVentasCanal(data.ventasCanal)
       setComisionesCanal(data.comisionesCanal)
+      setTarifaEstandar(data.tarifaEstandar || [])
       if (data.distribuidores.length && !selectedId) setSelectedId(data.distribuidores[0].id)
     } catch (err: any) {
       toast.error(err.message || 'No se pudieron cargar los distribuidores')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const estandarMap = useMemo(() => {
+    const map: Record<string, number> = {}
+    for (const t of tarifaEstandar) map[t.servicio] = t.precio
+    return map
+  }, [tarifaEstandar])
+
+  function openTarifaModal() {
+    const draft: Record<string, string> = {}
+    for (const s of SERVICIOS_TARIFA) if (estandarMap[s] !== undefined) draft[s] = String(estandarMap[s])
+    setTarifaDraft(draft)
+    setTarifaModalOpen(true)
+  }
+
+  async function guardarTarifaEstandar(servicio: string) {
+    const raw = tarifaDraft[servicio]
+    const precio = Number(raw)
+    if (raw === undefined || raw === '' || !Number.isFinite(precio) || precio < 0) {
+      toast.error('Introduce un precio válido')
+      return
+    }
+    setSavingTarifa(servicio)
+    try {
+      const res = await fetch('/api/distribuidores/tarifa-estandar', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ servicio, precio }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      toast.success(`Tarifa estándar de "${servicio}" actualizada`)
+      await load()
+    } catch (err: any) {
+      toast.error(err.message || 'No se pudo guardar la tarifa')
+    } finally {
+      setSavingTarifa(null)
     }
   }
 
@@ -178,6 +224,7 @@ export default function DistribuidoresPage() {
           <Link href="/ak-cloud/solicitudes" className="flex items-center gap-2 rounded-xl bg-[#c81f2a] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#e2242f]">
             <UserPlus size={16} /> Nuevo distribuidor
           </Link>
+          <button onClick={openTarifaModal} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-sm font-semibold text-zinc-300 hover:bg-white/[0.06]"><Settings2 size={15} /> Tarifa estándar</button>
           <button className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-sm font-semibold text-zinc-300 hover:bg-white/[0.06]"><Download size={15} /> Exportar</button>
         </>
       }
@@ -364,19 +411,23 @@ export default function DistribuidoresPage() {
 
                   {tab === 'precios' && (
                     <div>
-                      <p className="mb-3 text-xs text-zinc-500">Fija un precio manual por servicio para <b className="text-zinc-300">{selected.empresa}</b>. Los servicios sin precio propio usan la tarifa estándar.</p>
+                      <p className="mb-3 text-xs text-zinc-500">Fija un precio manual por servicio para <b className="text-zinc-300">{selected.empresa}</b>. Los servicios sin precio propio usan la tarifa estándar — y eso es justo lo que este distribuidor ve en su cuenta.</p>
                       <div className="space-y-2">
                         {SERVICIOS_TARIFA.map((servicio) => {
                           const tieneOverride = selected.precios.some((p) => p.servicio === servicio)
+                          const estandar = estandarMap[servicio]
                           return (
                             <div key={servicio} className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2">
                               <Tag size={13} className="shrink-0 text-zinc-600" />
-                              <span className="flex-1 truncate text-xs font-semibold text-zinc-300">{servicio}</span>
+                              <div className="min-w-0 flex-1">
+                                <div className="truncate text-xs font-semibold text-zinc-300">{servicio}</div>
+                                <div className="text-[10px] text-zinc-600">Estándar: {estandar !== undefined ? `${estandar.toFixed(2)} €` : 'sin fijar'}</div>
+                              </div>
                               <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1">
                                 <input
                                   type="number"
                                   step="0.01"
-                                  placeholder="Estándar"
+                                  placeholder={estandar !== undefined ? estandar.toFixed(2) : 'Estándar'}
                                   value={precioDraft[servicio] ?? ''}
                                   onChange={(e) => setPrecioDraft((prev) => ({ ...prev, [servicio]: e.target.value }))}
                                   className="w-20 border-0 bg-transparent p-0 text-right text-xs"
@@ -409,6 +460,36 @@ export default function DistribuidoresPage() {
           </LabPanel>
         </div>
       </div>
+
+      <FormModal open={tarifaModalOpen} onClose={() => setTarifaModalOpen(false)} title="Tarifa estándar">
+        <p className="mb-4 text-xs text-zinc-500">Este es el precio de catálogo que ve cualquier distribuidor sin un precio propio asignado — incluidos los nuevos.</p>
+        <div className="space-y-2">
+          {SERVICIOS_TARIFA.map((servicio) => (
+            <div key={servicio} className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2">
+              <Tag size={13} className="shrink-0 text-zinc-600" />
+              <span className="flex-1 truncate text-xs font-semibold text-zinc-300">{servicio}</span>
+              <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1">
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={tarifaDraft[servicio] ?? ''}
+                  onChange={(e) => setTarifaDraft((prev) => ({ ...prev, [servicio]: e.target.value }))}
+                  className="w-20 border-0 bg-transparent p-0 text-right text-xs"
+                />
+                <span className="text-[10px] text-zinc-600">€</span>
+              </div>
+              <button
+                onClick={() => guardarTarifaEstandar(servicio)}
+                disabled={savingTarifa === servicio}
+                className="shrink-0 rounded-lg bg-[#c81f2a] px-2.5 py-1.5 text-[11px] font-bold text-white hover:bg-[#e2242f] disabled:opacity-50"
+              >
+                Guardar
+              </button>
+            </div>
+          ))}
+        </div>
+      </FormModal>
     </LabShell>
   )
 }
