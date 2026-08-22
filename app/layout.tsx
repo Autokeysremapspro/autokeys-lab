@@ -12,8 +12,8 @@ const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500', '700'],
 const body = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-body' })
 
 export const metadata: Metadata = {
-  title: 'Autokeys Core',
-  description: 'ERP interno para laboratorio de electrónica de vehículos'
+  title: 'Autokeys Lab',
+  description: 'ERP profesional de Autokeys Remaps Pro para gestión de taller y laboratorio de electrónica de vehículos'
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
