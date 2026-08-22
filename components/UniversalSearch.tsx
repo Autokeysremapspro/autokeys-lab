@@ -13,7 +13,7 @@ type SearchResult = {
   icon: any
 }
 
-export default function UniversalSearch() {
+export default function UniversalSearch({ placeholder = 'Buscar cliente, matrícula, VIN, OT, ECU, factura...' }: { placeholder?: string }) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [loading, setLoading] = useState(false)
@@ -73,7 +73,7 @@ export default function UniversalSearch() {
         <input
           value={query}
           onChange={e => setQuery(e.target.value)}
-          placeholder="Buscar cliente, matrícula, VIN, OT, ECU, factura..."
+          placeholder={placeholder}
           className="bg-transparent border-0 p-0 w-full outline-none text-sm"
         />
         {query && <button onClick={() => setQuery('')} className="text-zinc-500 hover:text-white"><X size={16} /></button>}
