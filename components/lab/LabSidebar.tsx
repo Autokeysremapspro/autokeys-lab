@@ -11,6 +11,7 @@ import {
   Receipt,
   Archive,
   Cloud,
+  Gauge,
   Handshake,
   UserCog,
   Settings,
@@ -28,19 +29,32 @@ const navigation = [
   { href: '/ordenes-trabajo', label: 'Órdenes de trabajo', icon: ClipboardList },
   { href: '/facturas', label: 'Facturación', icon: Receipt },
   { href: '/stock', label: 'Stock', icon: Archive },
+  { href: '/ak-cloud/produccion', label: 'Trabajos AK Cloud', icon: Gauge },
   { href: '/ak-cloud', label: 'AK Cloud', icon: Cloud },
   { href: '/distribuidores', label: 'Distribuidores', icon: Handshake },
   { href: '/tecnicos', label: 'Técnicos', icon: UserCog },
   { href: '/configuracion', label: 'Ajustes', icon: Settings },
 ]
 
-function isActive(pathname: string, href: string) {
+function matchesPath(pathname: string, href: string) {
   if (href === '/') return pathname === '/'
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
+// /ak-cloud/produccion es un sub-path de /ak-cloud: sin esto, estar en
+// Producción marcaría a la vez "Trabajos AK Cloud" y "AK Cloud" como
+// activos. Se queda activo el enlace más específico que coincida.
+function bestMatch(pathname: string) {
+  return navigation.reduce<(typeof navigation)[number] | null>((best, item) => {
+    if (!matchesPath(pathname, item.href)) return best
+    if (!best || item.href.length > best.href.length) return item
+    return best
+  }, null)
+}
+
 export default function LabSidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname() || '/'
+  const activeItem = bestMatch(pathname)
 
   return (
     <>
@@ -72,7 +86,7 @@ export default function LabSidebar({ open, onClose }: { open: boolean; onClose: 
         <nav className="flex-1 space-y-1 overflow-y-auto pr-1">
           {navigation.map((item) => {
             const Icon = item.icon
-            const active = isActive(pathname, item.href)
+            const active = item.href === activeItem?.href
             return (
               <Link
                 key={item.href}
