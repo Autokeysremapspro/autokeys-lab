@@ -196,10 +196,6 @@ function LoginContent() {
             <div className="mb-8 flex items-center xl:hidden">
               <LabLogoMark size={44} />
             </div>
-            <div className="mb-6 flex gap-1 rounded-xl border border-white/10 bg-white/[0.02] p-1">
-              <button className="flex-1 rounded-lg border-b-2 border-[#ff3b46] bg-white/[0.04] px-4 py-2.5 text-sm font-bold text-white">Iniciar sesión</button>
-              <Link href="/register" className="flex flex-1 items-center justify-center rounded-lg px-4 py-2.5 text-sm font-bold text-zinc-500 hover:text-zinc-300">Solicitar acceso</Link>
-            </div>
 
             {!resetMode ? (
               <>
