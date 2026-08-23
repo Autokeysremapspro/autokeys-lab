@@ -3,97 +3,64 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import AppShell from '@/components/AppShell'
+import { ArrowLeft, Car, FileText, Globe2, Mail, Pencil, Phone, ReceiptText, Wrench } from 'lucide-react'
+import { LabShell, LabPanel, LabBadge } from '@/components/lab'
 import ClienteModal from '@/components/ClienteModal'
 import { ClienteService } from '@/lib/services/clientes'
 import type { Cliente, Expediente, Factura, Vehiculo } from '@/types/autokeys'
-import { ArrowLeft, Car, FileText, Globe2, Mail, Pencil, Phone, ReceiptText, Wrench } from 'lucide-react'
 
-export default function ClienteFichaPage() {
-  const params = useParams()
-  const router = useRouter()
-  const id = String(params.id)
-  const [cliente, setCliente] = useState<Cliente | null>(null)
-  const [vehiculos, setVehiculos] = useState<Vehiculo[]>([])
-  const [expedientes, setExpedientes] = useState<Expediente[]>([])
-  const [facturas, setFacturas] = useState<Factura[]>([])
-  const [loading, setLoading] = useState(true)
-  const [modalOpen, setModalOpen] = useState(false)
-  const [error, setError] = useState('')
+export default function ClienteFichaPage(){
+  const params=useParams(); const router=useRouter(); const id=String(params.id)
+  const [cliente,setCliente]=useState<Cliente|null>(null); const [vehiculos,setVehiculos]=useState<Vehiculo[]>([]); const [expedientes,setExpedientes]=useState<Expediente[]>([]); const [facturas,setFacturas]=useState<Factura[]>([]); const [loading,setLoading]=useState(true); const [modalOpen,setModalOpen]=useState(false); const [error,setError]=useState('')
+  async function load(){setLoading(true);setError('');try{const c=await ClienteService.getById(id);if(!c){router.push('/clientes');return}setCliente(c);const related=await ClienteService.getRelated(id);setVehiculos(related.vehiculos as Vehiculo[]);setExpedientes(related.expedientes as Expediente[]);setFacturas(related.facturas as Factura[])}catch(e:any){setError(e?.message||'No se pudo cargar la ficha')}finally{setLoading(false)}}
+  useEffect(()=>{load()},[id])
+  if(loading)return <LabShell title="Cliente"><div className="py-20 text-center text-sm text-zinc-600">Cargando ficha...</div></LabShell>
+  if(!cliente)return null
+  const total=facturas.reduce((a,f)=>a+Number(f.total||0),0)
 
-  async function load() {
-    setLoading(true)
-    setError('')
-    try {
-      const c = await ClienteService.getById(id)
-      if (!c) { router.push('/clientes'); return }
-      setCliente(c)
-      const related = await ClienteService.getRelated(id)
-      setVehiculos(related.vehiculos as Vehiculo[])
-      setExpedientes(related.expedientes as Expediente[])
-      setFacturas(related.facturas as Factura[])
-    } catch (e: any) {
-      setError(e?.message || 'No se pudo cargar la ficha')
-    } finally { setLoading(false) }
-  }
+  return <LabShell title="Detalle del cliente" actions={<button onClick={()=>setModalOpen(true)} className="flex items-center gap-2 rounded-lg bg-[#ef202d] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#ff3945]"><Pencil size={14}/>Editar cliente</button>}>
+    <div className="space-y-4">
+      <Link href="/clientes" className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-500 hover:text-white"><ArrowLeft size={14}/>Volver a clientes</Link>
+      {error&&<div className="rounded-xl border border-[#ef202d]/25 bg-[#ef202d]/[0.06] p-3 text-xs text-red-300">{error}</div>}
 
-  useEffect(() => { load() }, [id])
-
-  if (loading) return <AppShell><div className="text-white">Cargando ficha...</div></AppShell>
-  if (!cliente) return null
-
-  const totalFacturado = facturas.reduce((acc, f) => acc + Number(f.total || 0), 0)
-
-  return (
-    <AppShell>
-      <div className="space-y-8">
-        <Link href="/clientes" className="inline-flex items-center gap-2 text-sm font-bold text-slate-300 hover:text-white"><ArrowLeft size={16} /> Volver a clientes</Link>
-        {error && <div className="rounded-2xl border border-red-500/40 bg-red-950/40 p-4 font-bold text-red-200">{error}</div>}
-
-        <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-7 shadow-2xl shadow-black/20">
-          <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+      <div className="grid gap-4 xl:grid-cols-[1fr_340px]">
+        <LabPanel>
+          <div className="flex flex-wrap items-start justify-between gap-5">
             <div>
-              <p className="mb-3 text-sm font-bold uppercase tracking-[0.45em] text-[#ffb870]">Ficha cliente</p>
-              <h1 className="text-5xl font-bold text-white">{cliente.nombre}</h1>
-              <div className="mt-4 flex flex-wrap gap-4 text-slate-400">
-                {cliente.telefono && <span className="inline-flex items-center gap-2"><Phone size={17} /> {cliente.telefono}</span>}
-                {cliente.email && <span className="inline-flex items-center gap-2"><Mail size={17} /> {cliente.email}</span>}
-                {cliente.nif && <span>NIF/CIF: {cliente.nif}</span>}
-                {cliente.web && <a href={cliente.web.startsWith('http') ? cliente.web : `https://${cliente.web}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 hover:text-white"><Globe2 size={17}/>{cliente.web}</a>}
+              <div className="text-[10px] font-bold uppercase tracking-[.16em] text-[#ef202d]">Ficha cliente</div>
+              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-white">{cliente.nombre}</h1>
+              <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-zinc-500">
+                {cliente.telefono&&<span className="flex items-center gap-1.5"><Phone size={13}/>{cliente.telefono}</span>}
+                {cliente.email&&<span className="flex items-center gap-1.5"><Mail size={13}/>{cliente.email}</span>}
+                {cliente.web&&<a className="flex items-center gap-1.5 hover:text-white" href={cliente.web.startsWith('http')?cliente.web:`https://${cliente.web}`} target="_blank" rel="noreferrer"><Globe2 size={13}/>{cliente.web}</a>}
               </div>
-              {(cliente.direccion || cliente.poblacion || cliente.provincia) && <p className="mt-3 text-slate-400">{cliente.direccion} {cliente.codigo_postal} {cliente.poblacion} {cliente.provincia}</p>}
-              {!!cliente.herramientas?.length && <div className="mt-5 flex flex-wrap items-center gap-2"><span className="mr-1 inline-flex items-center gap-2 text-sm font-bold text-slate-300"><Wrench size={16}/> Herramientas:</span>{cliente.herramientas.map(tool => <span key={tool} className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-bold text-cyan-200">{tool}</span>)}</div>}
+              <div className="mt-3 text-xs text-zinc-600">{[cliente.direccion,cliente.codigo_postal,cliente.poblacion,cliente.provincia].filter(Boolean).join(' · ')||'Sin dirección registrada'}</div>
+              {!!cliente.herramientas?.length&&<div className="mt-4 flex flex-wrap items-center gap-2"><Wrench size={13} className="text-zinc-600"/>{cliente.herramientas.map(t=><LabBadge key={t} tone="blue">{t}</LabBadge>)}</div>}
             </div>
-            <button onClick={() => setModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#e2954d] px-5 py-4 font-bold text-[#0a0d12] hover:bg-[#ffb870]"><Pencil size={18} /> Editar cliente</button>
+            {cliente.nif&&<LabBadge tone="zinc">NIF/CIF · {cliente.nif}</LabBadge>}
           </div>
-        </section>
+        </LabPanel>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <MiniStat icon={<Car />} label="Vehículos" value={vehiculos.length} />
-          <MiniStat icon={<FileText />} label="Expedientes" value={expedientes.length} />
-          <MiniStat icon={<ReceiptText />} label="Facturación" value={`${totalFacturado.toFixed(2)} €`} />
-        </div>
-
-        <Section title="Vehículos">
-          {vehiculos.map(v => <Link key={v.id} href={`/vehiculos/${v.id}`} className="block rounded-2xl border border-slate-800 bg-slate-950/60 p-4 hover:border-[#e2954d]/50"><b className="text-white">{v.marca || 'Vehículo'} {v.modelo || ''}</b><p className="text-sm text-slate-400">{v.matricula || 'Sin matrícula'} · {v.motor || 'Sin motor'} · {v.ecu || 'Sin ECU'}</p></Link>)}
-          {vehiculos.length === 0 && <p className="text-slate-400">Sin vehículos asociados.</p>}
-        </Section>
-
-        <Section title="Expedientes">
-          {expedientes.map(e => <Link key={e.id} href={`/expedientes/${e.id}`} className="block rounded-2xl border border-slate-800 bg-slate-950/60 p-4 hover:border-[#e2954d]/50"><b className="text-white">{e.numero_ot || 'OT'}</b><p className="text-sm text-slate-400">{e.tipo_trabajo} · {e.estado}</p></Link>)}
-          {expedientes.length === 0 && <p className="text-slate-400">Sin expedientes.</p>}
-        </Section>
+        <LabPanel title="Resumen">
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <Metric icon={<Car size={15}/>} label="Vehículos" value={String(vehiculos.length)}/><Metric icon={<FileText size={15}/>} label="Órdenes" value={String(expedientes.length)}/><Metric icon={<ReceiptText size={15}/>} label="Facturado" value={`${total.toFixed(0)} €`}/>
+          </div>
+          {cliente.notas&&<div className="mt-4 rounded-lg border border-white/[0.06] bg-white/[0.018] p-3 text-xs leading-5 text-zinc-500">{cliente.notas}</div>}
+        </LabPanel>
       </div>
 
-      <ClienteModal open={modalOpen} cliente={cliente} onClose={() => setModalOpen(false)} onSave={async payload => { await ClienteService.update(id, payload); await load() }} />
-    </AppShell>
-  )
+      <div className="grid gap-4 xl:grid-cols-2">
+        <LabPanel title="Vehículos vinculados" padded={false}>
+          <div>{vehiculos.map(v=><Link key={v.id} href={`/vehiculos/${v.id}`} className="grid grid-cols-[1fr_auto] items-center border-b border-white/[0.055] px-4 py-3 last:border-0 hover:bg-white/[0.02]"><div><div className="text-xs font-semibold text-zinc-200">{v.marca||'Vehículo'} {v.modelo||''}</div><div className="mt-0.5 text-[10px] text-zinc-600">{v.matricula||'Sin matrícula'} · {v.motor||'Sin motor'} · {v.ecu||'Sin ECU'}</div></div><span className="text-[10px] text-[#ef202d]">Ver ficha</span></Link>)}{vehiculos.length===0&&<Empty text="Sin vehículos asociados."/>}</div>
+        </LabPanel>
+        <LabPanel title="Expedientes recientes" padded={false}>
+          <div>{expedientes.slice(0,8).map(e=><Link key={e.id} href={`/expedientes/${e.id}`} className="grid grid-cols-[1fr_auto] items-center border-b border-white/[0.055] px-4 py-3 last:border-0 hover:bg-white/[0.02]"><div><div className="text-xs font-semibold text-zinc-200">{e.numero_ot||'OT'} · {e.tipo_trabajo}</div><div className="mt-0.5 text-[10px] text-zinc-600">{e.tecnico||'Sin técnico'}</div></div><LabBadge status={e.estado}>{e.estado||'abierto'}</LabBadge></Link>)}{expedientes.length===0&&<Empty text="Sin expedientes."/>}</div>
+        </LabPanel>
+      </div>
+    </div>
+    <ClienteModal open={modalOpen} cliente={cliente} onClose={()=>setModalOpen(false)} onSave={async payload=>{await ClienteService.update(id,payload);await load()}}/>
+  </LabShell>
 }
 
-function MiniStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
-  return <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-5"><div className="mb-4 text-[#ffb870]">{icon}</div><p className="text-sm text-slate-400">{label}</p><b className="text-3xl text-white">{value}</b></div>
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6"><h2 className="mb-4 text-2xl font-bold text-white">{title}</h2><div className="grid gap-3">{children}</div></section>
-}
+function Metric({icon,label,value}:{icon:React.ReactNode;label:string;value:string}){return <div className="rounded-lg border border-white/[0.06] bg-white/[0.018] p-3"><div className="mx-auto mb-2 grid h-7 w-7 place-items-center rounded-md bg-[#ef202d]/10 text-[#ff5862]">{icon}</div><div className="text-sm font-bold text-white">{value}</div><div className="mt-0.5 text-[9px] text-zinc-600">{label}</div></div>}
+function Empty({text}:{text:string}){return <div className="px-4 py-10 text-center text-xs text-zinc-600">{text}</div>}

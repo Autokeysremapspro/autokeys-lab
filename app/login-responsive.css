@@ -1,0 +1,38 @@
+/* Screen-specific crop and layout for the supplied Autokeys ERP login artwork. */
+main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{
+  background-size:cover!important;
+  background-position:50% 48%!important;
+}
+@media (min-width:1700px){
+  main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{background-position:50% 48%!important}
+}
+@media (min-width:1440px) and (max-width:1699px){
+  main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{background-position:48% 50%!important}
+}
+@media (min-width:1280px) and (max-width:1439px){
+  main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{background-position:45% 50%!important}
+}
+/* 1024–1199 is too narrow for the 50/50 desktop mockup. Keep the same artwork,
+   but use the clean single-column access card instead of squeezing both halves. */
+@media (min-width:1024px) and (max-width:1199px){
+  main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{background-position:43% 50%!important}
+  main.relative.min-h-\[100dvh\] > .relative.mx-auto.grid{grid-template-columns:minmax(0,1fr)!important}
+  main.relative.min-h-\[100dvh\] > .relative.mx-auto.grid > section:first-child{display:none!important}
+  main.relative.min-h-\[100dvh\] > .relative.mx-auto.grid > section:last-child{width:100%!important;max-width:none!important;padding-left:clamp(24px,8vw,96px)!important;padding-right:clamp(24px,8vw,96px)!important}
+  main.relative.min-h-\[100dvh\] > .relative.mx-auto.grid > section:last-child > div:last-child{max-width:720px!important}
+}
+@media (min-width:1200px) and (max-width:1279px){
+  main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{background-position:41% 50%!important}
+}
+@media (max-width:1023px){
+  main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{background-position:46% 50%!important}
+}
+@media (max-width:640px){
+  main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{background-position:43% 48%!important}
+}
+@media (max-height:760px) and (min-width:1200px){
+  main.relative.min-h-\[100dvh\] > .pointer-events-none.fixed.inset-0.bg-cover.bg-center.bg-no-repeat{background-position:48% 45%!important}
+}
+@media (max-height:720px){
+  main.relative.min-h-\[100dvh\] > .relative.mx-auto.grid > section:last-child{align-items:flex-start!important;padding-top:18px!important;padding-bottom:18px!important}
+}

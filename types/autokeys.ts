@@ -52,6 +52,7 @@ export type Expediente = {
   metodo_pago?: string | null
   notas_cliente?: string | null
   notas_internas?: string | null
+  notas?: string | null
   visible_admin?: boolean | null
   created_at?: string
   updated_at?: string
@@ -145,6 +146,7 @@ export type ArchivoExpediente = {
   id: string
   expediente_id: string
   nombre_archivo: string
+  nombre?: string
   tipo?: string | null
   url?: string | null
   notas?: string | null

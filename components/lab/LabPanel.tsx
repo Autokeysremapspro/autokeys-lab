@@ -14,10 +14,10 @@ export default function LabPanel({
   padded?: boolean
 }) {
   return (
-    <section className={`rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-white/[0.012] ${className}`}>
+    <section className={`relative overflow-visible rounded-2xl border border-white/[0.085] bg-[linear-gradient(180deg,rgba(17,20,24,.92),rgba(10,12,15,.94))] shadow-[inset_0_1px_0_rgba(255,255,255,.018)] ${className}`}>
       {(title || action) && (
-        <div className="flex items-center justify-between gap-3 border-b border-white/[0.07] px-5 py-4">
-          {typeof title === 'string' ? <h2 className="text-[15px] font-bold text-white">{title}</h2> : title}
+        <div className="flex min-h-[54px] items-center justify-between gap-3 rounded-t-2xl border-b border-white/[0.065] px-5 py-3.5">
+          {typeof title === 'string' ? <h2 className="text-[16px] font-semibold tracking-[-0.01em] text-white">{title}</h2> : title}
           {action}
         </div>
       )}
