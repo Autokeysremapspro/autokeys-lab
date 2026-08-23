@@ -1,19 +1,11 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { sendWhatsAppNotification } from '@/lib/whatsapp'
 import { sendNotificationEmail } from '@/lib/email'
 
-function adminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !key) throw new Error('Faltan NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en Vercel')
-  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
-}
-
 // POST /api/ak-cloud/notificar-solicitud
 // Ruta pequeña y sin autenticación de staff (la llama el propio formulario
-// público de registro justo después de crear la solicitud) — solo hace un
-// insert de notificación interna + email, nada sensible. body: { empresa, nombre, email, ciudad?, especialidad? }
+// público de registro justo después de crear la solicitud) — solo manda
+// WhatsApp y email, nada sensible. body: { empresa, nombre, email, ciudad?, especialidad? }
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -22,18 +14,11 @@ export async function POST(request: Request) {
     const email = String(body.email || '').trim()
     if (!empresa || !nombre) return NextResponse.json({ error: 'Faltan datos' }, { status: 400 })
 
-    const admin = adminClient()
-    await admin.from('notificaciones').insert({
-      usuario_id: null,
-      titulo: 'Nueva solicitud de distribuidor AK Cloud',
-      mensaje: `${empresa} (${nombre}) ha solicitado acceso como distribuidor.`,
-      modulo: 'ak_cloud',
-      tipo: 'info',
-      prioridad: 'normal',
-      href: '/ak-cloud/solicitudes',
-      accion_texto: 'Revisar solicitud',
-    })
-
+    // El aviso en el centro de notificaciones (y el push real) ya lo dispara
+    // solo el trigger trg_akcore_notify_distributor_request en cuanto se
+    // insertó la solicitud en akcloud_solicitudes_distribuidores — insertar
+    // aquí también lo duplicaba en el centro de avisos. Lo que sí falta
+    // cubrir aquí es WhatsApp y email, que el trigger no manda.
     await sendWhatsAppNotification(
       `🆕 Nueva solicitud AK Cloud\n${empresa} (${nombre})${email ? `\n${email}` : ''}${body.ciudad ? `\nCiudad: ${body.ciudad}` : ''}${body.especialidad ? `\nEspecialidad: ${body.especialidad}` : ''}\n\nRevisar: /ak-cloud/solicitudes`
     )
