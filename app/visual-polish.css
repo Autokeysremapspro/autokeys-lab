@@ -1,0 +1,25 @@
+/* AK Lab visual unification layer — compatibility for legacy pages. */
+:root {
+  --ak-shell-bg:#07080b;
+  --ak-shell-panel:rgba(14,15,20,.90);
+  --ak-shell-panel-2:rgba(18,19,25,.82);
+  --ak-shell-line:rgba(255,255,255,.09);
+  --ak-shell-line-strong:rgba(255,255,255,.16);
+  --ak-shell-muted:#71717a;
+  --ak-accent:#ff3b46;
+  --ak-accent-hi:#ff6972;
+}
+body{min-height:100vh;background:radial-gradient(900px 520px at 8% -10%,rgba(255,59,70,.08),transparent 62%),radial-gradient(720px 460px at 96% 8%,rgba(255,255,255,.025),transparent 64%),linear-gradient(180deg,#07080b 0%,#090a0e 48%,#07080b 100%)!important}
+body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.12;background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:56px 56px;mask-image:linear-gradient(to bottom,#000,transparent 88%)}
+.bg-\[\#0a0d12\],.bg-\[\#080d16\],.bg-\[\#0B1220\],.bg-\[\#0b1220\]{background-color:transparent!important}
+.bg-\[\#0c0f16\],.bg-\[\#10141c\],.bg-\[\#111827\],.bg-\[\#12161f\],.bg-\[\#141924\]{background:linear-gradient(150deg,rgba(18,19,25,.9),rgba(9,10,14,.88))!important}
+.card,.table-wrap,.selection-card,.work-card{border-color:var(--ak-shell-line)!important;background:linear-gradient(150deg,rgba(18,19,25,.88),rgba(9,10,14,.9))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 18px 56px rgba(0,0,0,.24)!important}
+.card:hover,.selection-card:hover,.work-card:hover{border-color:rgba(255,59,70,.20)!important}
+.table-wrap{border-radius:22px!important;overflow:hidden auto}table{background:transparent!important}th{color:#71717a!important;background:rgba(255,255,255,.025)!important;font-size:10px!important;letter-spacing:.14em!important}td{border-color:rgba(255,255,255,.065)!important}tr:hover td{background:rgba(255,255,255,.026)!important}
+input,textarea,select{min-height:44px;border-color:rgba(255,255,255,.09)!important;background:rgba(255,255,255,.032)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.02)}input:hover,textarea:hover,select:hover{border-color:rgba(255,255,255,.15)!important}input:focus,textarea:focus,select:focus{border-color:rgba(255,59,70,.48)!important;background:rgba(255,255,255,.045)!important;box-shadow:0 0 0 4px rgba(255,59,70,.075)!important}
+.btn{min-height:44px;border-radius:14px!important;letter-spacing:-.01em}.btn-dark{color:#f4f4f5!important;border:1px solid var(--ak-shell-line)!important;background:rgba(255,255,255,.035)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}.btn-dark:hover{border-color:var(--ak-shell-line-strong)!important;background:rgba(255,255,255,.065)!important;transform:translateY(-1px)}.btn-red{background:linear-gradient(135deg,#ff4b55,#e72d38)!important;color:white!important;border:1px solid rgba(255,110,118,.34)!important;box-shadow:0 14px 38px rgba(231,45,56,.18),inset 0 1px 0 rgba(255,255,255,.20)!important}.btn-red:hover{box-shadow:0 20px 52px rgba(231,45,56,.27)!important}
+/* Neutralise the previous amber/copper legacy accent so old pages read as one product. */
+.text-\[\#ffb870\],.text-\[\#e2954d\]{color:#ff6972!important}.bg-\[\#e2954d\]\/10,.bg-\[\#e2954d\]\/15{background-color:rgba(255,59,70,.10)!important}.border-\[\#e2954d\]\/20,.border-\[\#e2954d\]\/25,.border-\[\#e2954d\]\/35,.border-\[\#e2954d\]\/60{border-color:rgba(255,59,70,.22)!important}
+.rounded-\[2rem\],.rounded-\[1\.4rem\]{box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}.border-white\/10{border-color:rgba(255,255,255,.085)!important}.text-zinc-500,.text-zinc-600{color:var(--ak-shell-muted)!important}
+*{scrollbar-width:thin;scrollbar-color:rgba(255,59,70,.28) rgba(255,255,255,.025)}*::-webkit-scrollbar{width:9px;height:9px}*::-webkit-scrollbar-track{background:rgba(255,255,255,.02)}*::-webkit-scrollbar-thumb{border-radius:999px;border:2px solid transparent;background:rgba(255,59,70,.26);background-clip:padding-box}*::-webkit-scrollbar-thumb:hover{background:rgba(255,59,70,.42);background-clip:padding-box}[data-sonner-toast],.react-hot-toast{border-color:var(--ak-shell-line)!important}
+@media(max-width:1024px){.card,.table-wrap,.selection-card,.work-card{border-radius:18px!important}}@media(prefers-reduced-motion:reduce){.btn-dark:hover,.btn-red:hover{transform:none}}
