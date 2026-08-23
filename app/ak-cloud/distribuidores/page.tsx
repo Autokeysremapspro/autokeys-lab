@@ -78,13 +78,13 @@ export default function DistribuidoresPage() {
     <AppShell>
       <div className="space-y-7">
         <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#101827] to-[#19070d] p-7 shadow-2xl shadow-black/30">
-          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#e2954d]/20 blur-3xl" />
+          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#c81f2a]/20 blur-3xl" />
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <Link href="/ak-cloud" className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-white">
                 <ArrowLeft size={16} /> Volver a AK Cloud
               </Link>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ffb870]">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ff5468]">
                 <Users size={16} /> Distribuidores activos
               </div>
               <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">Renovaciones</h1>
@@ -107,7 +107,7 @@ export default function DistribuidoresPage() {
             <button
               key={item}
               onClick={() => setFiltro(item)}
-              className={`rounded-2xl px-4 py-2 text-sm font-bold uppercase tracking-wider transition ${filtro === item ? 'bg-[#e2954d] text-[#0a0d12]' : 'bg-white/5 text-zinc-400 hover:bg-white/10'}`}
+              className={`rounded-2xl px-4 py-2 text-sm font-bold uppercase tracking-wider transition ${filtro === item ? 'bg-[#c81f2a] text-[#0a0d12]' : 'bg-white/5 text-zinc-400 hover:bg-white/10'}`}
             >
               {item === 'renovacion' ? 'Pidieron renovar' : item === 'caducados' ? 'Caducados' : 'Todos'}
             </button>
@@ -126,7 +126,7 @@ export default function DistribuidoresPage() {
               return (
                 <article key={d.id} className="card flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
                   <div>
-                    <h3 className="flex items-center gap-2 text-lg font-bold"><Building2 size={18} className="text-[#ffb870]" /> {d.empresa}</h3>
+                    <h3 className="flex items-center gap-2 text-lg font-bold"><Building2 size={18} className="text-[#ff5468]" /> {d.empresa}</h3>
                     <p className="text-sm text-zinc-500">{d.nombre_contacto} · {d.email}</p>
                     <p className="mt-2 flex items-center gap-2 text-xs text-zinc-400">
                       <Clock3 size={13} />
