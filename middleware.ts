@@ -36,7 +36,10 @@ export async function middleware(request: NextRequest) {
 
   if (!user) {
     const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('next', pathname)
+    // pathname + search: un enlace de notificación como /ak-cloud/soporte?ticket=…
+    // (p. ej. al abrir el push desde el móvil sin sesión activa) debe volver
+    // exactamente al mismo ticket tras iniciar sesión, no a la bandeja general.
+    loginUrl.searchParams.set('next', pathname + request.nextUrl.search)
     return NextResponse.redirect(loginUrl)
   }
 
