@@ -26,13 +26,13 @@ export default function KpiProgress({ label, value, target, suffix, money }: Pro
           <p className="text-2xl font-bold mt-2">{formatValue(value, money, suffix)}</p>
           <p className="text-xs text-zinc-500 mt-1">Objetivo: {formatValue(safeTarget, money, suffix)}</p>
         </div>
-        <div className={`text-sm font-bold ${ok ? 'text-emerald-400' : 'text-[#ffb870]'}`}>
+        <div className={`text-sm font-bold ${ok ? 'text-emerald-400' : 'text-[#ff5468]'}`}>
           {Math.round(pct)}%
         </div>
       </div>
       <div className="h-3 rounded-full bg-black/40 overflow-hidden mt-4 border border-white/10">
         <div
-          className={`h-full rounded-full ${ok ? 'bg-emerald-500' : 'bg-[#e2954d]'}`}
+          className={`h-full rounded-full ${ok ? 'bg-emerald-500' : 'bg-[#c81f2a]'}`}
           style={{ width: `${Math.min(pct, 100)}%` }}
         />
       </div>

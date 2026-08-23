@@ -132,7 +132,7 @@ export default function CasoTecnicoModal({
           </label>
         </div>
 
-        <button disabled={saving} className="w-full rounded-2xl bg-[#e2954d] px-5 py-4 font-bold text-[#0a0d12] hover:bg-[#ffb870] mt-6">
+        <button disabled={saving} className="w-full rounded-2xl bg-[#c81f2a] px-5 py-4 font-bold text-[#0a0d12] hover:bg-[#ff5468] mt-6">
           {saving ? 'Guardando...' : 'Guardar caso técnico'}
         </button>
       </form>

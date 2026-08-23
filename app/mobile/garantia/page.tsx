@@ -133,7 +133,7 @@ export default function MobileGarantiaPage() {
             <ArrowLeft size={20} />
           </Link>
           <div className="text-center">
-            <div className="text-xs font-bold uppercase tracking-[0.25em] text-[#ffb870]">Autokeys Core</div>
+            <div className="text-xs font-bold uppercase tracking-[0.25em] text-[#ff5468]">Autokeys Core</div>
             <h1 className="text-2xl font-bold">Garantía</h1>
           </div>
           <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-emerald-300">
@@ -149,7 +149,7 @@ export default function MobileGarantiaPage() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="OT, trabajo, matrícula..."
-            className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 text-base font-bold outline-none placeholder:text-zinc-600 focus:border-[#e2954d]"
+            className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 text-base font-bold outline-none placeholder:text-zinc-600 focus:border-[#c81f2a]"
           />
         </section>
 
@@ -169,11 +169,11 @@ export default function MobileGarantiaPage() {
                 <button
                   key={item.id}
                   onClick={() => selectExpediente(item)}
-                  className={`w-full rounded-[2rem] border p-4 text-left transition ${active ? 'border-[#e2954d] bg-[#e2954d]/15' : 'border-white/10 bg-white/[0.04]'}`}
+                  className={`w-full rounded-[2rem] border p-4 text-left transition ${active ? 'border-[#c81f2a] bg-[#c81f2a]/15' : 'border-white/10 bg-white/[0.04]'}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="text-xs font-bold uppercase tracking-[0.18em] text-[#ffb870]">{expedienteTitle(item)}</div>
+                      <div className="text-xs font-bold uppercase tracking-[0.18em] text-[#ff5468]">{expedienteTitle(item)}</div>
                       <div className="mt-1 text-lg font-bold">{vehiculoText(item)}</div>
                       <div className="mt-1 flex items-center gap-2 text-sm text-zinc-400">
                         <UserRound size={14} /> {item.clientes?.nombre || 'Sin cliente'}
@@ -189,7 +189,7 @@ export default function MobileGarantiaPage() {
 
         {selected && (
           <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-4">
-            <div className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-[0.18em] text-[#ffb870]">
+            <div className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-[0.18em] text-[#ff5468]">
               <FileSignature size={16} /> Generar documento
             </div>
 
@@ -198,47 +198,47 @@ export default function MobileGarantiaPage() {
                 value={form.titulo}
                 onChange={(event) => setForm({ ...form, titulo: event.target.value })}
                 placeholder="Título"
-                className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#e2954d]"
+                className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#c81f2a]"
               />
               <input
                 value={form.receptorNombre}
                 onChange={(event) => setForm({ ...form, receptorNombre: event.target.value })}
                 placeholder="Nombre receptor / cliente"
-                className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#e2954d]"
+                className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#c81f2a]"
               />
               <input
                 value={form.receptorDni}
                 onChange={(event) => setForm({ ...form, receptorDni: event.target.value.toUpperCase() })}
                 placeholder="DNI / NIF"
-                className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#e2954d]"
+                className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#c81f2a]"
               />
               <textarea
                 value={form.trabajoRealizado}
                 onChange={(event) => setForm({ ...form, trabajoRealizado: event.target.value })}
                 placeholder="Trabajo realizado"
                 rows={3}
-                className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#e2954d]"
+                className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#c81f2a]"
               />
               <textarea
                 value={form.condiciones}
                 onChange={(event) => setForm({ ...form, condiciones: event.target.value })}
                 placeholder="Condiciones especiales de garantía (opcional)"
                 rows={4}
-                className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#e2954d]"
+                className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#c81f2a]"
               />
               <textarea
                 value={form.observaciones}
                 onChange={(event) => setForm({ ...form, observaciones: event.target.value })}
                 placeholder="Observaciones de entrega"
                 rows={3}
-                className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#e2954d]"
+                className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#c81f2a]"
               />
             </div>
 
             <button
               onClick={submit}
               disabled={saving}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#e2954d] px-5 py-4 text-base font-bold text-[#0a0d12] shadow-lg shadow-[#8a4a1f]/40 disabled:opacity-50"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#c81f2a] px-5 py-4 text-base font-bold text-[#0a0d12] shadow-lg shadow-[#7a0f16]/40 disabled:opacity-50"
             >
               {saving ? <Loader2 className="animate-spin" size={18} /> : <BadgeCheck size={18} />}
               Generar garantía
@@ -258,7 +258,7 @@ export default function MobileGarantiaPage() {
                     <a href={`/api/garantias/${garantia.id}`} target="_blank" className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-sm font-bold">
                       <ExternalLink size={15} /> Ver
                     </a>
-                    <a href={`/api/garantias/${garantia.id}?print=1`} target="_blank" className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#e2954d] px-3 py-2 text-sm font-bold">
+                    <a href={`/api/garantias/${garantia.id}?print=1`} target="_blank" className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#c81f2a] px-3 py-2 text-sm font-bold">
                       <Printer size={15} /> Imprimir
                     </a>
                   </div>

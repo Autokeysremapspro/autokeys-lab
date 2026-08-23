@@ -24,7 +24,7 @@ export default function AKTopbar({ onMenu }: { onMenu?: () => void }) {
         <div className="ml-auto flex items-center gap-2">
           <Link
             href="/ak-cloud/produccion"
-            className="hidden items-center gap-2 rounded-xl border border-[#e2954d]/25 bg-[#e2954d]/10 px-4 py-2.5 text-sm font-bold text-[#ffb870] transition hover:bg-[#ffb870]/15 sm:inline-flex"
+            className="hidden items-center gap-2 rounded-xl border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-4 py-2.5 text-sm font-bold text-[#ff5468] transition hover:bg-[#ff5468]/15 sm:inline-flex"
           >
             <UploadCloud size={17} /> Producción
           </Link>
@@ -33,7 +33,7 @@ export default function AKTopbar({ onMenu }: { onMenu?: () => void }) {
             className="relative grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-zinc-400 transition hover:text-white"
           >
             <Bell size={18} />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#e2954d]" />
+            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#c81f2a]" />
           </Link>
         </div>
       </div>

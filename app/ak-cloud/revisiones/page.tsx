@@ -196,7 +196,7 @@ export default function AkCloudRevisionesPage() {
             <Link href="/ak-cloud" className="mb-3 inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-white">
               <ArrowLeft size={16}/> Volver a AK Cloud
             </Link>
-            <div className="flex items-center gap-3"><ClipboardCheck className="text-[#ffb870]"/><h1 className="text-4xl font-bold">Revisiones y entregas</h1></div>
+            <div className="flex items-center gap-3"><ClipboardCheck className="text-[#ff5468]"/><h1 className="text-4xl font-bold">Revisiones y entregas</h1></div>
             <p className="mt-2 text-zinc-500">Versiones estructuradas, instrucciones de entrega, checklist técnico y aviso controlado al distribuidor.</p>
           </div>
           <button onClick={load} className="btn btn-dark inline-flex items-center gap-2"><RefreshCw size={17}/> Actualizar</button>
@@ -217,7 +217,7 @@ export default function AkCloudRevisionesPage() {
                   <article key={row.id} className="rounded-3xl border border-white/10 bg-[#111827] p-5">
                     <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                       <div>
-                        <div className="font-mono text-sm font-bold text-[#ffb870]">{pedido?.numero || 'FS-SIN-NUM'} · V{row.numero_version}</div>
+                        <div className="font-mono text-sm font-bold text-[#ff5468]">{pedido?.numero || 'FS-SIN-NUM'} · V{row.numero_version}</div>
                         <h2 className="mt-2 text-xl font-bold">{[pedido?.marca, pedido?.modelo, pedido?.motor].filter(Boolean).join(' · ') || row.nombre_archivo || 'Versión AK Cloud'}</h2>
                         <p className="mt-1 text-sm text-zinc-500">{pedido?.cliente_nombre || pedido?.cliente_email || 'Distribuidor sin identificar'} · {pedido?.ecu || 'ECU —'}</p>
                       </div>
@@ -248,7 +248,7 @@ export default function AkCloudRevisionesPage() {
                     <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-white/5 bg-black/20 p-4 lg:flex-row lg:items-center lg:justify-between">
                       <label className="flex items-center gap-3 text-sm text-zinc-300">
                         <input type="checkbox" checked={draft.notificar} disabled={Boolean(row.notificacion_enviada_at)} onChange={(e) => patchDraft(row.id, { notificar: e.target.checked })}/>
-                        <Bell size={16} className="text-[#ffb870]"/>
+                        <Bell size={16} className="text-[#ff5468]"/>
                         {row.notificacion_enviada_at ? 'Notificación técnica ya enviada' : 'Notificar al cliente al guardar'}
                       </label>
                       <button onClick={() => save(row)} disabled={working === row.id} className="btn btn-red inline-flex items-center justify-center gap-2 disabled:opacity-50"><Save size={16}/> {working === row.id ? 'Guardando...' : 'Guardar revisión'}</button>

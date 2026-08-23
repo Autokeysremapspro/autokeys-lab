@@ -149,7 +149,7 @@ export default function FacturacionPanel({ expediente, onEvent }: Props) {
   return (
     <div className="grid xl:grid-cols-3 gap-5">
       <div className="card p-6 xl:col-span-1">
-        <h3 className="text-2xl font-bold mb-4 flex items-center gap-2"><ReceiptText className="text-[#ffb870]" /> Facturación</h3>
+        <h3 className="text-2xl font-bold mb-4 flex items-center gap-2"><ReceiptText className="text-[#ff5468]" /> Facturación</h3>
         <p className="text-zinc-400 text-sm mb-5">Genera factura, presupuesto, albarán o ticket directamente desde esta OT.</p>
 
         {(error || ok) && <div className={`rounded-2xl border p-3 mb-4 text-sm ${error ? 'text-red-300 border-red-500/30' : 'text-emerald-300 border-emerald-500/30'}`}>{error || ok}</div>}
@@ -166,13 +166,13 @@ export default function FacturacionPanel({ expediente, onEvent }: Props) {
 
         <div className="space-y-2">
           {docs.map(doc => (
-            <button key={doc.id} onClick={() => setActiveId(doc.id)} className={`w-full text-left rounded-2xl border p-4 transition ${active?.id === doc.id ? 'border-[#e2954d]/60 bg-[#e2954d]/10' : 'border-white/10 bg-[#0B1220] hover:border-white/20'}`}>
+            <button key={doc.id} onClick={() => setActiveId(doc.id)} className={`w-full text-left rounded-2xl border p-4 transition ${active?.id === doc.id ? 'border-[#c81f2a]/60 bg-[#c81f2a]/10' : 'border-white/10 bg-[#0B1220] hover:border-white/20'}`}>
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-bold">{doc.numero_documento || prettyTipo(doc.tipo_documento)}</p>
                   <p className="text-xs text-zinc-500 uppercase font-bold">{prettyTipo(doc.tipo_documento)} · {doc.estado || 'pendiente'}</p>
                 </div>
-                <p className="font-bold text-[#ffb870]">{money(doc.total)}</p>
+                <p className="font-bold text-[#ff5468]">{money(doc.total)}</p>
               </div>
             </button>
           ))}
@@ -187,14 +187,14 @@ export default function FacturacionPanel({ expediente, onEvent }: Props) {
           <div>
             <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 mb-6">
               <div>
-                <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Documento</p>
+                <p className="text-sm text-[#ff5468] font-bold uppercase tracking-[0.2em]">Documento</p>
                 <h3 className="text-3xl font-bold mt-1">{active.numero_documento || prettyTipo(active.tipo_documento)}</h3>
                 <p className="text-zinc-400 mt-1">{expediente.cliente?.nombre || 'Sin cliente'} · {expediente.numero_ot}</p>
               </div>
               <div className="grid grid-cols-3 gap-3 min-w-[320px]">
                 <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-3"><p className="text-xs text-zinc-500 font-bold uppercase">Base</p><p className="font-bold">{money(active.subtotal)}</p></div>
                 <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-3"><p className="text-xs text-zinc-500 font-bold uppercase">IVA</p><p className="font-bold">{money(active.iva_importe)}</p></div>
-                <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-3"><p className="text-xs text-zinc-500 font-bold uppercase">Total</p><p className="font-bold text-[#ffb870]">{money(active.total)}</p></div>
+                <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-3"><p className="text-xs text-zinc-500 font-bold uppercase">Total</p><p className="font-bold text-[#ff5468]">{money(active.total)}</p></div>
               </div>
             </div>
 
@@ -227,7 +227,7 @@ export default function FacturacionPanel({ expediente, onEvent }: Props) {
             </div>
 
             <div className="rounded-2xl bg-[#0B1220] border border-white/10 p-4">
-              <h4 className="font-bold mb-3 flex items-center gap-2"><Plus size={18} className="text-[#ffb870]" /> Añadir línea</h4>
+              <h4 className="font-bold mb-3 flex items-center gap-2"><Plus size={18} className="text-[#ff5468]" /> Añadir línea</h4>
               <div className="grid md:grid-cols-12 gap-3">
                 <input className="md:col-span-4" placeholder="Concepto" value={draftLinea?.concepto || ''} onChange={e => setDraftLinea({ ...(draftLinea || emptyLinea(active.id)), concepto: e.target.value })} />
                 <input className="md:col-span-3" placeholder="Descripción" value={draftLinea?.descripcion || ''} onChange={e => setDraftLinea({ ...(draftLinea || emptyLinea(active.id)), descripcion: e.target.value })} />

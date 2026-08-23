@@ -84,13 +84,13 @@ export default function BibliotecaTecnicaPage() {
       <div className="space-y-6">
         <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
           <div>
-            <p className="text-sm text-[#ffb870] font-bold tracking-[0.22em] uppercase">Conocimiento del laboratorio</p>
+            <p className="text-sm text-[#ff5468] font-bold tracking-[0.22em] uppercase">Conocimiento del laboratorio</p>
             <h1 className="text-4xl font-bold mt-1">Biblioteca Técnica</h1>
             <p className="text-zinc-500 mt-2">Casos resueltos, averías repetidas, soluciones, ECUs, DTC, archivos y notas técnicas.</p>
           </div>
           <div className="flex gap-3">
             <button onClick={load} className="rounded-2xl border border-white/10 px-4 py-3 font-bold hover:bg-white/5 flex items-center gap-2"><RefreshCw size={18} /> Actualizar</button>
-            <button onClick={nuevo} className="rounded-2xl bg-[#e2954d] px-5 py-3 font-bold text-[#0a0d12] hover:bg-[#ffb870] flex items-center gap-2"><Plus size={18} /> Nuevo caso</button>
+            <button onClick={nuevo} className="rounded-2xl bg-[#c81f2a] px-5 py-3 font-bold text-[#0a0d12] hover:bg-[#ff5468] flex items-center gap-2"><Plus size={18} /> Nuevo caso</button>
           </div>
         </div>
 
@@ -120,13 +120,13 @@ export default function BibliotecaTecnicaPage() {
               <BookOpen className="mx-auto text-zinc-600 mb-3" size={42} />
               <h3 className="text-xl font-bold">No hay casos técnicos</h3>
               <p className="text-zinc-500 mt-2">Guarda la primera avería o solución para empezar tu base de conocimiento.</p>
-              <button onClick={nuevo} className="rounded-2xl bg-[#e2954d] px-5 py-3 font-bold text-[#0a0d12] hover:bg-[#ffb870] mt-5">Crear caso</button>
+              <button onClick={nuevo} className="rounded-2xl bg-[#c81f2a] px-5 py-3 font-bold text-[#0a0d12] hover:bg-[#ff5468] mt-5">Crear caso</button>
             </div>
           )}
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             {filtered.map(caso => (
-              <article key={caso.id} className="rounded-3xl border border-white/10 bg-[#111827] p-5 hover:border-[#e2954d]/40 transition">
+              <article key={caso.id} className="rounded-3xl border border-white/10 bg-[#111827] p-5 hover:border-[#c81f2a]/40 transition">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -135,7 +135,7 @@ export default function BibliotecaTecnicaPage() {
                     </div>
                     <p className="text-zinc-500 mt-1">{[caso.marca, caso.modelo, caso.motor].filter(Boolean).join(' · ') || 'Vehículo sin definir'}</p>
                   </div>
-                  <span className="text-xs rounded-full border border-[#e2954d]/30 bg-[#e2954d]/10 px-3 py-1 font-bold text-[#ffb870] uppercase">{(caso.categoria || 'caso').replaceAll('_', ' ')}</span>
+                  <span className="text-xs rounded-full border border-[#c81f2a]/30 bg-[#c81f2a]/10 px-3 py-1 font-bold text-[#ff5468] uppercase">{(caso.categoria || 'caso').replaceAll('_', ' ')}</span>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">

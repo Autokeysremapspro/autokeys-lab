@@ -354,7 +354,7 @@ export default function AkCloudAdminPage() {
     <AppShell>
       <div className="mb-6 flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
         <div>
-          <div className="mb-2 inline-flex rounded-full border border-[#e2954d]/30 bg-[#e2954d]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-[#ffb870]">AK Cloud Admin</div>
+          <div className="mb-2 inline-flex rounded-full border border-[#c81f2a]/30 bg-[#c81f2a]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-[#ff5468]">AK Cloud Admin</div>
           <h1 className="text-3xl font-bold tracking-tight">Centro de control AK Cloud</h1>
           <p className="mt-1 text-zinc-500">Configura desde Core lo que verán los distribuidores en el portal: catálogo y precio por archivo, métodos de pago, novedades y branding.</p>
         </div>
@@ -574,7 +574,7 @@ export default function AkCloudAdminPage() {
             <Field label="Color principal"><input className="w-full" value={branding.color_principal || '#D90429'} onChange={(e) => setBranding({ ...branding, color_principal: e.target.value })} /></Field>
             <button onClick={saveBranding} className="btn btn-red">Guardar branding</button>
           </div></div>
-          <div className="card overflow-hidden p-0"><div className="bg-gradient-to-br from-[#e2954d]/25 via-black to-zinc-950 p-8"><p className="text-xs font-bold uppercase tracking-[0.3em] text-[#ffb870]">Preview AK Cloud</p><h3 className="mt-8 text-5xl font-bold">{branding.nombre_producto}</h3><p className="mt-3 max-w-xl text-xl text-zinc-300">{branding.slogan}</p><p className="mt-2 text-zinc-500">{branding.subtitulo}</p><div className="mt-8 inline-flex rounded-2xl bg-[#e2954d] px-5 py-3 font-bold">Entrar al portal</div></div></div>
+          <div className="card overflow-hidden p-0"><div className="bg-gradient-to-br from-[#c81f2a]/25 via-black to-zinc-950 p-8"><p className="text-xs font-bold uppercase tracking-[0.3em] text-[#ff5468]">Preview AK Cloud</p><h3 className="mt-8 text-5xl font-bold">{branding.nombre_producto}</h3><p className="mt-3 max-w-xl text-xl text-zinc-300">{branding.slogan}</p><p className="mt-2 text-zinc-500">{branding.subtitulo}</p><div className="mt-8 inline-flex rounded-2xl bg-[#c81f2a] px-5 py-3 font-bold">Entrar al portal</div></div></div>
         </div>
       )}
     </AppShell>

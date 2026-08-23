@@ -15,7 +15,7 @@ type LaboratoryStatus = {
   updated_at: string
 }
 
-const inputClass = 'w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-[#e2954d]'
+const inputClass = 'w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-[#c81f2a]'
 
 export default function LaboratoryStatusPanel() {
   const [data, setData] = useState<LaboratoryStatus | null>(null)
@@ -76,7 +76,7 @@ export default function LaboratoryStatusPanel() {
     <section className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 shadow-xl">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-[#ffb870]"><Activity size={18}/><span className="text-xs font-bold uppercase tracking-[0.2em]">AK Cloud Live</span></div>
+          <div className="flex items-center gap-2 text-[#ff5468]"><Activity size={18}/><span className="text-xs font-bold uppercase tracking-[0.2em]">AK Cloud Live</span></div>
           <h2 className="mt-2 text-lg font-bold text-white">Estado del laboratorio</h2>
           <p className="mt-1 text-sm text-slate-400">Controla lo que verá el taller en AK Cloud. El horario automático seguirá funcionando cuando el override esté desactivado.</p>
         </div>
@@ -104,10 +104,10 @@ export default function LaboratoryStatusPanel() {
 
       <div className="mt-5 flex flex-col gap-4 rounded-xl border border-white/10 bg-slate-950/60 p-4 sm:flex-row sm:items-center sm:justify-between">
         <label className="flex cursor-pointer items-center gap-3 text-sm text-slate-300">
-          <input type="checkbox" checked={data.manual_override} onChange={(e) => setData({ ...data, manual_override: e.target.checked })} className="h-4 w-4 accent-[#e2954d]"/>
+          <input type="checkbox" checked={data.manual_override} onChange={(e) => setData({ ...data, manual_override: e.target.checked })} className="h-4 w-4 accent-[#c81f2a]"/>
           <span><strong className="text-white">Override manual</strong><br/><span className="text-xs text-slate-500">Activado: fuerza el estado elegido. Desactivado: manda el horario automático.</span></span>
         </label>
-        <button type="button" onClick={save} disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#e2954d] px-4 py-2.5 text-sm font-bold text-[#0a0d12] hover:bg-[#ffb870] disabled:opacity-50"><Save size={16}/>{saving ? 'Guardando...' : 'Guardar estado'}</button>
+        <button type="button" onClick={save} disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c81f2a] px-4 py-2.5 text-sm font-bold text-[#0a0d12] hover:bg-[#ff5468] disabled:opacity-50"><Save size={16}/>{saving ? 'Guardando...' : 'Guardar estado'}</button>
       </div>
     </section>
   )

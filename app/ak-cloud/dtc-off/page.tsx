@@ -74,7 +74,7 @@ export default function AkCloudDtcOffPage() {
                 <article key={r.id} className="rounded-3xl border border-white/10 bg-[#111827] p-5">
                   <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                     <div>
-                      <div className="font-mono text-sm font-bold text-[#ffb870]">{r.numero || 'FS-SIN-NUM'}</div>
+                      <div className="font-mono text-sm font-bold text-[#ff5468]">{r.numero || 'FS-SIN-NUM'}</div>
                       <h2 className="mt-2 text-2xl font-bold">{[r.marca,r.modelo,r.motor].filter(Boolean).join(' · ') || 'Pedido AK Cloud'}</h2>
                       <p className="mt-1 text-sm text-zinc-500">{r.cliente_nombre || r.cliente_email || 'Distribuidor sin identificar'} · {r.ecu || 'ECU —'}</p>
                     </div>

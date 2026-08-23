@@ -64,7 +64,7 @@ export default function AltaRapidaPage() {
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ff5468]">
               <Smartphone size={14} /> Modo móvil
             </div>
             <h2 className="text-3xl font-bold tracking-tight">Alta rápida de vehículo</h2>
@@ -79,7 +79,7 @@ export default function AltaRapidaPage() {
         <form onSubmit={submit} className="space-y-5">
           <section className="card p-5">
             <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#e2954d]/15 text-[#ffb870]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#c81f2a]/15 text-[#ff5468]">
                 <ClipboardList size={22} />
               </div>
               <div>

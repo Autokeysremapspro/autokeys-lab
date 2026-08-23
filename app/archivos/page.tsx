@@ -89,7 +89,7 @@ export default function ArchivosPage() {
     <AppShell>
       <div className="mb-6 flex flex-col justify-between gap-4 xl:flex-row xl:items-center">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ff5468]">
             <FolderSearch size={14} /> Biblioteca de archivos
           </div>
           <h2 className="text-3xl font-bold tracking-tight">Archivos técnicos</h2>
@@ -124,7 +124,7 @@ export default function ArchivosPage() {
 
       <div className="mb-5 grid gap-4 md:grid-cols-3">
         <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">ORI</p><p className="mt-1 text-2xl font-bold text-emerald-300">{stats.ori}</p></div>
-        <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">MOD</p><p className="mt-1 text-2xl font-bold text-[#ffb870]">{stats.mod}</p></div>
+        <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">MOD</p><p className="mt-1 text-2xl font-bold text-[#ff5468]">{stats.mod}</p></div>
         <div className="card p-4"><p className="text-xs font-bold uppercase tracking-wider text-zinc-500">EEPROM</p><p className="mt-1 text-2xl font-bold text-blue-300">{stats.eeprom}</p></div>
       </div>
 
@@ -135,16 +135,16 @@ export default function ArchivosPage() {
       ) : (
         <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
           {filtered.map((archivo) => (
-            <div key={archivo.id} className="card p-5 transition hover:-translate-y-0.5 hover:border-[#e2954d]/35">
+            <div key={archivo.id} className="card p-5 transition hover:-translate-y-0.5 hover:border-[#c81f2a]/35">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#ffb870]">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#ff5468]">
                     <FileArchive size={14} /> {archivo.categoria || 'OTRO'} · {formatBytes(archivo.tamano_bytes)}
                   </div>
                   <h3 className="mt-2 line-clamp-1 text-xl font-bold">{archivo.nombre}</h3>
                   <p className="mt-1 text-sm text-zinc-500">{formatDate(archivo.created_at)}</p>
                 </div>
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#e2954d]/15 text-[#ffb870]"><FileText size={24} /></div>
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#c81f2a]/15 text-[#ff5468]"><FileText size={24} /></div>
               </div>
 
               <div className="mt-5 grid gap-3 text-sm">

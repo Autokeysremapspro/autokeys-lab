@@ -71,7 +71,7 @@ export default function CrmPage() {
       <div className="space-y-8">
         <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
           <div>
-            <p className="text-[#ffb870] font-bold uppercase tracking-[0.25em] text-xs">Autokeys Core CRM</p>
+            <p className="text-[#ff5468] font-bold uppercase tracking-[0.25em] text-xs">Autokeys Core CRM</p>
             <h1 className="text-4xl font-bold mt-2">Clientes e historial técnico</h1>
             <p className="text-zinc-500 mt-2">Ficha comercial, historial de vehículos y trabajos por matrícula/VIN/ECU.</p>
           </div>
@@ -87,8 +87,8 @@ export default function CrmPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="card p-5"><UserRound className="text-[#ffb870]" /><div className="text-3xl font-bold mt-3">{clientes.length}</div><p className="text-zinc-500 text-sm">Clientes encontrados</p></div>
-          <div className="card p-5"><Car className="text-[#ffb870]" /><div className="text-3xl font-bold mt-3">{stats.vehiculos}</div><p className="text-zinc-500 text-sm">Vehículos asociados</p></div>
+          <div className="card p-5"><UserRound className="text-[#ff5468]" /><div className="text-3xl font-bold mt-3">{clientes.length}</div><p className="text-zinc-500 text-sm">Clientes encontrados</p></div>
+          <div className="card p-5"><Car className="text-[#ff5468]" /><div className="text-3xl font-bold mt-3">{stats.vehiculos}</div><p className="text-zinc-500 text-sm">Vehículos asociados</p></div>
           <div className="card p-5"><Euro className="text-emerald-400" /><div className="text-3xl font-bold mt-3">{money(stats.totalFacturado)}</div><p className="text-zinc-500 text-sm">Facturación clientes</p></div>
           <div className="card p-5"><Wrench className="text-yellow-400" /><div className="text-3xl font-bold mt-3">{historial.length}</div><p className="text-zinc-500 text-sm">Trabajos en historial</p></div>
         </div>
@@ -102,7 +102,7 @@ export default function CrmPage() {
                 <button
                   key={cliente.id}
                   onClick={() => setSelected(cliente)}
-                  className={`w-full text-left rounded-3xl border p-4 transition ${selected?.id === cliente.id ? 'border-[#e2954d]/50 bg-[#e2954d]/10' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]'}`}
+                  className={`w-full text-left rounded-3xl border p-4 transition ${selected?.id === cliente.id ? 'border-[#c81f2a]/50 bg-[#c81f2a]/10' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]'}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -132,7 +132,7 @@ export default function CrmPage() {
                     <div className="flex flex-wrap gap-2">
                       {['premium','normal','distribuidor','moroso','bloqueado'].map((tipo) => {
                         const active = selected.tipo_cliente === tipo
-                        const toneActive = tipo === 'moroso' || tipo === 'bloqueado' ? 'border-red-500/50 bg-red-500/15 text-red-300' : 'border-[#e2954d]/50 bg-[#e2954d]/15 text-[#ffb870]'
+                        const toneActive = tipo === 'moroso' || tipo === 'bloqueado' ? 'border-red-500/50 bg-red-500/15 text-red-300' : 'border-[#c81f2a]/50 bg-[#c81f2a]/15 text-[#ff5468]'
                         return (
                           <button key={tipo} disabled={saving} onClick={() => setTipoCliente(tipo)} className={`btn text-xs capitalize ${active ? toneActive : 'btn-dark'}`}>{tipo}</button>
                         )
@@ -150,7 +150,7 @@ export default function CrmPage() {
               )}
 
               <div className="card p-6">
-                <div className="flex items-center gap-2 mb-5"><Star className="text-[#ffb870]" /><h2 className="text-2xl font-bold">Historial técnico inteligente</h2></div>
+                <div className="flex items-center gap-2 mb-5"><Star className="text-[#ff5468]" /><h2 className="text-2xl font-bold">Historial técnico inteligente</h2></div>
                 <div className="space-y-3 max-h-[520px] overflow-auto">
                   {historial.length === 0 ? <p className="text-zinc-500">Sin trabajos encontrados.</p> : historial.map((item, idx) => (
                     <div key={`${item.expediente_id || item.vehiculo_id}-${idx}`} className="rounded-3xl border border-white/10 bg-white/[0.03] p-4">
@@ -158,7 +158,7 @@ export default function CrmPage() {
                         <div>
                           <h3 className="font-bold text-lg">{item.marca || 'Vehículo'} {item.modelo || ''}</h3>
                           <p className="text-zinc-500 text-sm">{item.matricula || 'Sin matrícula'} · {item.bastidor || 'Sin VIN'} · {item.ecu || 'Sin ECU'}</p>
-                          <p className="mt-3"><span className="text-[#ffb870] font-bold">{item.numero_ot || 'Sin OT'}</span> · {item.tipo_trabajo || 'Trabajo'} · {item.estado || '—'}</p>
+                          <p className="mt-3"><span className="text-[#ff5468] font-bold">{item.numero_ot || 'Sin OT'}</span> · {item.tipo_trabajo || 'Trabajo'} · {item.estado || '—'}</p>
                         </div>
                         <div className="text-right text-sm text-zinc-500">{fmt(item.created_at || item.fecha_entrada)}</div>
                       </div>

@@ -27,7 +27,7 @@ const emptyForm = {
 
 function roleBadge(rol: string) {
   const base = 'badge '
-  if (rol === 'admin') return base + 'bg-[#e2954d]/20 text-[#ffb870] border border-[#e2954d]/30'
+  if (rol === 'admin') return base + 'bg-[#c81f2a]/20 text-[#ff5468] border border-[#c81f2a]/30'
   if (rol === 'laboratorio') return base + 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
   if (rol === 'administracion') return base + 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30'
   return base + 'bg-purple-600/20 text-purple-300 border border-purple-500/30'
@@ -169,7 +169,7 @@ export default function UsuariosPage() {
     <AppShell>
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
         <div>
-          <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Seguridad y acceso</p>
+          <p className="text-sm text-[#ff5468] font-bold uppercase tracking-[0.2em]">Seguridad y acceso</p>
           <h2 className="text-3xl font-bold mt-1">Usuarios</h2>
           <p className="text-zinc-500 mt-2">Crea usuarios, asigna roles y define la contraseña inicial de acceso.</p>
         </div>
@@ -185,7 +185,7 @@ export default function UsuariosPage() {
           return (
             <div key={r.value} className="card p-5">
               <div className="flex items-center justify-between">
-                <Icon size={22} className="text-[#ffb870]" />
+                <Icon size={22} className="text-[#ff5468]" />
                 <span className="text-2xl font-bold">{count}</span>
               </div>
               <div className="font-bold mt-4">{r.label}</div>
@@ -210,7 +210,7 @@ export default function UsuariosPage() {
       <div className="card p-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-3">
-            <Users className="text-[#ffb870]" />
+            <Users className="text-[#ff5468]" />
             <h3 className="text-xl font-bold">Usuarios internos</h3>
           </div>
           <input
@@ -276,7 +276,7 @@ export default function UsuariosPage() {
           </select>
           <div className="md:col-span-2 grid md:grid-cols-2 gap-3 rounded-2xl border border-white/10 p-4 bg-black/20">
             <div className="md:col-span-2 flex items-center gap-2 text-sm font-bold text-zinc-300">
-              <KeyRound size={16} className="text-[#ffb870]" /> {editing ? (editing.auth_user_id ? 'Cambiar contraseña opcional' : 'Crear acceso Auth con contraseña') : 'Contraseña de acceso'}
+              <KeyRound size={16} className="text-[#ff5468]" /> {editing ? (editing.auth_user_id ? 'Cambiar contraseña opcional' : 'Crear acceso Auth con contraseña') : 'Contraseña de acceso'}
             </div>
             <input
               type="password"

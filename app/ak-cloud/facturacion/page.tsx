@@ -117,13 +117,13 @@ export default function AkCloudFacturacionPage() {
     <AppShell>
       <div className="space-y-7">
         <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#111827] to-[#1b0b12] p-7 shadow-2xl shadow-black/30">
-          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#e2954d]/20 blur-3xl" />
+          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#c81f2a]/20 blur-3xl" />
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <Link href="/ak-cloud" className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-white">
                 <ArrowLeft size={16} /> Volver a AK Cloud
               </Link>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ffb870]">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ff5468]">
                 <FileText size={16} /> AK Cloud Sync v4
               </div>
               <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">Facturación AK Cloud</h1>
@@ -150,8 +150,8 @@ export default function AkCloudFacturacionPage() {
             <div className="flex items-center justify-between text-zinc-400"><span className="text-xs font-bold uppercase tracking-wider">Facturadas</span><CheckCircle2 size={20} /></div>
             <div className="mt-3 text-3xl font-bold">{facturadas}</div>
           </div>
-          <div className="card p-5 border border-[#e2954d]/20">
-            <div className="text-xs font-bold uppercase tracking-wider text-[#ffb870]">Flujo recomendado</div>
+          <div className="card p-5 border border-[#c81f2a]/20">
+            <div className="text-xs font-bold uppercase tracking-wider text-[#ff5468]">Flujo recomendado</div>
             <div className="mt-3 text-sm text-zinc-400">Recarga aprobada → factura Core → PDF visible en AK Cloud.</div>
           </div>
         </section>

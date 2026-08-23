@@ -61,13 +61,13 @@ export default function ClienteModal({ open, cliente, onClose, onSave }: Props) 
           <div />
           <div className="md:col-span-2">
             <label className="mb-2 block text-sm font-bold text-slate-300">Observaciones</label>
-            <textarea value={form.notas || ''} onChange={e => set('notas', e.target.value)} className="h-28 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-[#e2954d]" />
+            <textarea value={form.notas || ''} onChange={e => set('notas', e.target.value)} className="h-28 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-[#c81f2a]" />
           </div>
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
           <button onClick={onClose} className="rounded-xl border border-slate-700 px-5 py-3 font-bold text-white hover:bg-slate-800">Cancelar</button>
-          <button onClick={submit} disabled={loading} className="rounded-xl bg-[#e2954d] px-5 py-3 font-bold text-[#0a0d12] shadow-lg shadow-[#8a4a1f]/40 hover:bg-[#ffb870] disabled:opacity-60">
+          <button onClick={submit} disabled={loading} className="rounded-xl bg-[#c81f2a] px-5 py-3 font-bold text-[#0a0d12] shadow-lg shadow-[#7a0f16]/40 hover:bg-[#ff5468] disabled:opacity-60">
             {loading ? 'Guardando...' : 'Guardar cliente'}
           </button>
         </div>
@@ -80,7 +80,7 @@ function Field({ label, value, onChange }: { label: string; value: string; onCha
   return (
     <label className="block">
       <span className="mb-2 block text-sm font-bold text-slate-300">{label}</span>
-      <input value={value} onChange={e => onChange(e.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-[#e2954d]" />
+      <input value={value} onChange={e => onChange(e.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-[#c81f2a]" />
     </label>
   )
 }

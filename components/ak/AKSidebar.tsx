@@ -58,12 +58,12 @@ export default function AKSidebar({ open = false, onClose }: AKSidebarProps) {
         <div className="mb-5 flex items-start justify-between gap-3 px-2">
           <Link href="/ak-cloud" onClick={onClose} className="group">
             <div className="flex items-center gap-3">
-              <div className="grid h-11 w-11 place-items-center rounded-2xl border border-[#e2954d]/30 bg-[#e2954d]/10 shadow-lg shadow-[#8a4a1f]/30">
-                <Cloud className="text-[#ffb870]" size={22} />
+              <div className="grid h-11 w-11 place-items-center rounded-2xl border border-[#c81f2a]/30 bg-[#c81f2a]/10 shadow-lg shadow-[#7a0f16]/30">
+                <Cloud className="text-[#ff5468]" size={22} />
               </div>
               <div>
                 <div className="text-lg font-bold tracking-tight text-white">
-                  AK <span className="text-[#e2954d]">CLOUD</span>
+                  AK <span className="text-[#c81f2a]">CLOUD</span>
                 </div>
                 <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-600">
                   Control Center
@@ -81,8 +81,8 @@ export default function AKSidebar({ open = false, onClose }: AKSidebarProps) {
           </button>
         </div>
 
-        <div className="mb-4 rounded-2xl border border-[#e2954d]/20 bg-gradient-to-br from-[#e2954d]/10 to-transparent p-4">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[#ffb870]">
+        <div className="mb-4 rounded-2xl border border-[#c81f2a]/20 bg-gradient-to-br from-[#c81f2a]/10 to-transparent p-4">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[#ff5468]">
             <BarChart3 size={15} /> Administración interna
           </div>
           <p className="mt-2 text-xs leading-5 text-zinc-500">
@@ -102,20 +102,20 @@ export default function AKSidebar({ open = false, onClose }: AKSidebarProps) {
                 className={[
                   'group flex items-center gap-3 rounded-2xl border px-3.5 py-3 text-sm font-bold transition-all',
                   active
-                    ? 'border-[#e2954d]/30 bg-[#e2954d]/12 text-[#0a0d12] shadow-lg shadow-[#8a4a1f]/20'
+                    ? 'border-[#c81f2a]/30 bg-[#c81f2a]/12 text-[#0a0d12] shadow-lg shadow-[#7a0f16]/20'
                     : 'border-transparent text-zinc-500 hover:border-white/10 hover:bg-white/[0.04] hover:text-zinc-100',
                 ].join(' ')}
               >
                 <span
                   className={[
                     'grid h-9 w-9 place-items-center rounded-xl transition-colors',
-                    active ? 'bg-[#e2954d] text-[#0a0d12]' : 'bg-white/[0.04] text-zinc-500 group-hover:text-[#ffb870]',
+                    active ? 'bg-[#c81f2a] text-[#0a0d12]' : 'bg-white/[0.04] text-zinc-500 group-hover:text-[#ff5468]',
                   ].join(' ')}
                 >
                   <Icon size={18} />
                 </span>
                 <span className="flex-1">{item.label}</span>
-                {active && <span className="h-2 w-2 rounded-full bg-[#ffb870] shadow-[0_0_12px_rgba(248,113,113,.8)]" />}
+                {active && <span className="h-2 w-2 rounded-full bg-[#ff5468] shadow-[0_0_12px_rgba(248,113,113,.8)]" />}
               </Link>
             )
           })}

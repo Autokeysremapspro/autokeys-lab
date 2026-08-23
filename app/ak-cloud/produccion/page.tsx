@@ -162,10 +162,10 @@ export default function ProduccionAkCloudPage() {
     <AppShell>
       <div className="space-y-6">
         <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#080b10] via-[#101827] to-[#21040b] p-7 shadow-2xl shadow-black/40">
-          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#e2954d]/20 blur-3xl" />
+          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#c81f2a]/20 blur-3xl" />
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ffb870]">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ff5468]">
                 <Factory size={16} /> Mesa de producción
               </div>
               <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">Producción AK Cloud</h1>
@@ -216,9 +216,9 @@ export default function ProduccionAkCloudPage() {
                   const estado = normalizarEstado(pedido.estado)
                   const active = selected?.id === pedido.id
                   return (
-                    <button key={pedido.id} onClick={() => setSelectedId(pedido.id)} className={`grid w-full grid-cols-[minmax(0,1.6fr)_minmax(150px,.7fr)_minmax(120px,.55fr)_110px] gap-3 border-b border-white/5 px-5 py-4 text-left transition ${active ? 'bg-[#e2954d]/10' : 'hover:bg-white/[0.035]'}`}>
+                    <button key={pedido.id} onClick={() => setSelectedId(pedido.id)} className={`grid w-full grid-cols-[minmax(0,1.6fr)_minmax(150px,.7fr)_minmax(120px,.55fr)_110px] gap-3 border-b border-white/5 px-5 py-4 text-left transition ${active ? 'bg-[#c81f2a]/10' : 'hover:bg-white/[0.035]'}`}>
                       <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-2"><span className="font-mono text-xs font-bold text-[#ffb870]">{pedido.numero || 'FS-SIN-NUM'}</span>{urgente && <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-[9px] font-bold uppercase text-red-300">Urgente</span>}{pedido.mod_nombre && <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold uppercase text-emerald-300">MOD</span>}</div>
+                        <div className="flex flex-wrap items-center gap-2"><span className="font-mono text-xs font-bold text-[#ff5468]">{pedido.numero || 'FS-SIN-NUM'}</span>{urgente && <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-[9px] font-bold uppercase text-red-300">Urgente</span>}{pedido.mod_nombre && <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold uppercase text-emerald-300">MOD</span>}</div>
                         <div className="mt-1 truncate font-bold">{tituloPedido(pedido)}</div>
                         <div className="mt-1 truncate text-xs text-zinc-500">{pedido.cliente_nombre || pedido.cliente_email || 'Distribuidor'} · {serviciosTexto(pedido.servicios)}</div>
                       </div>
@@ -275,14 +275,14 @@ function WorkPanel({ pedido, working, onMove, onAssign, onNotesSaved }: { pedido
   return (
     <div className="rounded-[2rem] border border-white/10 bg-gradient-to-b from-[#111827] to-[#090e17] p-5 shadow-2xl shadow-black/30">
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0"><div className="font-mono text-xs font-bold text-[#ffb870]">{pedido.numero || 'FS-SIN-NUM'}</div><h2 className="mt-1 text-2xl font-bold leading-tight">{tituloPedido(pedido)}</h2><p className="mt-1 text-sm text-zinc-500">{pedido.cliente_nombre || pedido.cliente_email || 'Distribuidor'}</p></div>
+        <div className="min-w-0"><div className="font-mono text-xs font-bold text-[#ff5468]">{pedido.numero || 'FS-SIN-NUM'}</div><h2 className="mt-1 text-2xl font-bold leading-tight">{tituloPedido(pedido)}</h2><p className="mt-1 text-sm text-zinc-500">{pedido.cliente_nombre || pedido.cliente_email || 'Distribuidor'}</p></div>
         {urgente && <span className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-[10px] font-bold uppercase text-red-300">Urgente</span>}
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-2"><Info label="ECU" value={pedido.ecu} /><Info label="HW" value={pedido.hw} /><Info label="SW" value={pedido.sw} /><Info label="Precio" value={pedido.precio != null ? `${pedido.precio} €` : '—'} /></div>
       <div className="mt-2 grid grid-cols-2 gap-2"><Info label="VIN" value={pedido.vin} /><Info label="Matrícula" value={pedido.matricula} /><Info label="Herramienta" value={pedido.herramienta_lectura} /><Info label="Lectura" value={pedido.tipo_lectura} /></div>
 
-      <div className="mt-3 rounded-2xl border border-white/5 bg-black/20 p-4"><div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Servicios solicitados</div><div className="mt-2 font-bold text-[#ffb870]">{serviciosTexto(pedido.servicios)}</div></div>
+      <div className="mt-3 rounded-2xl border border-white/5 bg-black/20 p-4"><div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Servicios solicitados</div><div className="mt-2 font-bold text-[#ff5468]">{serviciosTexto(pedido.servicios)}</div></div>
 
       {formatDtc(pedido.dtc_codes) && <div className="mt-3 rounded-2xl border border-red-500/15 bg-red-500/5 p-4"><div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-red-300"><Wrench size={14} /> DTC solicitados</div><div className="mt-2 break-words font-mono text-sm font-bold text-zinc-200">{formatDtc(pedido.dtc_codes)}</div></div>}
       {pedido.observaciones && <div className="mt-3 rounded-2xl border border-white/5 bg-black/20 p-4"><div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500"><ClipboardList size={14} /> Observaciones cliente</div><div className="mt-2 whitespace-pre-wrap text-sm text-zinc-300">{pedido.observaciones}</div></div>}
@@ -306,13 +306,13 @@ function WorkPanel({ pedido, working, onMove, onAssign, onNotesSaved }: { pedido
         {loadingVersions ? <div className="mt-3 text-xs text-zinc-600">Cargando versiones…</div> : versiones.length === 0 ? <div className="mt-3 text-xs text-zinc-600">Todavía no hay revisiones MOD.</div> : <div className="mt-3 space-y-2">{versiones.slice(0, 4).map((version) => <div key={version.id} className="rounded-xl border border-white/5 bg-white/[0.025] p-3"><div className="flex items-center justify-between gap-2"><div className="min-w-0 truncate text-xs font-bold">V{version.numero_version} · {version.nombre_archivo}</div>{version.es_final && <span className="shrink-0 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold uppercase text-emerald-300">Final</span>}</div>{version.nota_interna && <div className="mt-1 line-clamp-2 text-[11px] text-amber-200/80">Interna: {version.nota_interna}</div>}{version.nota_cliente && <div className="mt-1 line-clamp-2 text-[11px] text-zinc-500">Cliente: {version.nota_cliente}</div>}</div>)}</div>}
       </div>
 
-      <Link href={`/ak-cloud/${pedido.id}`} className="mt-5 flex items-center justify-center gap-2 rounded-2xl bg-[#e2954d] px-4 py-3.5 text-sm font-bold text-[#0a0d12] shadow-lg shadow-[#8a4a1f]/30 hover:bg-[#ffb870]">Abrir mesa completa del pedido <ArrowRight size={16} /></Link>
+      <Link href={`/ak-cloud/${pedido.id}`} className="mt-5 flex items-center justify-center gap-2 rounded-2xl bg-[#c81f2a] px-4 py-3.5 text-sm font-bold text-[#0a0d12] shadow-lg shadow-[#7a0f16]/30 hover:bg-[#ff5468]">Abrir mesa completa del pedido <ArrowRight size={16} /></Link>
     </div>
   )
 }
 
 function QuickFilter({ active, onClick, label, value, icon: Icon, danger = false }: { active: boolean; onClick: () => void; label: string; value: number; icon: any; danger?: boolean }) {
-  return <button onClick={onClick} className={`rounded-[1.4rem] border p-4 text-left transition ${active ? (danger ? 'border-red-500/40 bg-red-500/10' : 'border-[#e2954d]/40 bg-[#e2954d]/10') : 'border-white/10 bg-[#0B1220] hover:bg-white/[0.04]'}`}><div className="flex items-center justify-between"><span className="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">{label}</span><Icon size={16} className={danger ? 'text-red-300' : active ? 'text-[#ffb870]' : 'text-zinc-600'} /></div><div className="mt-2 text-2xl font-bold">{value}</div></button>
+  return <button onClick={onClick} className={`rounded-[1.4rem] border p-4 text-left transition ${active ? (danger ? 'border-red-500/40 bg-red-500/10' : 'border-[#c81f2a]/40 bg-[#c81f2a]/10') : 'border-white/10 bg-[#0B1220] hover:bg-white/[0.04]'}`}><div className="flex items-center justify-between"><span className="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">{label}</span><Icon size={16} className={danger ? 'text-red-300' : active ? 'text-[#ff5468]' : 'text-zinc-600'} /></div><div className="mt-2 text-2xl font-bold">{value}</div></button>
 }
 
 function Info({ label, value }: { label: string; value?: string | null }) {

@@ -5,7 +5,7 @@ export default function NuevaOTPage() {
   return (
     <AppShell>
       <div className="mb-6">
-        <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Nuevo trabajo</p>
+        <p className="text-sm text-[#ff5468] font-bold uppercase tracking-[0.2em]">Nuevo trabajo</p>
         <h2 className="text-3xl font-bold mt-1">Nueva Orden de Trabajo</h2>
         <p className="text-zinc-500 mt-2">Asistente rápido para recepción y laboratorio.</p>
       </div>

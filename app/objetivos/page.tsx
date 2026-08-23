@@ -63,7 +63,7 @@ export default function ObjetivosPage() {
       <div className="space-y-8">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-3 text-[#ffb870] font-bold uppercase tracking-wider text-xs">
+            <div className="flex items-center gap-3 text-[#ff5468] font-bold uppercase tracking-wider text-xs">
               <Target size={18} /> Autokeys Core v3.1
             </div>
             <h1 className="text-4xl font-bold mt-2">Objetivos / KPIs</h1>

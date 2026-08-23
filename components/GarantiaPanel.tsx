@@ -148,7 +148,7 @@ export default function GarantiaPanel({
       <div className="card p-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ff5468]">
               <ShieldCheck size={14} /> Garantía ERP
             </div>
             <h3 className="text-2xl font-bold">Garantías y justificantes</h3>
@@ -168,7 +168,7 @@ export default function GarantiaPanel({
         {showForm && (
           <div className="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-5">
             <div className="mb-5 flex items-center gap-2 text-lg font-bold">
-              <FileSignature className="text-[#ffb870]" /> Nueva garantía
+              <FileSignature className="text-[#ff5468]" /> Nueva garantía
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -328,14 +328,14 @@ function Field({
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
           rows={4}
-          className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-zinc-600 focus:border-[#e2954d]"
+          className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-zinc-600 focus:border-[#c81f2a]"
         />
       ) : (
         <input
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-zinc-600 focus:border-[#e2954d]"
+          className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-zinc-600 focus:border-[#c81f2a]"
         />
       )}
     </label>

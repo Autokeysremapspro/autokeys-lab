@@ -115,7 +115,7 @@ export default function AkCloudHistorialPage() {
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <Link href="/ak-cloud" className="mb-3 inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-white"><ArrowLeft size={16}/> Volver a AK Cloud</Link>
-            <div className="flex items-center gap-3"><Car className="text-[#ffb870]"/><h1 className="text-4xl font-bold">Historial de vehículos y trabajos</h1></div>
+            <div className="flex items-center gap-3"><Car className="text-[#ff5468]"/><h1 className="text-4xl font-bold">Historial de vehículos y trabajos</h1></div>
             <p className="mt-2 text-zinc-500">Agrupa los pedidos por vehículo y mantiene acceso directo al pedido y a su conversación técnica.</p>
           </div>
           <button onClick={load} className="btn btn-dark inline-flex items-center gap-2"><RefreshCw size={17}/> Actualizar</button>
@@ -137,7 +137,7 @@ export default function AkCloudHistorialPage() {
                     <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-mono text-sm font-bold text-[#ffb870]">{p.numero || 'FS-SIN-NUM'}</span>
+                          <span className="font-mono text-sm font-bold text-[#ff5468]">{p.numero || 'FS-SIN-NUM'}</span>
                           <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[11px] font-bold uppercase text-zinc-300">{grupo.pedidos.length} trabajo{grupo.pedidos.length === 1 ? '' : 's'}</span>
                           {p.core_vehiculo_id && <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-bold uppercase text-emerald-300">Vehículo Core vinculado</span>}
                         </div>
@@ -159,7 +159,7 @@ export default function AkCloudHistorialPage() {
 
                     <div className="mt-4 rounded-2xl border border-white/5 bg-black/20 p-4">
                       <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Servicios realizados</div>
-                      <div className="mt-2 text-sm font-bold text-[#ffb870]">{services.length ? services.join(' · ') : 'Sin servicios registrados'}</div>
+                      <div className="mt-2 text-sm font-bold text-[#ff5468]">{services.length ? services.join(' · ') : 'Sin servicios registrados'}</div>
                     </div>
 
                     {grupo.ultimoMensaje && (
@@ -172,7 +172,7 @@ export default function AkCloudHistorialPage() {
                     {grupo.pedidos.length > 1 && (
                       <div className="mt-4 flex flex-wrap gap-2 border-t border-white/5 pt-4">
                         {grupo.pedidos.slice(0, 8).map((pedido) => (
-                          <Link key={pedido.id} href={`/ak-cloud/${pedido.id}`} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs font-bold text-zinc-300 hover:border-[#ffb870]/30 hover:text-white">
+                          <Link key={pedido.id} href={`/ak-cloud/${pedido.id}`} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs font-bold text-zinc-300 hover:border-[#ff5468]/30 hover:text-white">
                             {pedido.numero || 'Pedido'} · {pedido.created_at ? new Date(pedido.created_at).toLocaleDateString('es-ES') : 'sin fecha'}
                           </Link>
                         ))}

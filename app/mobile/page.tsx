@@ -197,7 +197,7 @@ export default function MobilePage() {
       <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/95 px-4 py-4 backdrop-blur">
         <div className="mx-auto flex max-w-xl items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#ffb870]">Autokeys Core</p>
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#ff5468]">Autokeys Core</p>
             <h1 className="text-2xl font-bold">{title}</h1>
           </div>
           <button onClick={logout} className="rounded-2xl border border-white/10 p-3 text-slate-300"><LogOut size={20} /></button>
@@ -207,8 +207,8 @@ export default function MobilePage() {
       <section className="mx-auto max-w-xl space-y-5 p-4 pb-28">
         {view === 'home' && (
           <>
-            <div className="rounded-[2rem] border border-[#e2954d]/20 bg-gradient-to-br from-[#e2954d]/20 to-white/[0.03] p-5">
-              <p className="text-sm text-[#ffb870]/70">Acceso rápido del laboratorio</p>
+            <div className="rounded-[2rem] border border-[#c81f2a]/20 bg-gradient-to-br from-[#c81f2a]/20 to-white/[0.03] p-5">
+              <p className="text-sm text-[#ff5468]/70">Acceso rápido del laboratorio</p>
               <h2 className="mt-1 text-3xl font-bold">Alta, búsqueda y agenda desde el móvil.</h2>
             </div>
 
@@ -223,8 +223,8 @@ export default function MobilePage() {
               <MobileButton icon={<Camera />} label="Cámara" onClick={() => setView('camara')} />
               <MobileButton icon={<Search />} label="Buscar" onClick={() => setView('buscar')} />
               <MobileButton icon={<CalendarDays />} label="Agenda" onClick={() => setView('agenda')} />
-              <Link href="/clientes" className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 text-center font-bold"><User className="mx-auto mb-2 text-[#ffb870]" /> Clientes</Link>
-              <Link href="/vehiculos" className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 text-center font-bold"><Car className="mx-auto mb-2 text-[#ffb870]" /> Vehículos</Link>
+              <Link href="/clientes" className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 text-center font-bold"><User className="mx-auto mb-2 text-[#ff5468]" /> Clientes</Link>
+              <Link href="/vehiculos" className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 text-center font-bold"><Car className="mx-auto mb-2 text-[#ff5468]" /> Vehículos</Link>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-400">
@@ -238,13 +238,13 @@ export default function MobilePage() {
             <button onClick={() => setView('home')} className="rounded-2xl border border-white/10 px-4 py-3 font-bold text-white"><Home size={16} className="mr-2 inline" /> Inicio</button>
             <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
               <label className="text-sm font-bold text-slate-300">Buscar matrícula, teléfono, cliente, OT o ECU</label>
-              <input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} className="mt-3 w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-4 text-white outline-none focus:border-[#e2954d]" placeholder="Ej: 1234ABC, Carlos, MD1CS003..." />
+              <input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} className="mt-3 w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-4 text-white outline-none focus:border-[#c81f2a]" placeholder="Ej: 1234ABC, Carlos, MD1CS003..." />
             </div>
             {searching && <div className="text-slate-400"><Loader2 className="mr-2 inline animate-spin" /> Buscando...</div>}
             <div className="space-y-3">
               {results.map((item) => (
                 <Link key={`${item.type}-${item.id}`} href={item.href} className="block rounded-3xl border border-white/10 bg-white/[0.04] p-4">
-                  <div className="text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">{item.type}</div>
+                  <div className="text-xs font-bold uppercase tracking-[0.2em] text-[#ff5468]">{item.type}</div>
                   <div className="mt-1 text-xl font-bold">{item.title}</div>
                   <div className="text-sm text-slate-400">{item.subtitle}</div>
                 </Link>
@@ -264,7 +264,7 @@ export default function MobilePage() {
                 <div key={item.id} className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">{item.tipo || 'agenda'}</div>
+                      <div className="text-xs font-bold uppercase tracking-[0.2em] text-[#ff5468]">{item.tipo || 'agenda'}</div>
                       <div className="mt-1 text-xl font-bold">{item.titulo || 'Evento sin título'}</div>
                       <div className="text-sm text-slate-400">{item.hora || 'Sin hora'} · {item.estado || 'pendiente'}</div>
                     </div>
@@ -291,8 +291,8 @@ function MobileStat({ label, value, danger = false }: { label: string; value: nu
 
 function MobileButton({ icon, label, onClick, primary = false }: { icon: React.ReactNode; label: string; onClick: () => void; primary?: boolean }) {
   return (
-    <button onClick={onClick} className={`rounded-3xl p-5 text-center font-bold ${primary ? 'bg-[#e2954d] text-[#0a0d12] shadow-lg shadow-[#8a4a1f]/40' : 'border border-white/10 bg-white/[0.04] text-[#0a0d12]'}`}>
-      <span className="mx-auto mb-2 block w-fit text-[#ffb870]">{icon}</span>
+    <button onClick={onClick} className={`rounded-3xl p-5 text-center font-bold ${primary ? 'bg-[#c81f2a] text-[#0a0d12] shadow-lg shadow-[#7a0f16]/40' : 'border border-white/10 bg-white/[0.04] text-[#0a0d12]'}`}>
+      <span className="mx-auto mb-2 block w-fit text-[#ff5468]">{icon}</span>
       {label}
     </button>
   )

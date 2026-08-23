@@ -110,13 +110,13 @@ export default function AkCloudSolicitudesPage() {
     <AppShell>
       <div className="space-y-7">
         <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#101827] to-[#19070d] p-7 shadow-2xl shadow-black/30">
-          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#e2954d]/20 blur-3xl" />
+          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#c81f2a]/20 blur-3xl" />
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <Link href="/ak-cloud" className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-white">
                 <ArrowLeft size={16} /> Volver a AK Cloud
               </Link>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ffb870]">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ff5468]">
                 <ShieldCheck size={16} /> Alta controlada de distribuidores
               </div>
               <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">Solicitudes</h1>
@@ -141,7 +141,7 @@ export default function AkCloudSolicitudesPage() {
             <button
               key={item}
               onClick={() => setEstado(item)}
-              className={`rounded-2xl px-4 py-2 text-sm font-bold uppercase tracking-wider transition ${estado === item ? 'bg-[#e2954d] text-[#0a0d12]' : 'bg-white/5 text-zinc-400 hover:bg-white/10'}`}
+              className={`rounded-2xl px-4 py-2 text-sm font-bold uppercase tracking-wider transition ${estado === item ? 'bg-[#c81f2a] text-[#0a0d12]' : 'bg-white/5 text-zinc-400 hover:bg-white/10'}`}
             >
               {item.replace('_', ' ')}
             </button>
@@ -164,7 +164,7 @@ export default function AkCloudSolicitudesPage() {
                         <Clock3 size={12} className="mr-1 inline" /> {formatDate(s.created_at)}
                       </span>
                     </div>
-                    <h3 className="flex items-center gap-2 text-2xl font-bold"><Building2 size={20} className="text-[#ffb870]" /> {s.empresa}</h3>
+                    <h3 className="flex items-center gap-2 text-2xl font-bold"><Building2 size={20} className="text-[#ff5468]" /> {s.empresa}</h3>
                     <p className="mt-1 text-zinc-500">{s.nombre} · {s.email} · {s.telefono || 'sin teléfono'}</p>
                     <div className="mt-3 flex flex-wrap gap-2 text-xs text-zinc-400">
                       {s.ciudad && <span className="rounded-full border border-white/10 bg-black/25 px-3 py-1">{s.ciudad}</span>}

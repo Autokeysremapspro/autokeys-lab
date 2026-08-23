@@ -316,7 +316,7 @@ export default function AkCloudPedidoPage() {
               <ArrowLeft size={16} /> Volver a AK Cloud
             </Link>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-sm font-bold text-[#ffb870]">{pedido.numero || 'FS-SIN-NUM'}</span>
+              <span className="font-mono text-sm font-bold text-[#ff5468]">{pedido.numero || 'FS-SIN-NUM'}</span>
               <span className={`rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${akCloudEstadoClass(pedido.estado)}`}>{(pedido.estado || 'pendiente').replace('_', ' ')}</span>
               {pedido.core_expediente_id && <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-bold uppercase text-emerald-300">Con expediente</span>}
             </div>
@@ -342,7 +342,7 @@ export default function AkCloudPedidoPage() {
           <main className="space-y-6">
             <section className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0B1220] to-[#111827] p-6">
               <div className="mb-5 flex items-center gap-3">
-                <Cloud className="text-[#ffb870]" />
+                <Cloud className="text-[#ff5468]" />
                 <div>
                   <h2 className="text-2xl font-bold">Timeline AK Cloud</h2>
                   <p className="text-sm text-zinc-500">Estado visible para el distribuidor.</p>
@@ -365,7 +365,7 @@ export default function AkCloudPedidoPage() {
 
             <section className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-6">
               <div className="mb-5 flex items-center gap-3">
-                <FileCode2 className="text-[#ffb870]" />
+                <FileCode2 className="text-[#ff5468]" />
                 <div>
                   <h2 className="text-2xl font-bold">Ficha técnica</h2>
                   <p className="text-sm text-zinc-500">Datos recibidos desde el portal AK Cloud.</p>
@@ -418,7 +418,7 @@ export default function AkCloudPedidoPage() {
 
               <div className="mt-4 rounded-2xl border border-white/5 bg-black/20 p-4">
                 <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Servicios</div>
-                <div className="mt-2 text-xl font-bold text-[#ffb870]">{formatServicios(pedido.servicios)}</div>
+                <div className="mt-2 text-xl font-bold text-[#ff5468]">{formatServicios(pedido.servicios)}</div>
               </div>
               {pedido.observaciones && (
                 <div className="mt-4 rounded-2xl border border-white/5 bg-black/20 p-4">
@@ -430,7 +430,7 @@ export default function AkCloudPedidoPage() {
 
             <section className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-6">
               <div className="mb-5 flex items-center gap-3">
-                <MessageCircle className="text-[#ffb870]" />
+                <MessageCircle className="text-[#ff5468]" />
                 <div>
                   <h2 className="text-2xl font-bold">Chat con distribuidor</h2>
                   <p className="text-sm text-zinc-500">Mensajes visibles en AK Cloud.</p>
@@ -445,7 +445,7 @@ export default function AkCloudPedidoPage() {
                     const admin = item.autor_tipo === 'admin'
                     return (
                       <div key={item.id} className={`flex ${admin ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[82%] rounded-3xl border px-4 py-3 ${admin ? 'border-[#e2954d]/25 bg-[#e2954d]/10' : 'border-white/10 bg-white/[0.04]'}`}>
+                        <div className={`max-w-[82%] rounded-3xl border px-4 py-3 ${admin ? 'border-[#c81f2a]/25 bg-[#c81f2a]/10' : 'border-white/10 bg-white/[0.04]'}`}>
                           <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">{item.autor_nombre || (admin ? 'Autokeys' : 'Distribuidor')}</div>
                           <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-200">{item.mensaje}</p>
                           <div className="mt-2 text-[10px] text-zinc-600">{item.created_at ? new Date(item.created_at).toLocaleString('es-ES') : ''}</div>
@@ -461,7 +461,7 @@ export default function AkCloudPedidoPage() {
                   value={mensaje}
                   onChange={(e) => setMensaje(e.target.value)}
                   placeholder="Escribe un mensaje para el distribuidor..."
-                  className="flex-1 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#e2954d]/50"
+                  className="flex-1 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#c81f2a]/50"
                 />
                 <button onClick={sendMessage} disabled={working === 'message'} className="btn btn-red inline-flex items-center gap-2 disabled:opacity-50">
                   {working === 'message' ? <Loader2 className="animate-spin" size={17} /> : <Send size={17} />} Enviar
@@ -518,7 +518,7 @@ export default function AkCloudPedidoPage() {
             </section>
 
             <section className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-6">
-              <div className="flex items-center gap-3"><GitBranch className="text-[#ffb870]"/><div><h2 className="text-2xl font-bold">Versiones del archivo</h2><p className="text-sm text-zinc-500">Sube V1, V2, V3… sin cerrar automáticamente el pedido.</p></div></div>
+              <div className="flex items-center gap-3"><GitBranch className="text-[#ff5468]"/><div><h2 className="text-2xl font-bold">Versiones del archivo</h2><p className="text-sm text-zinc-500">Sube V1, V2, V3… sin cerrar automáticamente el pedido.</p></div></div>
               <button onClick={() => downloadFile('ori')} className="btn btn-dark mt-5 inline-flex w-full items-center justify-center gap-2"><Download size={17}/> Descargar ORI</button>
               <div className="mt-4 space-y-3">
                 {versiones.length === 0 ? <div className="rounded-2xl border border-dashed border-white/10 p-5 text-center text-sm text-zinc-500">Aún no hay versiones.</div> : versiones.map(v => (
@@ -529,8 +529,8 @@ export default function AkCloudPedidoPage() {
                   </div>
                 ))}
               </div>
-              <div className="mt-5 rounded-3xl border border-dashed border-[#e2954d]/30 bg-[#e2954d]/5 p-4">
-                <div className="font-bold text-[#ffb870]">+ Subir nueva versión</div>
+              <div className="mt-5 rounded-3xl border border-dashed border-[#c81f2a]/30 bg-[#c81f2a]/5 p-4">
+                <div className="font-bold text-[#ff5468]">+ Subir nueva versión</div>
                 <input ref={fileInputRef} type="file" onChange={(e)=>setModFile(e.target.files?.[0] || null)} className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 p-3 text-sm"/>
                 <input value={notaCliente} onChange={(e)=>setNotaCliente(e.target.value)} placeholder="Nota visible para el cliente" className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm"/>
                 <input value={notaInternaVersion} onChange={(e)=>setNotaInternaVersion(e.target.value)} placeholder="Nota interna (solo laboratorio)" className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm"/>

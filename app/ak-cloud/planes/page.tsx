@@ -192,13 +192,13 @@ export default function PlanesAkPage() {
     <AppShell>
       <div className="space-y-7">
         <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#101827] to-[#19070d] p-7 shadow-2xl shadow-black/30">
-          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#e2954d]/20 blur-3xl" />
+          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#c81f2a]/20 blur-3xl" />
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <Link href="/ak-cloud" className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-white">
                 <ArrowLeft size={16} /> Volver a AK Cloud
               </Link>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ffb870]">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ff5468]">
                 <Layers size={16} /> Planes AK
               </div>
               <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">Diseña tus planes</h1>
@@ -257,11 +257,11 @@ export default function PlanesAkPage() {
                 <button
                   key={p.id}
                   onClick={() => setPlanActivo(p.id)}
-                  className={`card block w-full p-4 text-left transition ${planActivo === p.id ? 'border-[#e2954d]/40 bg-[#e2954d]/[.06]' : 'hover:border-[#ffb870]/25'}`}
+                  className={`card block w-full p-4 text-left transition ${planActivo === p.id ? 'border-[#c81f2a]/40 bg-[#c81f2a]/[.06]' : 'hover:border-[#ff5468]/25'}`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-bold">{p.nombre}</span>
-                    {p.destacado && <Sparkles size={14} className="text-[#ffb870]" />}
+                    {p.destacado && <Sparkles size={14} className="text-[#ff5468]" />}
                   </div>
                   <p className="mt-1 text-xs text-zinc-500">{p.precio_mensual} €/mes · {p.creditos_mes} créditos</p>
                   <p className="mt-1 text-xs text-zinc-500">{p.duracion_dias || 30} días{p.limite_diario_pedidos ? ` · máx. ${p.limite_diario_pedidos}/día` : ' · sin límite diario'}</p>

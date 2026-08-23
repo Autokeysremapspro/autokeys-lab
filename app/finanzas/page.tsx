@@ -98,7 +98,7 @@ export default function FinanzasPage() {
       <div className="space-y-8">
         <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
           <div>
-            <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Autokeys Core · Finanzas</p>
+            <p className="text-sm text-[#ff5468] font-bold uppercase tracking-[0.2em]">Autokeys Core · Finanzas</p>
             <h2 className="text-4xl font-bold mt-1">Rentabilidad del laboratorio</h2>
             <p className="text-zinc-500 mt-2">Ingresos, gastos, cobros pendientes y beneficio real.</p>
           </div>
@@ -124,7 +124,7 @@ export default function FinanzasPage() {
               <h3 className="text-2xl font-bold">Evolución mensual</h3>
               <p className="text-zinc-500 mt-1">Ingresos, gastos y beneficio del año actual.</p>
             </div>
-            <Euro className="text-[#ffb870]" />
+            <Euro className="text-[#ff5468]" />
           </div>
 
           <div className="space-y-4">

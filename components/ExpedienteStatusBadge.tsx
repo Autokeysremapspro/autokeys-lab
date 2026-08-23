@@ -12,7 +12,7 @@ export function expedienteStatusClass(status?: string | null) {
     case 'cancelado':
       return 'bg-zinc-500/15 text-zinc-300 border-zinc-500/30'
     default:
-      return 'bg-[#e2954d]/15 text-[#ffb870] border-[#e2954d]/30'
+      return 'bg-[#c81f2a]/15 text-[#ff5468] border-[#c81f2a]/30'
   }
 }
 

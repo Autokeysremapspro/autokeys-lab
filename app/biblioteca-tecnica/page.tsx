@@ -110,7 +110,7 @@ export default function BibliotecaTecnicaPage() {
     <AppShell>
       <div className="mb-6 flex flex-col justify-between gap-4 xl:flex-row xl:items-center">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ff5468]">
             <BookOpen size={14} /> Biblioteca Técnica PRO
           </div>
           <h2 className="text-3xl font-bold tracking-tight">Biblioteca técnica</h2>
@@ -138,10 +138,10 @@ export default function BibliotecaTecnicaPage() {
       ) : (
         <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
           {filtered.map((caso) => (
-            <div key={caso.id} className="card p-5 transition hover:-translate-y-0.5 hover:border-[#e2954d]/35">
+            <div key={caso.id} className="card p-5 transition hover:-translate-y-0.5 hover:border-[#c81f2a]/35">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#ffb870]">
+                  <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#ff5468]">
                     {caso.ecu || 'ECU —'}
                     {caso.destacado && <Star size={14} className="text-yellow-400" />}
                     {caso.solucion_definitiva && <Trophy size={14} className="text-emerald-400" />}

@@ -70,7 +70,7 @@ export default function ExploradorPage() {
         <div className="card p-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-3 text-[#ffb870] font-bold uppercase tracking-[0.18em] text-xs"><FolderTree size={16} /> Explorador de expedientes</div>
+              <div className="flex items-center gap-3 text-[#ff5468] font-bold uppercase tracking-[0.18em] text-xs"><FolderTree size={16} /> Explorador de expedientes</div>
               <h2 className="text-3xl font-bold mt-2">Clientes → Vehículos → OT → Facturas</h2>
               <p className="text-zinc-500 mt-2">Navega por el historial del laboratorio sin saltar entre veinte pantallas.</p>
             </div>
@@ -87,7 +87,7 @@ export default function ExploradorPage() {
             <div className="space-y-2 max-h-[680px] overflow-auto pr-1">
               {loading && <p className="text-zinc-500 text-sm p-4">Cargando...</p>}
               {clientesFiltrados.map((c: any) => (
-                <button key={c.id} onClick={() => pickCliente(c.id)} className={`w-full text-left p-3 rounded-2xl transition border ${selectedCliente === c.id ? 'bg-[#e2954d] border-[#e2954d]' : 'bg-white/[0.03] border-white/5 hover:bg-white/5'}`}>
+                <button key={c.id} onClick={() => pickCliente(c.id)} className={`w-full text-left p-3 rounded-2xl transition border ${selectedCliente === c.id ? 'bg-[#c81f2a] border-[#c81f2a]' : 'bg-white/[0.03] border-white/5 hover:bg-white/5'}`}>
                   <div className="font-bold truncate">{c.nombre}</div>
                   <div className="text-xs text-zinc-400 truncate mt-1">{[c.telefono, c.email].filter(Boolean).join(' · ') || 'Sin contacto'}</div>
                 </button>
@@ -100,7 +100,7 @@ export default function ExploradorPage() {
             {!selectedCliente && <p className="text-zinc-500 text-sm p-4">Selecciona un cliente.</p>}
             <div className="space-y-2 max-h-[680px] overflow-auto pr-1">
               {vehiculosCliente.map((v: any) => (
-                <button key={v.id} onClick={() => setSelectedVehiculo(v.id)} className={`w-full text-left p-3 rounded-2xl transition border ${selectedVehiculo === v.id ? 'bg-[#e2954d] border-[#e2954d]' : 'bg-white/[0.03] border-white/5 hover:bg-white/5'}`}>
+                <button key={v.id} onClick={() => setSelectedVehiculo(v.id)} className={`w-full text-left p-3 rounded-2xl transition border ${selectedVehiculo === v.id ? 'bg-[#c81f2a] border-[#c81f2a]' : 'bg-white/[0.03] border-white/5 hover:bg-white/5'}`}>
                   <div className="font-bold truncate">{[v.marca, v.modelo].filter(Boolean).join(' ') || 'Vehículo'}</div>
                   <div className="text-xs text-zinc-400 truncate mt-1">{[v.matricula, v.bastidor, v.ecu].filter(Boolean).join(' · ') || 'Sin datos técnicos'}</div>
                 </button>
@@ -132,7 +132,7 @@ export default function ExploradorPage() {
                         <div className="font-bold">{e.numero_ot || 'OT sin número'}</div>
                         <div className="text-sm text-zinc-500 mt-1">{[e.tipo_trabajo, e.tecnico].filter(Boolean).join(' · ')}</div>
                       </div>
-                      <span className="px-3 py-1 rounded-full bg-[#e2954d]/10 text-[#ffb870] text-xs font-bold">{e.estado || 'sin estado'}</span>
+                      <span className="px-3 py-1 rounded-full bg-[#c81f2a]/10 text-[#ff5468] text-xs font-bold">{e.estado || 'sin estado'}</span>
                     </div>
                   </Link>
                 ))}

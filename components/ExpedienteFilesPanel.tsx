@@ -53,7 +53,7 @@ function formatDate(value?: string | null) {
 
 function iconFor(file: ArchivoExpediente) {
   if (file.tipo?.startsWith('foto_') || file.mime_type?.startsWith('image/')) return <ImageIcon className="text-emerald-300" />
-  if (file.nombre_archivo?.toLowerCase().endsWith('.bin')) return <FileCode2 className="text-[#ffb870]" />
+  if (file.nombre_archivo?.toLowerCase().endsWith('.bin')) return <FileCode2 className="text-[#ff5468]" />
   if (file.nombre_archivo?.toLowerCase().endsWith('.zip') || file.nombre_archivo?.toLowerCase().endsWith('.rar')) return <FileArchive className="text-yellow-300" />
   return <FileText className="text-zinc-300" />
 }
@@ -135,7 +135,7 @@ export default function ExpedienteFilesPanel({ expedienteId, mode, title, descri
   return (
     <div className="grid xl:grid-cols-3 gap-5">
       <div className="card p-6 xl:col-span-1">
-        <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">{icon || <UploadCloud className="text-[#ffb870]" />} {title}</h3>
+        <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">{icon || <UploadCloud className="text-[#ff5468]" />} {title}</h3>
         <p className="text-zinc-500 mb-5">{description}</p>
 
         <div className="space-y-4">
@@ -173,7 +173,7 @@ export default function ExpedienteFilesPanel({ expedienteId, mode, title, descri
         {loading ? <div className="text-zinc-500">Cargando...</div> : (
           <div className="grid md:grid-cols-2 gap-3">
             {items.map(file => (
-              <div key={file.id} className="rounded-2xl border border-white/10 bg-[#0B1220] p-4 hover:border-[#e2954d]/30 transition">
+              <div key={file.id} className="rounded-2xl border border-white/10 bg-[#0B1220] p-4 hover:border-[#c81f2a]/30 transition">
                 <div className="flex items-start gap-3">
                   <div className="mt-1">{iconFor(file)}</div>
                   <div className="min-w-0 flex-1">

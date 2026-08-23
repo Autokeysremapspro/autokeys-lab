@@ -54,7 +54,7 @@ export default function VehiculoFichaPage() {
         <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-7 shadow-2xl shadow-black/20">
           <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
             <div>
-              <p className="mb-3 text-sm font-bold uppercase tracking-[0.45em] text-[#ffb870]">Ficha vehículo</p>
+              <p className="mb-3 text-sm font-bold uppercase tracking-[0.45em] text-[#ff5468]">Ficha vehículo</p>
               <h1 className="text-5xl font-bold text-white">{vehiculo.marca || 'Vehículo'} {vehiculo.modelo || ''}</h1>
               <div className="mt-4 flex flex-wrap gap-4 text-slate-400">
                 {vehiculo.matricula && <span className="font-bold text-white">{vehiculo.matricula}</span>}
@@ -64,7 +64,7 @@ export default function VehiculoFichaPage() {
               </div>
               {vehiculo.cliente && <Link href={`/clientes/${vehiculo.cliente.id}`} className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-slate-700 px-4 py-3 font-bold text-white hover:bg-slate-800"><UserRound size={17} /> {vehiculo.cliente.nombre}</Link>}
             </div>
-            <button onClick={() => setModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#e2954d] px-5 py-4 font-bold text-[#0a0d12] hover:bg-[#ffb870]"><Pencil size={18} /> Editar vehículo</button>
+            <button onClick={() => setModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#c81f2a] px-5 py-4 font-bold text-[#0a0d12] hover:bg-[#ff5468]"><Pencil size={18} /> Editar vehículo</button>
           </div>
         </section>
 
@@ -87,7 +87,7 @@ export default function VehiculoFichaPage() {
         <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
           <h2 className="mb-4 text-2xl font-bold text-white">Historial de expedientes</h2>
           <div className="grid gap-3">
-            {expedientes.map(e => <Link key={e.id} href={`/expedientes/${e.id}`} className="block rounded-2xl border border-slate-800 bg-slate-950/60 p-4 hover:border-[#e2954d]/50"><b className="text-white">{e.numero_ot || 'OT'}</b><p className="text-sm text-slate-400">{e.tipo_trabajo} · {e.estado}</p></Link>)}
+            {expedientes.map(e => <Link key={e.id} href={`/expedientes/${e.id}`} className="block rounded-2xl border border-slate-800 bg-slate-950/60 p-4 hover:border-[#c81f2a]/50"><b className="text-white">{e.numero_ot || 'OT'}</b><p className="text-sm text-slate-400">{e.tipo_trabajo} · {e.estado}</p></Link>)}
             {expedientes.length === 0 && <p className="text-slate-400">Sin expedientes.</p>}
           </div>
         </section>
@@ -99,7 +99,7 @@ export default function VehiculoFichaPage() {
 }
 
 function MiniStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
-  return <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-5"><div className="mb-4 text-[#ffb870]">{icon}</div><p className="text-sm text-slate-400">{label}</p><b className="text-2xl text-white">{value}</b></div>
+  return <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-5"><div className="mb-4 text-[#ff5468]">{icon}</div><p className="text-sm text-slate-400">{label}</p><b className="text-2xl text-white">{value}</b></div>
 }
 
 function Info({ label, value }: { label: string; value?: string | null }) {

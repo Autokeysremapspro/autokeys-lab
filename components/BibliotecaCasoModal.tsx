@@ -94,11 +94,11 @@ export default function BibliotecaCasoModal({ open, caso, loading, onClose, onSu
 
         <div className="mt-5 flex flex-wrap gap-4">
           <label className="flex items-center gap-2 rounded-2xl border border-white/10 px-4 py-3 font-bold text-zinc-200">
-            <input type="checkbox" checked={!!form.destacado} onChange={(e) => set('destacado', e.target.checked)} className="h-5 w-5 accent-[#e2954d]" />
+            <input type="checkbox" checked={!!form.destacado} onChange={(e) => set('destacado', e.target.checked)} className="h-5 w-5 accent-[#c81f2a]" />
             Caso frecuente
           </label>
           <label className="flex items-center gap-2 rounded-2xl border border-white/10 px-4 py-3 font-bold text-zinc-200">
-            <input type="checkbox" checked={!!form.solucion_definitiva} onChange={(e) => set('solucion_definitiva', e.target.checked)} className="h-5 w-5 accent-[#e2954d]" />
+            <input type="checkbox" checked={!!form.solucion_definitiva} onChange={(e) => set('solucion_definitiva', e.target.checked)} className="h-5 w-5 accent-[#c81f2a]" />
             Solución definitiva
           </label>
         </div>
@@ -118,7 +118,7 @@ function Field({ label, value, onChange, className = '' }: { label: string; valu
   return (
     <label className={className}>
       <span className="mb-2 block text-sm font-bold text-zinc-300">{label}</span>
-      <input value={value} onChange={(e) => onChange(e.target.value)} className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none focus:border-[#e2954d]" />
+      <input value={value} onChange={(e) => onChange(e.target.value)} className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none focus:border-[#c81f2a]" />
     </label>
   )
 }
@@ -127,7 +127,7 @@ function Area({ label, value, onChange }: { label: string; value: string; onChan
   return (
     <label className="md:col-span-3">
       <span className="mb-2 block text-sm font-bold text-zinc-300">{label}</span>
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} className="h-28 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none focus:border-[#e2954d]" />
+      <textarea value={value} onChange={(e) => onChange(e.target.value)} className="h-28 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none focus:border-[#c81f2a]" />
     </label>
   )
 }

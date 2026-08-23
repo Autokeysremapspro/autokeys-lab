@@ -139,7 +139,7 @@ export default function VehiculoModal({
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, cliente_id: e.target.value || null }))
               }
-              className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-[#e2954d]"
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-[#c81f2a]"
             >
               <option value="">Sin asignar</option>
               {clientes.map((cliente) => (
@@ -165,7 +165,7 @@ export default function VehiculoModal({
             <textarea
               value={form.notas || ''}
               onChange={(e) => setField('notas', e.target.value)}
-              className="h-28 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-[#e2954d]"
+              className="h-28 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-[#c81f2a]"
             />
           </label>
         </div>
@@ -182,7 +182,7 @@ export default function VehiculoModal({
             type="button"
             onClick={submit}
             disabled={isSaving}
-            className="rounded-xl bg-[#e2954d] px-5 py-3 font-bold text-[#0a0d12] shadow-lg shadow-[#8a4a1f]/40 hover:bg-[#ffb870] disabled:opacity-60"
+            className="rounded-xl bg-[#c81f2a] px-5 py-3 font-bold text-[#0a0d12] shadow-lg shadow-[#7a0f16]/40 hover:bg-[#ff5468] disabled:opacity-60"
           >
             {isSaving ? 'Guardando...' : 'Guardar vehículo'}
           </button>
@@ -207,7 +207,7 @@ function Field({
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-[#e2954d]"
+        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-[#c81f2a]"
       />
     </label>
   )

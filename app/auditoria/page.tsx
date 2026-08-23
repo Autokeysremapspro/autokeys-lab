@@ -38,14 +38,14 @@ function StatBox({ icon: Icon, label, value, active, onClick }: { icon: any; lab
       type="button"
       onClick={onClick}
       disabled={!clickable}
-      className={`card p-5 text-left transition ${clickable ? '' : 'cursor-default'} ${active ? 'border-[#e2954d]/60 bg-[#e2954d]/[.08]' : clickable ? 'hover:border-[#e2954d]/25' : ''}`}
+      className={`card p-5 text-left transition ${clickable ? '' : 'cursor-default'} ${active ? 'border-[#c81f2a]/60 bg-[#c81f2a]/[.08]' : clickable ? 'hover:border-[#c81f2a]/25' : ''}`}
     >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-zinc-500 font-bold uppercase tracking-wider">{label}</p>
           <p className="text-3xl font-bold mt-2">{value}</p>
         </div>
-        <div className="w-12 h-12 rounded-2xl bg-[#e2954d]/15 border border-[#e2954d]/20 flex items-center justify-center text-[#ffb870]">
+        <div className="w-12 h-12 rounded-2xl bg-[#c81f2a]/15 border border-[#c81f2a]/20 flex items-center justify-center text-[#ff5468]">
           <Icon size={22} />
         </div>
       </div>
@@ -94,7 +94,7 @@ export default function AuditoriaPage() {
       <div className="space-y-6">
         <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
           <div>
-            <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Sistema</p>
+            <p className="text-sm text-[#ff5468] font-bold uppercase tracking-[0.2em]">Sistema</p>
             <h2 className="text-4xl font-bold mt-1">Auditoría</h2>
             <p className="text-zinc-500 mt-2 max-w-3xl">
               Registro de actividad de Autokeys Core: cambios de clientes, vehículos, OT, facturas, stock, usuarios y configuración.

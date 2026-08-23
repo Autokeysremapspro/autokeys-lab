@@ -356,7 +356,7 @@ export default function WorkOrderWizard() {
                 return (
                   <button key={w.id} onClick={() => setSelectedWork(w)} className={cx('work-card text-left', selectedWork.id === w.id && 'work-card-active')}>
                     <div className="flex items-center gap-3 mb-3">
-                      <span className="rounded-2xl bg-[#e2954d]/10 border border-[#e2954d]/20 p-3 text-[#ffb870]"><Icon size={20} /></span>
+                      <span className="rounded-2xl bg-[#c81f2a]/10 border border-[#c81f2a]/20 p-3 text-[#ff5468]"><Icon size={20} /></span>
                       <span className="font-bold">{w.label}</span>
                     </div>
                     <p className="text-sm text-zinc-500 leading-relaxed">{w.description}</p>
@@ -422,7 +422,7 @@ function Stepper({ step }: { step: number }) {
       {labels.map((label, i) => {
         const n = i + 1
         return (
-          <div key={label} className={cx('rounded-2xl border p-3', step >= n ? 'border-[#e2954d]/50 bg-[#e2954d]/10 text-[#0a0d12]' : 'border-white/10 bg-white/[0.02] text-zinc-500')}>
+          <div key={label} className={cx('rounded-2xl border p-3', step >= n ? 'border-[#c81f2a]/50 bg-[#c81f2a]/10 text-[#0a0d12]' : 'border-white/10 bg-white/[0.02] text-zinc-500')}>
             <p className="text-xs font-bold uppercase tracking-widest">Paso {n}</p>
             <p className="font-bold mt-1">{label}</p>
           </div>
@@ -435,7 +435,7 @@ function Stepper({ step }: { step: number }) {
 function SectionTitle({ icon, title, subtitle }: { icon: React.ReactNode, title: string, subtitle: string }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="rounded-2xl bg-[#e2954d]/10 border border-[#e2954d]/20 p-3 text-[#ffb870]">{icon}</span>
+      <span className="rounded-2xl bg-[#c81f2a]/10 border border-[#c81f2a]/20 p-3 text-[#ff5468]">{icon}</span>
       <div>
         <h2 className="text-2xl font-bold">{title}</h2>
         <p className="text-zinc-500 text-sm mt-1">{subtitle}</p>

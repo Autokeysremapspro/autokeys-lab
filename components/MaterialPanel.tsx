@@ -100,7 +100,7 @@ export default function MaterialPanel({ expedienteId, onEvent }: Props) {
       <div className="card p-6 xl:col-span-2">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-5">
           <div>
-            <h3 className="text-2xl font-bold flex items-center gap-2"><Package className="text-[#ffb870]" /> Material utilizado</h3>
+            <h3 className="text-2xl font-bold flex items-center gap-2"><Package className="text-[#ff5468]" /> Material utilizado</h3>
             <p className="text-zinc-400 mt-1">Asocia llaves, ECUs, módulos, carcasas o consumibles del stock a esta OT.</p>
           </div>
           <button onClick={load} className="btn btn-dark inline-flex items-center gap-2"><RefreshCcw size={17} /> Actualizar</button>
@@ -136,7 +136,7 @@ export default function MaterialPanel({ expedienteId, onEvent }: Props) {
                     <p className="text-xs text-zinc-600 mt-1">{formatDate(mov.created_at)} · {mov.motivo || 'Sin motivo'}</p>
                   </div>
                   <div className="text-right">
-                    <p className={`text-xl font-bold ${mov.tipo_movimiento === 'salida' ? 'text-[#ffb870]' : 'text-emerald-300'}`}>{mov.tipo_movimiento === 'salida' ? '-' : '+'}{mov.cantidad}</p>
+                    <p className={`text-xl font-bold ${mov.tipo_movimiento === 'salida' ? 'text-[#ff5468]' : 'text-emerald-300'}`}>{mov.tipo_movimiento === 'salida' ? '-' : '+'}{mov.cantidad}</p>
                     <p className="text-sm text-zinc-500">{money((item?.precio_venta || 0) * (mov.cantidad || 0))}</p>
                   </div>
                 </div>
@@ -164,7 +164,7 @@ export default function MaterialPanel({ expedienteId, onEvent }: Props) {
             <p className="text-sm text-zinc-400">Stock actual: {selected?.cantidad ?? '-'}</p>
             {selected && (selected.cantidad || 0) <= (selected.cantidad_minima || 0) && <p className="text-sm text-amber-300 mt-2">⚠ Stock bajo o en mínimo</p>}
           </div>
-          <div className="rounded-2xl bg-[#e2954d]/10 border border-[#e2954d]/20 p-4 text-sm text-[#ffb870]">
+          <div className="rounded-2xl bg-[#c81f2a]/10 border border-[#c81f2a]/20 p-4 text-sm text-[#ff5468]">
             Cuando añades una salida, el stock baja automáticamente mediante el trigger de Supabase.
           </div>
         </div>

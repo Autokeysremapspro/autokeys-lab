@@ -104,14 +104,14 @@ export default function AdminCenter() {
                 key={tab.key}
                 onClick={() => setActive(tab.key)}
                 className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
-                  isActive ? 'border-[#e2954d]/60 bg-[#e2954d] text-[#0a0d12] shadow-lg shadow-[#8a4a1f]/30' : 'border-white/10 bg-slate-900/60 text-slate-300 hover:bg-white/5'
+                  isActive ? 'border-[#c81f2a]/60 bg-[#c81f2a] text-[#0a0d12] shadow-lg shadow-[#7a0f16]/30' : 'border-white/10 bg-slate-900/60 text-slate-300 hover:bg-white/5'
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <Icon size={20} className={isActive ? 'text-white' : 'text-[#ffb870]'} />
+                  <Icon size={20} className={isActive ? 'text-white' : 'text-[#ff5468]'} />
                   <div>
                     <p className="font-bold">{tab.label}</p>
-                    <p className={`mt-1 text-xs ${isActive ? 'text-[#ffb870]' : 'text-slate-500'}`}>{tab.description}</p>
+                    <p className={`mt-1 text-xs ${isActive ? 'text-[#ff5468]' : 'text-slate-500'}`}>{tab.description}</p>
                   </div>
                 </div>
               </button>
@@ -138,7 +138,7 @@ export default function AdminCenter() {
               <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
                 {['Facturas', 'Presupuestos', 'Albaranes', 'Tickets', 'OT'].map((item) => (
                   <div key={item} className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
-                    <FileText className="text-[#ffb870]" size={22} />
+                    <FileText className="text-[#ff5468]" size={22} />
                     <p className="mt-3 font-bold text-white">{item}</p>
                     <p className="mt-1 text-xs text-slate-500">Plantilla y numeración configurables.</p>
                   </div>
@@ -162,7 +162,7 @@ export default function AdminCenter() {
                   <h2 className="text-xl font-bold text-white">Usuarios y roles</h2>
                   <p className="mt-2 text-sm text-slate-400">Alta, bloqueo, edición, contraseña y rol de cada usuario.</p>
                 </div>
-                <Link href="/usuarios" className="rounded-xl bg-[#e2954d] px-4 py-3 text-center text-sm font-bold text-[#0a0d12] hover:bg-[#ffb870]">
+                <Link href="/usuarios" className="rounded-xl bg-[#c81f2a] px-4 py-3 text-center text-sm font-bold text-[#0a0d12] hover:bg-[#ff5468]">
                   Abrir gestión de usuarios
                 </Link>
               </div>
@@ -170,7 +170,7 @@ export default function AdminCenter() {
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {['admin', 'laboratorio', 'administracion', 'distribuidor'].map((role) => (
                 <Card key={role}>
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">Rol</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#ff5468]">Rol</p>
                   <h3 className="mt-2 text-lg font-bold capitalize text-white">{role}</h3>
                   <p className="mt-2 text-sm text-slate-500">Permisos base del perfil {role}.</p>
                 </Card>
@@ -219,7 +219,7 @@ export default function AdminCenter() {
                 {['Enviar factura por email', 'Avisar OT terminada', 'Avisar stock bajo', 'Avisar File Service pendiente'].map((item) => (
                   <div key={item} className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3">
                     <span className="font-semibold text-white">{item}</span>
-                    <Bell size={18} className="text-[#ffb870]" />
+                    <Bell size={18} className="text-[#ff5468]" />
                   </div>
                 ))}
               </div>
@@ -272,7 +272,7 @@ export default function AdminCenter() {
                 ].map(([label, Icon]: any) => (
                   <div key={label} className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3">
                     <span className="font-semibold text-white">{label}</span>
-                    <Icon size={18} className="text-[#ffb870]" />
+                    <Icon size={18} className="text-[#ff5468]" />
                   </div>
                 ))}
               </div>

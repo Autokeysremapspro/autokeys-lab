@@ -121,7 +121,7 @@ export default function ArchivosProPanel({ expedienteId }: Props) {
       <section className="card p-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ffb870]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ff5468]">
               <FileArchive size={14} /> Archivos Pro
             </div>
             <h3 className="mt-2 text-2xl font-bold">Gestor técnico de archivos</h3>
@@ -147,7 +147,7 @@ export default function ArchivosProPanel({ expedienteId }: Props) {
             e.preventDefault()
             handleFiles(e.dataTransfer.files)
           }}
-          className="mt-5 rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-6 text-center text-zinc-400 hover:border-[#e2954d]/40"
+          className="mt-5 rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-6 text-center text-zinc-400 hover:border-[#c81f2a]/40"
         >
           Arrastra aquí BIN, EEPROM, FLASH, PDF o fotos del expediente.
         </div>
@@ -185,7 +185,7 @@ export default function ArchivosProPanel({ expedienteId }: Props) {
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-[#e2954d]/10 px-3 py-1 text-xs font-bold text-[#ffb870]">{file.categoria}</span>
+                      <span className="rounded-full bg-[#c81f2a]/10 px-3 py-1 text-xs font-bold text-[#ff5468]">{file.categoria}</span>
                       <span className="text-xs text-zinc-500">{formatBytes(file.tamano_bytes)}</span>
                     </div>
                     <h4 className="mt-2 truncate text-lg font-bold">{file.nombre}</h4>

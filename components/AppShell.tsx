@@ -244,7 +244,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <main className="min-h-screen grid place-items-center bg-[#0a0d12] text-zinc-100 p-6">
         <div className="card max-w-md w-full p-8 text-center">
           <div className="font-display text-3xl font-bold tracking-tight">
-            AUTOKEYS <span className="text-[#ffb870]">CORE</span>
+            AUTOKEYS <span className="text-[#ff5468]">CORE</span>
           </div>
           <p className="text-zinc-500 mt-3">Comprobando sesión segura...</p>
         </div>
@@ -259,7 +259,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <aside className="w-80 bg-[#0c0f16] border-r border-white/10 p-5 hidden lg:flex flex-col">
         <Link href="/" className="mb-4 block">
           <div className="font-display text-2xl font-bold tracking-tight">
-            AUTOKEYS <span className="text-[#ffb870]">CORE</span>
+            AUTOKEYS <span className="text-[#ff5468]">CORE</span>
           </div>
           <div className="ak-mono text-[10px] text-zinc-500 mt-1 uppercase tracking-[.14em]">Laboratory Management System</div>
         </Link>
@@ -295,7 +295,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                           href={item.href}
                           className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition ${
                             active
-                              ? 'bg-gradient-to-r from-[#8a4a1f] to-[#e2954d] text-[#0a0d12] shadow-lg shadow-black/40'
+                              ? 'bg-gradient-to-r from-[#7a0f16] to-[#c81f2a] text-[#0a0d12] shadow-lg shadow-black/40'
                               : 'hover:bg-white/5 text-zinc-300'
                           }`}
                         >
@@ -319,7 +319,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <main className="flex-1 p-4 lg:p-8 max-w-[1700px] mx-auto w-full">
         <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-8 gap-4">
           <div>
-            <p className="ak-mono text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em] flex items-center gap-1.5">
+            <p className="ak-mono text-sm text-[#ff5468] font-bold uppercase tracking-[0.2em] flex items-center gap-1.5">
               {page.group}
               {page.title !== page.group && <ChevronRight size={14} className="text-zinc-600" />}
             </p>

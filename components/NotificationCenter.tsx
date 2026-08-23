@@ -312,7 +312,7 @@ export default function NotificationCenter() {
     <div className="relative">
       <button onClick={() => setOpen(!open)} className="relative h-12 w-12 rounded-2xl bg-[#0B1220] border border-white/10 flex items-center justify-center hover:bg-white/5 transition" title="Centro de avisos">
         <Bell size={18} />
-        {items.length > 0 && <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1 rounded-full bg-[#e2954d] text-[10px] font-bold text-[#0a0d12] flex items-center justify-center">{items.length}</span>}
+        {items.length > 0 && <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1 rounded-full bg-[#c81f2a] text-[10px] font-bold text-[#0a0d12] flex items-center justify-center">{items.length}</span>}
       </button>
 
       {open && (
@@ -322,20 +322,20 @@ export default function NotificationCenter() {
               <div className="font-bold">Centro de avisos</div>
               <div className="text-xs text-zinc-500 mt-1">Pedidos, pagos, distribuidores, chat, soporte y operaciones.</div>
             </div>
-            <button onClick={markAll} className="text-xs font-bold text-[#ffb870] hover:text-[#ffd39f] flex items-center gap-1">
+            <button onClick={markAll} className="text-xs font-bold text-[#ff5468] hover:text-[#ffd39f] flex items-center gap-1">
               <CheckCheck size={14} /> Leer todo
             </button>
           </div>
 
           {!pushReady && (
-            <div className="p-3 border-b border-white/10 bg-[#e2954d]/5">
+            <div className="p-3 border-b border-white/10 bg-[#c81f2a]/5">
               <button
                 type="button"
                 onClick={enableWebPush}
                 disabled={browserPermission === 'denied' || browserPermission === 'unsupported' || pushState === 'unsupported' || pushState === 'activating'}
-                className="w-full rounded-2xl border border-[#e2954d]/30 bg-[#e2954d]/10 px-4 py-3 text-left hover:bg-[#e2954d]/15 disabled:opacity-50"
+                className="w-full rounded-2xl border border-[#c81f2a]/30 bg-[#c81f2a]/10 px-4 py-3 text-left hover:bg-[#c81f2a]/15 disabled:opacity-50"
               >
-                <div className="flex items-center gap-2 text-sm font-bold text-[#ffb870]"><BellRing size={16} /> {pushState === 'activating' ? 'Activando push...' : 'Activar push real + sonido'}</div>
+                <div className="flex items-center gap-2 text-sm font-bold text-[#ff5468]"><BellRing size={16} /> {pushState === 'activating' ? 'Activando push...' : 'Activar push real + sonido'}</div>
                 <div className="mt-1 text-xs text-zinc-500">
                   {browserPermission === 'denied'
                     ? 'Las notificaciones están bloqueadas en los permisos del navegador.'
@@ -381,7 +381,7 @@ export default function NotificationCenter() {
             })}
           </div>
 
-          <Link href="/notificaciones" onClick={() => setOpen(false)} className="block p-4 border-t border-white/10 text-center text-sm font-bold text-[#ffb870] hover:bg-white/5">
+          <Link href="/notificaciones" onClick={() => setOpen(false)} className="block p-4 border-t border-white/10 text-center text-sm font-bold text-[#ff5468] hover:bg-white/5">
             Ver centro de avisos
           </Link>
         </div>

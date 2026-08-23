@@ -27,7 +27,7 @@ function Stat({ icon: Icon, label, value, hint }: any) {
           <p className="text-2xl font-bold mt-2">{value}</p>
           {hint && <p className="text-xs text-zinc-500 mt-2">{hint}</p>}
         </div>
-        <div className="h-12 w-12 rounded-2xl bg-[#e2954d]/10 text-[#ffb870] flex items-center justify-center">
+        <div className="h-12 w-12 rounded-2xl bg-[#c81f2a]/10 text-[#ff5468] flex items-center justify-center">
           <Icon size={22} />
         </div>
       </div>
@@ -41,7 +41,7 @@ function SimpleBars({ title, rows, suffix = '', money = false }: any) {
     <div className="card p-6">
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-xl font-bold">{title}</h2>
-        <BarChart3 className="text-[#ffb870]" size={20} />
+        <BarChart3 className="text-[#ff5468]" size={20} />
       </div>
       <div className="space-y-4">
         {rows.length === 0 && <p className="text-zinc-500">Sin datos todavía.</p>}
@@ -52,7 +52,7 @@ function SimpleBars({ title, rows, suffix = '', money = false }: any) {
               <span className="text-zinc-400 whitespace-nowrap">{money ? formatMoney(row.value) : `${row.value}${suffix}`}</span>
             </div>
             <div className="h-2 rounded-full bg-white/5 overflow-hidden">
-              <div className="h-full bg-[#e2954d] rounded-full" style={{ width: `${Math.max(4, (Number(row.value || 0) / max) * 100)}%` }} />
+              <div className="h-full bg-[#c81f2a] rounded-full" style={{ width: `${Math.max(4, (Number(row.value || 0) / max) * 100)}%` }} />
             </div>
           </div>
         ))}
@@ -84,7 +84,7 @@ export default function InformesPage() {
     <AppShell>
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8">
         <div>
-          <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Autokeys Core</p>
+          <p className="text-sm text-[#ff5468] font-bold uppercase tracking-[0.2em]">Autokeys Core</p>
           <h1 className="text-4xl font-bold mt-1">Informes</h1>
           <p className="text-zinc-500 mt-2">Control de facturación, OT, file service, stock y rendimiento del laboratorio.</p>
         </div>
@@ -118,7 +118,7 @@ export default function InformesPage() {
           <div className="card p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-xl font-bold">Stock bajo</h2>
-              <Package className="text-[#ffb870]" size={20} />
+              <Package className="text-[#ff5468]" size={20} />
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -142,7 +142,7 @@ export default function InformesPage() {
                       <td>{item.descripcion}</td>
                       <td>{item.tipo}</td>
                       <td>{item.ubicacion || '-'}</td>
-                      <td className="text-right text-[#ffb870] font-bold">{item.cantidad ?? 0}</td>
+                      <td className="text-right text-[#ff5468] font-bold">{item.cantidad ?? 0}</td>
                       <td className="text-right">{item.cantidad_minima ?? 0}</td>
                     </tr>
                   ))}

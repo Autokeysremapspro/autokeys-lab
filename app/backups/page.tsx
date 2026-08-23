@@ -179,7 +179,7 @@ export default function BackupsPage() {
         </div>
 
         {error && (
-          <div className="card p-4 border border-[#e2954d]/30 text-[#ffb870]">
+          <div className="card p-4 border border-[#c81f2a]/30 text-[#ff5468]">
             {error}
           </div>
         )}
@@ -216,7 +216,7 @@ export default function BackupsPage() {
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <div className="flex items-center gap-2 text-[#ffb870] font-bold uppercase tracking-wider text-xs">
+                      <div className="flex items-center gap-2 text-[#ff5468] font-bold uppercase tracking-wider text-xs">
                         <FileSpreadsheet size={16} /> CSV
                       </div>
                       <h3 className="text-xl font-bold mt-2">{item.label}</h3>
@@ -245,7 +245,7 @@ export default function BackupsPage() {
 
           <section className="card p-6">
             <div className="flex items-center gap-3 mb-4">
-              <HardDriveDownload className="text-[#ffb870]" />
+              <HardDriveDownload className="text-[#ff5468]" />
               <div>
                 <h2 className="text-2xl font-bold">Copia completa JSON</h2>
                 <p className="text-zinc-500 text-sm">
@@ -269,7 +269,7 @@ export default function BackupsPage() {
                     type="checkbox"
                     checked={selected.includes(table.name)}
                     onChange={() => toggleTable(table.name)}
-                    className="h-5 w-5 accent-[#e2954d]"
+                    className="h-5 w-5 accent-[#c81f2a]"
                   />
                 </label>
               ))}
@@ -332,7 +332,7 @@ export default function BackupsPage() {
                       <td className="py-4 pr-4 font-bold">
                         {item.tipo || '—'}
                       </td>
-                      <td className="py-4 pr-4 uppercase text-[#ffb870] font-bold">
+                      <td className="py-4 pr-4 uppercase text-[#ff5468] font-bold">
                         {item.formato || '—'}
                       </td>
                       <td className="py-4 pr-4 text-zinc-400 max-w-[420px] truncate">

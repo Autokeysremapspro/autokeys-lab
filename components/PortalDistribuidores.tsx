@@ -68,7 +68,7 @@ function statusClass(estado?: string | null) {
   if (estado === 'en_proceso') return 'bg-yellow-500/15 text-yellow-300 border-yellow-500/20'
   if (estado === 'cancelado') return 'bg-zinc-500/15 text-zinc-300 border-zinc-500/20'
   if (estado === 'revision') return 'bg-purple-500/15 text-purple-300 border-purple-500/20'
-  return 'bg-[#e2954d]/15 text-[#ffb870] border-[#e2954d]/20'
+  return 'bg-[#c81f2a]/15 text-[#ff5468] border-[#c81f2a]/20'
 }
 
 export default function PortalDistribuidores() {
@@ -219,7 +219,7 @@ export default function PortalDistribuidores() {
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">Solicitudes</p><p className="mt-2 text-3xl font-bold text-white">{stats.total}</p></div>
-        <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">Pendientes</p><p className="mt-2 text-3xl font-bold text-[#ffb870]">{stats.pendientes}</p></div>
+        <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">Pendientes</p><p className="mt-2 text-3xl font-bold text-[#ff5468]">{stats.pendientes}</p></div>
         <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">En proceso</p><p className="mt-2 text-3xl font-bold text-yellow-300">{stats.proceso}</p></div>
         <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">Finalizadas</p><p className="mt-2 text-3xl font-bold text-emerald-300">{stats.finalizados}</p></div>
         <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5"><p className="text-sm text-slate-400">Pendiente cobro</p><p className="mt-2 text-3xl font-bold text-white">{money(stats.pendienteCobro)}</p></div>
@@ -244,13 +244,13 @@ export default function PortalDistribuidores() {
             {loading && <div className="rounded-2xl border border-white/10 p-4 text-slate-400">Cargando...</div>}
             {!loading && filtered.length === 0 && <div className="rounded-2xl border border-white/10 p-4 text-slate-400">No hay solicitudes.</div>}
             {filtered.map((s) => (
-              <div key={s.id} className="rounded-3xl border border-white/10 bg-[#0B1220] p-4 transition hover:border-[#e2954d]/30">
+              <div key={s.id} className="rounded-3xl border border-white/10 bg-[#0B1220] p-4 transition hover:border-[#c81f2a]/30">
                 <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                   <button onClick={() => setSelected(s)} className="text-left">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`rounded-full border px-3 py-1 text-xs font-bold uppercase ${statusClass(s.estado)}`}>{s.estado || 'pendiente'}</span>
                       <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-slate-300">{s.prioridad || 'normal'}</span>
-                      {!s.pagado && <span className="rounded-full border border-[#e2954d]/20 bg-[#e2954d]/10 px-3 py-1 text-xs font-bold text-[#ffb870]">Pendiente cobro</span>}
+                      {!s.pagado && <span className="rounded-full border border-[#c81f2a]/20 bg-[#c81f2a]/10 px-3 py-1 text-xs font-bold text-[#ff5468]">Pendiente cobro</span>}
                     </div>
                     <h3 className="mt-3 text-xl font-bold text-white">{s.usuarios?.nombre || s.taller || 'Distribuidor sin asignar'}</h3>
                     <p className="mt-1 text-sm text-slate-400">{[s.marca, s.modelo, s.motor, s.matricula].filter(Boolean).join(' · ') || 'Vehículo sin definir'}</p>
@@ -270,7 +270,7 @@ export default function PortalDistribuidores() {
         <div className="space-y-6">
           <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5 shadow-2xl">
             <div className="flex items-center gap-3">
-              <Users className="text-[#ffb870]" />
+              <Users className="text-[#ff5468]" />
               <div>
                 <h2 className="text-xl font-bold text-white">Distribuidores</h2>
                 <p className="text-sm text-slate-400">Usuarios con rol distribuidor.</p>
@@ -279,10 +279,10 @@ export default function PortalDistribuidores() {
             <div className="mt-5 space-y-3">
               {distribuidores.length === 0 && <p className="text-sm text-slate-400">Crea usuarios con rol distribuidor en Usuarios.</p>}
               {distribuidores.map((u) => (
-                <button key={u.id} onClick={() => openPerfil(u)} className="w-full rounded-2xl border border-white/10 bg-black/20 p-4 text-left hover:border-[#e2954d]/30">
+                <button key={u.id} onClick={() => openPerfil(u)} className="w-full rounded-2xl border border-white/10 bg-black/20 p-4 text-left hover:border-[#c81f2a]/30">
                   <div className="flex items-center justify-between gap-3">
                     <div><p className="font-bold text-white">{u.nombre}</p><p className="text-xs text-slate-500">{u.email}</p></div>
-                    {u.activo !== false ? <CheckCircle2 className="text-emerald-400" size={18} /> : <AlertTriangle className="text-[#ffb870]" size={18} />}
+                    {u.activo !== false ? <CheckCircle2 className="text-emerald-400" size={18} /> : <AlertTriangle className="text-[#ff5468]" size={18} />}
                   </div>
                 </button>
               ))}
@@ -291,7 +291,7 @@ export default function PortalDistribuidores() {
 
           <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5 shadow-2xl">
             <div className="flex items-center gap-3">
-              <MessageSquare className="text-[#ffb870]" />
+              <MessageSquare className="text-[#ff5468]" />
               <div>
                 <h2 className="text-xl font-bold text-white">Mensajes</h2>
                 <p className="text-sm text-slate-400">Comunicación visible en el portal.</p>
@@ -309,14 +309,14 @@ export default function PortalDistribuidores() {
                   {mensajes.length === 0 && <p className="text-sm text-slate-500">Sin mensajes todavía.</p>}
                   {mensajes.map((m) => (
                     <div key={m.id} className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                      <div className="flex items-center justify-between gap-3"><p className="text-xs font-bold uppercase text-[#ffb870]">{m.autor}</p><p className="text-xs text-slate-600">{m.created_at ? new Date(m.created_at).toLocaleString('es-ES') : ''}</p></div>
+                      <div className="flex items-center justify-between gap-3"><p className="text-xs font-bold uppercase text-[#ff5468]">{m.autor}</p><p className="text-xs text-slate-600">{m.created_at ? new Date(m.created_at).toLocaleString('es-ES') : ''}</p></div>
                       <p className="mt-2 text-sm text-slate-300">{m.mensaje}</p>
                     </div>
                   ))}
                 </div>
                 <div className="flex gap-2">
                   <input value={mensaje} onChange={(e) => setMensaje(e.target.value)} placeholder="Escribir mensaje..." className="flex-1 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none" />
-                  <button onClick={sendMensaje} className="rounded-2xl bg-[#e2954d] px-4 text-[#0a0d12] hover:bg-[#ffb870]"><Send size={18} /></button>
+                  <button onClick={sendMensaje} className="rounded-2xl bg-[#c81f2a] px-4 text-[#0a0d12] hover:bg-[#ff5468]"><Send size={18} /></button>
                 </div>
               </div>
             )}

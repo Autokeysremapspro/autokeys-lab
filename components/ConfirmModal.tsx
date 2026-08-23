@@ -37,7 +37,7 @@ export default function ConfirmModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-4">
-          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${danger ? 'bg-red-500/15 text-red-300' : 'bg-[#e2954d]/15 text-[#ffb870]'}`}>
+          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${danger ? 'bg-red-500/15 text-red-300' : 'bg-[#c81f2a]/15 text-[#ff5468]'}`}>
             <AlertTriangle size={22} />
           </div>
           <div>

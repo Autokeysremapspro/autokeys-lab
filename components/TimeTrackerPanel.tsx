@@ -69,7 +69,7 @@ export default function TimeTrackerPanel({ expedienteId, onEvent }: Props) {
   return (
     <div className="grid xl:grid-cols-3 gap-5">
       <div className="card p-6 xl:col-span-2">
-        <h3 className="text-2xl font-bold mb-2 flex items-center gap-2"><Clock3 className="text-[#ffb870]" /> Cronómetro de trabajo</h3>
+        <h3 className="text-2xl font-bold mb-2 flex items-center gap-2"><Clock3 className="text-[#ff5468]" /> Cronómetro de trabajo</h3>
         <p className="text-zinc-500 mb-6">Controla el tiempo real invertido en esta OT. Más adelante servirá para rentabilidad y estadísticas por tipo de trabajo.</p>
 
         {error && <div className="rounded-2xl border border-red-500/30 bg-red-500/10 text-red-300 p-4 mb-4">{error}</div>}

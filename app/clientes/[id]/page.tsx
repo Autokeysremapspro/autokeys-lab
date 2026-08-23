@@ -53,7 +53,7 @@ export default function ClienteFichaPage() {
         <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-7 shadow-2xl shadow-black/20">
           <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
             <div>
-              <p className="mb-3 text-sm font-bold uppercase tracking-[0.45em] text-[#ffb870]">Ficha cliente</p>
+              <p className="mb-3 text-sm font-bold uppercase tracking-[0.45em] text-[#ff5468]">Ficha cliente</p>
               <h1 className="text-5xl font-bold text-white">{cliente.nombre}</h1>
               <div className="mt-4 flex flex-wrap gap-4 text-slate-400">
                 {cliente.telefono && <span className="inline-flex items-center gap-2"><Phone size={17} /> {cliente.telefono}</span>}
@@ -64,7 +64,7 @@ export default function ClienteFichaPage() {
               {(cliente.direccion || cliente.poblacion || cliente.provincia) && <p className="mt-3 text-slate-400">{cliente.direccion} {cliente.codigo_postal} {cliente.poblacion} {cliente.provincia}</p>}
               {!!cliente.herramientas?.length && <div className="mt-5 flex flex-wrap items-center gap-2"><span className="mr-1 inline-flex items-center gap-2 text-sm font-bold text-slate-300"><Wrench size={16}/> Herramientas:</span>{cliente.herramientas.map(tool => <span key={tool} className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-bold text-cyan-200">{tool}</span>)}</div>}
             </div>
-            <button onClick={() => setModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#e2954d] px-5 py-4 font-bold text-[#0a0d12] hover:bg-[#ffb870]"><Pencil size={18} /> Editar cliente</button>
+            <button onClick={() => setModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#c81f2a] px-5 py-4 font-bold text-[#0a0d12] hover:bg-[#ff5468]"><Pencil size={18} /> Editar cliente</button>
           </div>
         </section>
 
@@ -75,12 +75,12 @@ export default function ClienteFichaPage() {
         </div>
 
         <Section title="Vehículos">
-          {vehiculos.map(v => <Link key={v.id} href={`/vehiculos/${v.id}`} className="block rounded-2xl border border-slate-800 bg-slate-950/60 p-4 hover:border-[#e2954d]/50"><b className="text-white">{v.marca || 'Vehículo'} {v.modelo || ''}</b><p className="text-sm text-slate-400">{v.matricula || 'Sin matrícula'} · {v.motor || 'Sin motor'} · {v.ecu || 'Sin ECU'}</p></Link>)}
+          {vehiculos.map(v => <Link key={v.id} href={`/vehiculos/${v.id}`} className="block rounded-2xl border border-slate-800 bg-slate-950/60 p-4 hover:border-[#c81f2a]/50"><b className="text-white">{v.marca || 'Vehículo'} {v.modelo || ''}</b><p className="text-sm text-slate-400">{v.matricula || 'Sin matrícula'} · {v.motor || 'Sin motor'} · {v.ecu || 'Sin ECU'}</p></Link>)}
           {vehiculos.length === 0 && <p className="text-slate-400">Sin vehículos asociados.</p>}
         </Section>
 
         <Section title="Expedientes">
-          {expedientes.map(e => <Link key={e.id} href={`/expedientes/${e.id}`} className="block rounded-2xl border border-slate-800 bg-slate-950/60 p-4 hover:border-[#e2954d]/50"><b className="text-white">{e.numero_ot || 'OT'}</b><p className="text-sm text-slate-400">{e.tipo_trabajo} · {e.estado}</p></Link>)}
+          {expedientes.map(e => <Link key={e.id} href={`/expedientes/${e.id}`} className="block rounded-2xl border border-slate-800 bg-slate-950/60 p-4 hover:border-[#c81f2a]/50"><b className="text-white">{e.numero_ot || 'OT'}</b><p className="text-sm text-slate-400">{e.tipo_trabajo} · {e.estado}</p></Link>)}
           {expedientes.length === 0 && <p className="text-slate-400">Sin expedientes.</p>}
         </Section>
       </div>
@@ -91,7 +91,7 @@ export default function ClienteFichaPage() {
 }
 
 function MiniStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
-  return <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-5"><div className="mb-4 text-[#ffb870]">{icon}</div><p className="text-sm text-slate-400">{label}</p><b className="text-3xl text-white">{value}</b></div>
+  return <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-5"><div className="mb-4 text-[#ff5468]">{icon}</div><p className="text-sm text-slate-400">{label}</p><b className="text-3xl text-white">{value}</b></div>
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {

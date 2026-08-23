@@ -102,7 +102,7 @@ export default function PlantillasDocumentosPage() {
       <div className="space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <div className="text-sm uppercase tracking-widest text-[#ffb870] font-bold">Configuración</div>
+            <div className="text-sm uppercase tracking-widest text-[#ff5468] font-bold">Configuración</div>
             <h1 className="text-4xl font-bold mt-2">Plantillas de documentos</h1>
             <p className="text-zinc-500 mt-2 max-w-3xl">
               Personaliza cómo salen facturas, presupuestos, albaranes y tickets: logo, colores, textos legales, garantía y observaciones por defecto.
@@ -119,7 +119,7 @@ export default function PlantillasDocumentosPage() {
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <aside className="card p-4 xl:col-span-1">
-            <div className="font-bold text-lg mb-4 flex items-center gap-2"><FileText className="text-[#ffb870]" /> Documentos</div>
+            <div className="font-bold text-lg mb-4 flex items-center gap-2"><FileText className="text-[#ff5468]" /> Documentos</div>
             {loading ? (
               <div className="text-zinc-500 flex items-center gap-2"><Loader2 className="animate-spin" size={18} /> Cargando...</div>
             ) : (
@@ -128,7 +128,7 @@ export default function PlantillasDocumentosPage() {
                   <button
                     key={item.id}
                     onClick={() => selectPlantilla(item)}
-                    className={`w-full text-left rounded-2xl px-4 py-3 border transition ${selectedId === item.id ? 'border-[#e2954d]/50 bg-[#e2954d]/10' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]'}`}
+                    className={`w-full text-left rounded-2xl px-4 py-3 border transition ${selectedId === item.id ? 'border-[#c81f2a]/50 bg-[#c81f2a]/10' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]'}`}
                   >
                     <div className="font-bold">{nombreTipoDocumento(item.tipo_documento)}</div>
                     <div className="text-xs text-zinc-500 mt-1">{item.nombre}</div>
@@ -162,12 +162,12 @@ export default function PlantillasDocumentosPage() {
 
               <label className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 flex items-center justify-between gap-3">
                 <span className="font-bold">Mostrar logo</span>
-                <input type="checkbox" checked={!!form.mostrar_logo} onChange={(e) => setField('mostrar_logo', e.target.checked)} className="h-5 w-5 accent-[#e2954d]" />
+                <input type="checkbox" checked={!!form.mostrar_logo} onChange={(e) => setField('mostrar_logo', e.target.checked)} className="h-5 w-5 accent-[#c81f2a]" />
               </label>
 
               <label className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 flex items-center justify-between gap-3">
                 <span className="font-bold">Mostrar sello</span>
-                <input type="checkbox" checked={!!form.mostrar_sello} onChange={(e) => setField('mostrar_sello', e.target.checked)} className="h-5 w-5 accent-[#e2954d]" />
+                <input type="checkbox" checked={!!form.mostrar_sello} onChange={(e) => setField('mostrar_sello', e.target.checked)} className="h-5 w-5 accent-[#c81f2a]" />
               </label>
             </div>
 

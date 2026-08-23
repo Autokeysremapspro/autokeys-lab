@@ -27,7 +27,7 @@ function estadoClass(estado?: string | null) {
     case 'aprobado':
       return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
     case 'rechazado':
-      return 'border-[#e2954d]/30 bg-[#e2954d]/10 text-[#ffb870]'
+      return 'border-[#c81f2a]/30 bg-[#c81f2a]/10 text-[#ff5468]'
     default:
       return 'border-amber-500/30 bg-amber-500/10 text-amber-300'
   }
@@ -129,13 +129,13 @@ export default function AkCloudRecargasPage() {
     <AppShell>
       <div className="space-y-7">
         <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#101827] to-[#19070d] p-7 shadow-2xl shadow-black/30">
-          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#e2954d]/20 blur-3xl" />
+          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#c81f2a]/20 blur-3xl" />
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <Link href="/ak-cloud" className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-white">
                 <ArrowLeft size={16} /> Volver a AK Cloud
               </Link>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ffb870]">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ff5468]">
                 <Wallet size={16} /> AK Cloud Sync v3
               </div>
               <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">Recargas y créditos</h1>
@@ -184,7 +184,7 @@ export default function AkCloudRecargasPage() {
                 <button
                   key={item}
                   onClick={() => setEstado(item)}
-                  className={`rounded-2xl px-4 py-2 text-sm font-bold uppercase tracking-wider transition ${estado === item ? 'bg-[#e2954d] text-[#0a0d12]' : 'bg-white/5 text-zinc-400 hover:bg-white/10'}`}
+                  className={`rounded-2xl px-4 py-2 text-sm font-bold uppercase tracking-wider transition ${estado === item ? 'bg-[#c81f2a] text-[#0a0d12]' : 'bg-white/5 text-zinc-400 hover:bg-white/10'}`}
                 >
                   {item}
                 </button>

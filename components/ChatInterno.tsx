@@ -92,7 +92,7 @@ export default function ChatInterno() {
         <div className="mb-3 flex h-[520px] w-[360px] flex-col overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#0c0f16] shadow-[0_30px_90px_rgba(0,0,0,.55)]">
           <div className="flex items-center justify-between border-b border-white/10 bg-[#10141c] px-4 py-3">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#e2954d]/15 text-[#ffb870]"><MessageCircle size={16} /></div>
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#c81f2a]/15 text-[#ff5468]"><MessageCircle size={16} /></div>
               <div>
                 <p className="text-sm font-bold leading-none">Chat interno</p>
                 <p className="ak-mono mt-1 text-[10px] uppercase tracking-wider text-zinc-500">{perfil?.nombre || 'Cargando...'}</p>
@@ -110,7 +110,7 @@ export default function ChatInterno() {
                   key={c.slug}
                   onClick={() => setCanal(c.slug)}
                   className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-xs font-bold transition ${
-                    activo ? 'bg-gradient-to-r from-[#8a4a1f] to-[#e2954d] text-[#0a0d12]' : 'text-zinc-400 hover:bg-white/5'
+                    activo ? 'bg-gradient-to-r from-[#7a0f16] to-[#c81f2a] text-[#0a0d12]' : 'text-zinc-400 hover:bg-white/5'
                   }`}
                 >
                   <Icon size={13} /> {c.label}
@@ -129,8 +129,8 @@ export default function ChatInterno() {
                 const esMio = perfil?.id === m.autor_id
                 return (
                   <div key={m.id} className={`flex flex-col ${esMio ? 'items-end' : 'items-start'}`}>
-                    <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${esMio ? 'bg-[#e2954d] text-[#0a0d12]' : 'bg-white/[.06] text-zinc-100'}`}>
-                      {!esMio && <p className="ak-mono mb-1 text-[10px] font-bold uppercase tracking-wider text-[#ffb870]">{m.autor_nombre}</p>}
+                    <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${esMio ? 'bg-[#c81f2a] text-[#0a0d12]' : 'bg-white/[.06] text-zinc-100'}`}>
+                      {!esMio && <p className="ak-mono mb-1 text-[10px] font-bold uppercase tracking-wider text-[#ff5468]">{m.autor_nombre}</p>}
                       <p className="whitespace-pre-wrap leading-5">{m.mensaje}</p>
                     </div>
                     <span className="mt-1 text-[10px] text-zinc-600">{formatHora(m.created_at)}</span>
@@ -152,7 +152,7 @@ export default function ChatInterno() {
               onClick={enviar}
               disabled={!texto.trim() || sending}
               aria-label="Enviar mensaje"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#8a4a1f] to-[#e2954d] text-[#0a0d12] transition disabled:opacity-40"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#7a0f16] to-[#c81f2a] text-[#0a0d12] transition disabled:opacity-40"
             >
               <Send size={17} />
             </button>
@@ -163,7 +163,7 @@ export default function ChatInterno() {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? 'Cerrar chat interno' : 'Abrir chat interno'}
-        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#8a4a1f] to-[#e2954d] text-[#0a0d12] shadow-[0_18px_45px_rgba(226,149,77,.35)] transition hover:scale-105"
+        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#7a0f16] to-[#c81f2a] text-[#0a0d12] shadow-[0_18px_45px_rgba(200,31,42,.35)] transition hover:scale-105"
       >
         {open ? <X size={24} /> : <MessageCircle size={24} />}
         {!open && unread > 0 && (

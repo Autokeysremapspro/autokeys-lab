@@ -92,7 +92,7 @@ function GastoModal({
       <div className="card w-full max-w-5xl p-6 max-h-[92vh] overflow-auto">
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Gastos / Compras</p>
+            <p className="text-sm text-[#ff5468] font-bold uppercase tracking-[0.2em]">Gastos / Compras</p>
             <h2 className="text-2xl font-bold mt-1">{editing ? 'Editar gasto' : 'Nuevo gasto'}</h2>
             <p className="text-zinc-500 mt-1">Registra compras, herramientas, licencias y gastos fijos del negocio.</p>
           </div>
@@ -308,7 +308,7 @@ export default function GastosPage() {
     <AppShell>
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
         <div>
-          <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Finanzas</p>
+          <p className="text-sm text-[#ff5468] font-bold uppercase tracking-[0.2em]">Finanzas</p>
           <h2 className="text-3xl font-bold mt-1">Gastos / Compras</h2>
           <p className="text-zinc-500 mt-2">Controla compras, licencias, herramientas, gastos fijos e IVA soportado.</p>
         </div>
@@ -358,7 +358,7 @@ export default function GastosPage() {
       <div className="card p-5 mb-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-3">
-            <Banknote className="text-[#ffb870]" />
+            <Banknote className="text-[#ff5468]" />
             <h3 className="text-xl font-bold">Listado de gastos</h3>
           </div>
           <div className="flex flex-col md:flex-row gap-3 w-full lg:w-auto">

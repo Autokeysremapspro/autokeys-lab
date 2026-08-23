@@ -90,7 +90,7 @@ export default function UniversalSearch({ placeholder = 'Buscar cliente, matríc
               const Icon = r.icon
               return (
                 <Link key={`${r.type}-${idx}`} href={r.href} onClick={() => setQuery('')} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-white/5 transition">
-                  <div className="h-10 w-10 rounded-2xl bg-[#e2954d]/10 text-[#ffb870] flex items-center justify-center"><Icon size={18} /></div>
+                  <div className="h-10 w-10 rounded-2xl bg-[#c81f2a]/10 text-[#ff5468] flex items-center justify-center"><Icon size={18} /></div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2"><span className="font-bold truncate">{r.title}</span><span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-zinc-400">{r.type}</span></div>
                     {r.subtitle && <div className="text-xs text-zinc-500 truncate mt-1">{r.subtitle}</div>}

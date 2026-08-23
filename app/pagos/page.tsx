@@ -162,7 +162,7 @@ export default function PagosPage() {
     <AppShell>
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
         <div>
-          <p className="text-sm text-[#ffb870] font-bold uppercase tracking-[0.2em]">Administración</p>
+          <p className="text-sm text-[#ff5468] font-bold uppercase tracking-[0.2em]">Administración</p>
           <h2 className="text-3xl font-bold mt-1">Cobros / Pagos</h2>
           <p className="text-zinc-500 mt-2">Control de pagos parciales, facturas pendientes y métodos de cobro.</p>
         </div>
@@ -206,7 +206,7 @@ export default function PagosPage() {
       <div className="card p-5 mb-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-3">
-            <CreditCard className="text-[#ffb870]" />
+            <CreditCard className="text-[#ff5468]" />
             <h3 className="text-xl font-bold">Estado de cobros</h3>
           </div>
           <div className="flex items-center gap-2 bg-[#0B1220] border border-white/10 rounded-2xl px-4 py-3 w-full md:w-96">

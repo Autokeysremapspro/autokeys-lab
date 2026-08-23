@@ -14,7 +14,7 @@ const toneClasses = {
   amber: 'from-amber-500/20 to-amber-950/20 border-amber-900/50 text-amber-300',
   blue: 'from-blue-500/20 to-blue-950/20 border-blue-900/50 text-blue-300',
   zinc: 'from-zinc-500/10 to-zinc-950/20 border-zinc-800 text-zinc-300',
-  copper: 'from-[#e2954d]/20 to-[#8a4a1f]/10 border-[#e2954d]/40 text-[#ffb870]',
+  copper: 'from-[#c81f2a]/20 to-[#7a0f16]/10 border-[#c81f2a]/40 text-[#ff5468]',
 }
 
 export default function StatCard({ title, value, subtitle, icon, tone = 'zinc' }: StatCardProps) {

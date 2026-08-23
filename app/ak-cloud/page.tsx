@@ -99,11 +99,11 @@ export default function AkCloudPage() {
     <AppShell>
       <div className="space-y-7">
         <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#111827] to-[#1b0b12] p-7 shadow-2xl shadow-black/30">
-          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#e2954d]/20 blur-3xl" />
+          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#c81f2a]/20 blur-3xl" />
           <div className="absolute bottom-[-140px] left-[20%] h-72 w-72 rounded-full bg-blue-600/10 blur-3xl" />
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#e2954d]/25 bg-[#e2954d]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ffb870]">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ff5468]">
                 <Cloud size={16} /> AK Cloud Sync
               </div>
               <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">Centro AK Cloud</h1>
@@ -123,36 +123,36 @@ export default function AkCloudPage() {
         </section>
 
         <section className="grid grid-cols-2 gap-3 md:grid-cols-5">
-          <Link href="/ak-cloud/solicitudes" className="card flex items-center gap-3 p-4 transition hover:border-[#ffb870]/30">
-            <ShieldCheck className="text-[#ffb870]" size={22} />
+          <Link href="/ak-cloud/solicitudes" className="card flex items-center gap-3 p-4 transition hover:border-[#ff5468]/30">
+            <ShieldCheck className="text-[#ff5468]" size={22} />
             <div>
               <p className="font-bold">Solicitudes</p>
               <p className="text-xs text-zinc-500">Aprobar distribuidores</p>
             </div>
           </Link>
-          <Link href="/ak-cloud/produccion" className="card flex items-center gap-3 p-4 transition hover:border-[#ffb870]/30">
-            <UploadCloud className="text-[#ffb870]" size={22} />
+          <Link href="/ak-cloud/produccion" className="card flex items-center gap-3 p-4 transition hover:border-[#ff5468]/30">
+            <UploadCloud className="text-[#ff5468]" size={22} />
             <div>
               <p className="font-bold">Producción</p>
               <p className="text-xs text-zinc-500">Pedidos en el laboratorio</p>
             </div>
           </Link>
-          <Link href="/ak-cloud/soporte" className="card flex items-center gap-3 p-4 transition hover:border-[#ffb870]/30">
-            <Sparkles className="text-[#ffb870]" size={22} />
+          <Link href="/ak-cloud/soporte" className="card flex items-center gap-3 p-4 transition hover:border-[#ff5468]/30">
+            <Sparkles className="text-[#ff5468]" size={22} />
             <div>
               <p className="font-bold">Soporte</p>
               <p className="text-xs text-zinc-500">Responder tickets</p>
             </div>
           </Link>
-          <Link href="/ak-cloud/facturacion" className="card flex items-center gap-3 p-4 transition hover:border-[#ffb870]/30">
-            <CreditCard className="text-[#ffb870]" size={22} />
+          <Link href="/ak-cloud/facturacion" className="card flex items-center gap-3 p-4 transition hover:border-[#ff5468]/30">
+            <CreditCard className="text-[#ff5468]" size={22} />
             <div>
               <p className="font-bold">Facturación</p>
               <p className="text-xs text-zinc-500">Cobros AK Cloud</p>
             </div>
           </Link>
-          <Link href="/ak-cloud/admin" className="card flex items-center gap-3 p-4 transition hover:border-[#ffb870]/30">
-            <Settings className="text-[#ffb870]" size={22} />
+          <Link href="/ak-cloud/admin" className="card flex items-center gap-3 p-4 transition hover:border-[#ff5468]/30">
+            <Settings className="text-[#ff5468]" size={22} />
             <div>
               <p className="font-bold">Catálogo y precios</p>
               <p className="text-xs text-zinc-500">Categorías, precio por archivo, branding</p>
@@ -196,11 +196,11 @@ export default function AkCloudPage() {
             ) : (
               <div className="grid gap-4">
                 {filtered.map((pedido) => (
-                  <article key={pedido.id} className="group rounded-3xl border border-white/10 bg-[#111827] p-5 transition hover:border-[#e2954d]/35">
+                  <article key={pedido.id} className="group rounded-3xl border border-white/10 bg-[#111827] p-5 transition hover:border-[#c81f2a]/35">
                     <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-mono text-sm font-bold text-[#ffb870]">{pedido.numero || 'FS-SIN-NUM'}</span>
+                          <span className="font-mono text-sm font-bold text-[#ff5468]">{pedido.numero || 'FS-SIN-NUM'}</span>
                           <span className={`rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${akCloudEstadoClass(pedido.estado)}`}>{(pedido.estado || 'pendiente').replace('_', ' ')}</span>
                           {pedido.prioridad === 'urgente' && <span className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-[11px] font-bold uppercase text-red-300">Urgente</span>}
                           {pedido.core_expediente_id && <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-bold uppercase text-emerald-300">Sincronizado</span>}
@@ -223,7 +223,7 @@ export default function AkCloudPage() {
 
                     <div className="mt-4 rounded-2xl border border-white/5 bg-black/20 p-4">
                       <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Servicios</div>
-                      <div className="mt-2 font-bold text-[#ffb870]">{formatServicios(pedido.servicios)}</div>
+                      <div className="mt-2 font-bold text-[#ff5468]">{formatServicios(pedido.servicios)}</div>
                     </div>
 
                     <div className="mt-5 flex flex-wrap justify-end gap-2">
@@ -248,8 +248,8 @@ export default function AkCloudPage() {
           </div>
 
           <aside className="space-y-5">
-            <div className="rounded-[2rem] border border-[#e2954d]/20 bg-gradient-to-br from-[#e2954d]/10 to-transparent p-5">
-              <DownloadCloud className="text-[#ffb870]" size={28} />
+            <div className="rounded-[2rem] border border-[#c81f2a]/20 bg-gradient-to-br from-[#c81f2a]/10 to-transparent p-5">
+              <DownloadCloud className="text-[#ff5468]" size={28} />
               <h3 className="mt-3 text-xl font-bold">Flujo recomendado</h3>
               <p className="mt-2 text-sm text-zinc-400">
                 El distribuidor sube el ORI en AK Cloud. Tú revisas aquí, conviertes en expediente, trabajas en Core y subes el MOD desde el pedido.
@@ -264,7 +264,7 @@ export default function AkCloudPage() {
 
 function Stat({ title, value, icon: Icon, tone = 'red' }: { title: string; value: any; icon: any; tone?: 'red' | 'amber' | 'blue' | 'emerald' | 'purple' }) {
   const tones: Record<string, string> = {
-    red: 'text-[#ffb870] bg-[#e2954d]/10 border-[#e2954d]/20',
+    red: 'text-[#ff5468] bg-[#c81f2a]/10 border-[#c81f2a]/20',
     amber: 'text-amber-300 bg-amber-500/10 border-amber-500/20',
     blue: 'text-blue-300 bg-blue-500/10 border-blue-500/20',
     emerald: 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20',

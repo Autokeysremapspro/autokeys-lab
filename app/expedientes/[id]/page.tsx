@@ -124,7 +124,7 @@ function QuickCard({ title, value, description, icon }: QuickCardProps) {
     <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
       <div className="flex items-center justify-between gap-3 text-zinc-400">
         <p className="text-xs font-bold uppercase tracking-[0.18em]">{title}</p>
-        <div className="text-[#ffb870]">{icon}</div>
+        <div className="text-[#ff5468]">{icon}</div>
       </div>
       <p className="mt-3 text-2xl font-bold text-white">{value}</p>
       {description && <p className="mt-1 text-sm text-zinc-500">{description}</p>}
@@ -240,7 +240,7 @@ export default function ExpedienteFichaPage() {
   }
 
   if (loading) return <AppShell><div className="card p-8 text-zinc-400">Cargando expediente 360°...</div></AppShell>
-  if (!item) return <AppShell><div className="card p-8 text-[#ffb870]">OT no encontrada.</div></AppShell>
+  if (!item) return <AppShell><div className="card p-8 text-[#ff5468]">OT no encontrada.</div></AppShell>
 
   return (
     <AppShell>
@@ -250,11 +250,11 @@ export default function ExpedienteFichaPage() {
         </Link>
 
         <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#111827] via-[#0B1220] to-black p-6 shadow-2xl shadow-black/30">
-          <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#e2954d]/20 blur-3xl" />
+          <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#c81f2a]/20 blur-3xl" />
           <div className="relative flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-3">
-                <p className="text-sm font-bold uppercase tracking-[0.22em] text-[#ffb870]">Expediente 360°</p>
+                <p className="text-sm font-bold uppercase tracking-[0.22em] text-[#ff5468]">Expediente 360°</p>
                 <ExpedienteStatusBadge status={item.estado} />
                 <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold uppercase tracking-wider text-zinc-300">
                   Prioridad {item.prioridad || 'normal'}
@@ -302,30 +302,30 @@ export default function ExpedienteFichaPage() {
             </div>
 
             <div className="card p-6">
-              <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><Layers3 className="text-[#ffb870]" /> Centro del expediente</h3>
+              <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><Layers3 className="text-[#ff5468]" /> Centro del expediente</h3>
               <div className="grid gap-3 md:grid-cols-2">
-                <button onClick={() => setTab('Archivos')} className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-[#e2954d]/40 hover:bg-[#ffb870]/10">
-                  <FolderOpen className="mb-3 text-[#ffb870]" />
+                <button onClick={() => setTab('Archivos')} className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-[#c81f2a]/40 hover:bg-[#ff5468]/10">
+                  <FolderOpen className="mb-3 text-[#ff5468]" />
                   <p className="font-bold">Archivos técnicos</p>
                   <p className="mt-1 text-sm text-zinc-500">ORI, MOD, EEPROM, FLASH, FULL, PDF y documentación.</p>
                 </button>
-                <button onClick={() => setTab('Fotos')} className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-[#e2954d]/40 hover:bg-[#ffb870]/10">
-                  <Camera className="mb-3 text-[#ffb870]" />
+                <button onClick={() => setTab('Fotos')} className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-[#c81f2a]/40 hover:bg-[#ff5468]/10">
+                  <Camera className="mb-3 text-[#ff5468]" />
                   <p className="font-bold">Galería de fotos</p>
                   <p className="mt-1 text-sm text-zinc-500">Vehículo, matrícula, VIN, ECU, etiqueta, cuadro y llave.</p>
                 </button>
-                <button onClick={() => setTab('Tiempo')} className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-[#e2954d]/40 hover:bg-[#ffb870]/10">
-                  <Clock3 className="mb-3 text-[#ffb870]" />
+                <button onClick={() => setTab('Tiempo')} className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-[#c81f2a]/40 hover:bg-[#ff5468]/10">
+                  <Clock3 className="mb-3 text-[#ff5468]" />
                   <p className="font-bold">Cronómetro</p>
                   <p className="mt-1 text-sm text-zinc-500">Controla tiempo invertido y rentabilidad del trabajo.</p>
                 </button>
-                <button onClick={() => setTab('Facturación')} className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-[#e2954d]/40 hover:bg-[#ffb870]/10">
-                  <FileText className="mb-3 text-[#ffb870]" />
+                <button onClick={() => setTab('Facturación')} className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-[#c81f2a]/40 hover:bg-[#ff5468]/10">
+                  <FileText className="mb-3 text-[#ff5468]" />
                   <p className="font-bold">Facturación</p>
                   <p className="mt-1 text-sm text-zinc-500">Presupuesto, factura, ticket, albarán y cobros asociados.</p>
                 </button>
-                <button onClick={() => setTab('Garantía')} className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-[#e2954d]/40 hover:bg-[#ffb870]/10">
-                  <FileSignature className="mb-3 text-[#ffb870]" />
+                <button onClick={() => setTab('Garantía')} className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-[#c81f2a]/40 hover:bg-[#ff5468]/10">
+                  <FileSignature className="mb-3 text-[#ff5468]" />
                   <p className="font-bold">Garantía / entrega</p>
                   <p className="mt-1 text-sm text-zinc-500">Genera, imprime y archiva garantías dentro del expediente.</p>
                 </button>
@@ -333,7 +333,7 @@ export default function ExpedienteFichaPage() {
             </div>
 
             <div className="card p-6">
-              <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><MessageSquareText className="text-[#ffb870]" /> Notas rápidas</h3>
+              <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><MessageSquareText className="text-[#ff5468]" /> Notas rápidas</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <TechnicalField label="Notas cliente" textarea value={item.notas_cliente} onChange={(v) => setItem({ ...item, notas_cliente: v })} />
                 <TechnicalField label="Notas internas" textarea value={item.notas_internas} onChange={(v) => setItem({ ...item, notas_internas: v })} />
@@ -344,7 +344,7 @@ export default function ExpedienteFichaPage() {
 
           <div className="space-y-5">
             <div className="card p-6">
-              <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><ShieldCheck className="text-[#ffb870]" /> Estado rápido</h3>
+              <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><ShieldCheck className="text-[#ff5468]" /> Estado rápido</h3>
               <div className="grid gap-4">
                 <label className="space-y-2">
                   <span className="text-xs font-bold uppercase text-zinc-400">Estado</span>
@@ -360,7 +360,7 @@ export default function ExpedienteFichaPage() {
             </div>
 
             <div className="card p-6">
-              <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><History className="text-[#ffb870]" /> Últimos eventos</h3>
+              <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><History className="text-[#ff5468]" /> Últimos eventos</h3>
               <div className="space-y-3">
                 {(item.historial || []).slice(0, 5).map((h) => (
                   <div key={h.id} className="rounded-2xl border border-white/10 bg-[#0B1220] p-4">
@@ -377,7 +377,7 @@ export default function ExpedienteFichaPage() {
             </div>
 
             <div className="card p-6">
-              <h3 className="mb-4 flex items-center gap-2 text-2xl font-bold"><Phone className="text-[#ffb870]" /> Contacto</h3>
+              <h3 className="mb-4 flex items-center gap-2 text-2xl font-bold"><Phone className="text-[#ff5468]" /> Contacto</h3>
               <p className="font-bold">{item.cliente?.nombre || 'Sin cliente'}</p>
               <p className="mt-1 text-zinc-400">{item.cliente?.telefono || 'Sin teléfono'}</p>
               <p className="text-zinc-400">{item.cliente?.email || 'Sin email'}</p>
@@ -389,7 +389,7 @@ export default function ExpedienteFichaPage() {
       {tab === 'Resumen' && (
         <div className="grid gap-5 xl:grid-cols-3">
           <div className="card p-6 xl:col-span-2">
-            <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><FileText className="text-[#ffb870]" /> Resumen de OT</h3>
+            <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><FileText className="text-[#ff5468]" /> Resumen de OT</h3>
             <div className="grid gap-4 md:grid-cols-2">
               <label className="space-y-2"><span className="text-xs font-bold uppercase text-zinc-400">Estado</span><select value={item.estado || 'recibido'} onChange={(e) => setItem({ ...item, estado: e.target.value })}>{estados.map((e) => <option key={e}>{e}</option>)}</select></label>
               <label className="space-y-2"><span className="text-xs font-bold uppercase text-zinc-400">Prioridad</span><select value={item.prioridad || 'normal'} onChange={(e) => setItem({ ...item, prioridad: e.target.value })}>{prioridades.map((e) => <option key={e}>{e}</option>)}</select></label>
@@ -417,7 +417,7 @@ export default function ExpedienteFichaPage() {
 
       {tab === 'ECU' && ecu && (
         <div className="card p-6">
-          <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><Cpu className="text-[#ffb870]" /> Ficha ECU</h3>
+          <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><Cpu className="text-[#ff5468]" /> Ficha ECU</h3>
           <div className="grid gap-4 md:grid-cols-3">
             <TechnicalField label="Marca ECU" value={ecu.marca_ecu} onChange={(v) => setEcu({ ...ecu, marca_ecu: v })} placeholder="Bosch, Delphi, Continental..." />
             <TechnicalField label="Modelo ECU" value={ecu.modelo_ecu} onChange={(v) => setEcu({ ...ecu, modelo_ecu: v })} placeholder="MD1CS003, EDC17C50..." />
@@ -447,7 +447,7 @@ export default function ExpedienteFichaPage() {
 
       {tab === 'Llaves' && llaves && (
         <div className="card p-6">
-          <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><KeyRound className="text-[#ffb870]" /> Ficha llaves / IMMO</h3>
+          <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><KeyRound className="text-[#ff5468]" /> Ficha llaves / IMMO</h3>
           <div className="grid gap-4 md:grid-cols-3">
             <TechnicalField label="Llaves originales" type="number" value={llaves.llaves_originales || 0} onChange={(v) => setLlaves({ ...llaves, llaves_originales: Number(v) })} />
             <TechnicalField label="Llaves programadas" type="number" value={llaves.llaves_programadas || 0} onChange={(v) => setLlaves({ ...llaves, llaves_programadas: Number(v) })} />
@@ -473,7 +473,7 @@ export default function ExpedienteFichaPage() {
           mode="archivos"
           title="Archivos técnicos"
           description="Guarda originales, modificados, flash, EEPROM, full backup, dumps y documentación técnica de esta OT."
-          icon={<FolderOpen className="text-[#ffb870]" />}
+          icon={<FolderOpen className="text-[#ff5468]" />}
           onEvent={async (evento, descripcion) => {
             await ExpedienteService.addHistory(id, evento, descripcion)
             await load()
@@ -487,7 +487,7 @@ export default function ExpedienteFichaPage() {
           mode="fotos"
           title="Fotografías del expediente"
           description="Organiza fotos de vehículo, matrícula, VIN, ECU, etiqueta, cuadro, llave y avería."
-          icon={<Camera className="text-[#ffb870]" />}
+          icon={<Camera className="text-[#ff5468]" />}
           onEvent={async (evento, descripcion) => {
             await ExpedienteService.addHistory(id, evento, descripcion)
             await load()
@@ -553,7 +553,7 @@ export default function ExpedienteFichaPage() {
 
       {tab === 'Historial' && (
         <div className="card p-6">
-          <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><History className="text-[#ffb870]" /> Historial técnico</h3>
+          <h3 className="mb-5 flex items-center gap-2 text-2xl font-bold"><History className="text-[#ff5468]" /> Historial técnico</h3>
           <div className="space-y-3">
             {(item.historial || []).map((h) => (
               <div key={h.id} className="rounded-2xl border border-white/10 bg-[#0B1220] p-4">
