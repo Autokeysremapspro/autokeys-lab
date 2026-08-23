@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
 import AppShell from '@/components/AppShell'
 import { ArrowLeft, Headphones, RefreshCw, Send } from 'lucide-react'
@@ -40,10 +41,24 @@ function formatDate(date?: string | null) {
 }
 
 export default function AkCloudSoportePage() {
+  return (
+    <Suspense fallback={null}>
+      <AkCloudSoporteContent />
+    </Suspense>
+  )
+}
+
+function AkCloudSoporteContent() {
+  const searchParams = useSearchParams()
+  const ticketParam = searchParams.get('ticket')
+
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [loading, setLoading] = useState(true)
-  const [estado, setEstado] = useState('abierto')
-  const [activeId, setActiveId] = useState<string | null>(null)
+  // Un enlace directo a un ticket (desde una notificación) puede apuntar a
+  // uno que no esté "abierto" (p. ej. ya respondido) — con estado inicial
+  // 'todos' nos aseguramos de que aparezca en la lista cargada.
+  const [estado, setEstado] = useState(ticketParam ? 'todos' : 'abierto')
+  const [activeId, setActiveId] = useState<string | null>(ticketParam)
   const [mensajes, setMensajes] = useState<Mensaje[]>([])
   const [respuesta, setRespuesta] = useState('')
   const [working, setWorking] = useState(false)

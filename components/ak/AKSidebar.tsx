@@ -7,9 +7,11 @@ import {
   Cloud,
   CreditCard,
   Gauge,
+  Headphones,
   LayoutDashboard,
   PackageCheck,
   Settings,
+  ShieldCheck,
   Users,
   X,
 } from 'lucide-react'
@@ -22,6 +24,8 @@ export type AKSidebarProps = {
 const navigation = [
   { href: '/ak-cloud', label: 'Resumen', icon: LayoutDashboard },
   { href: '/ak-cloud/produccion', label: 'Producción', icon: Gauge },
+  { href: '/ak-cloud/solicitudes', label: 'Solicitudes', icon: ShieldCheck },
+  { href: '/ak-cloud/soporte', label: 'Soporte', icon: Headphones },
   { href: '/ak-cloud/distribuidores', label: 'Distribuidores', icon: Users },
   { href: '/ak-cloud/recargas', label: 'Recargas', icon: CreditCard },
   { href: '/ak-cloud/facturacion', label: 'Facturación', icon: PackageCheck },
