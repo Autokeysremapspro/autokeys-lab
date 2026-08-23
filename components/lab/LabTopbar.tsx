@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Grid3x3, Mail, Menu, ChevronDown } from 'lucide-react'
 import UniversalSearch from '@/components/UniversalSearch'
 import NotificationCenter from '@/components/NotificationCenter'
-import { LabLogoMark, LabProBadge, LabWordmark } from './LabBrand'
+import { LabLogoMark, LabProBadge } from './LabBrand'
 
 export default function LabTopbar({ onMenu }: { onMenu: () => void }) {
   const [tallerOpen, setTallerOpen] = useState(false)
@@ -22,9 +22,8 @@ export default function LabTopbar({ onMenu }: { onMenu: () => void }) {
           <Menu size={19} />
         </button>
 
-        <Link href="/" className="hidden shrink-0 items-center gap-3 lg:flex">
-          <LabLogoMark size={40} />
-          <LabWordmark />
+        <Link href="/" className="hidden shrink-0 items-center lg:flex">
+          <LabLogoMark size={36} />
         </Link>
 
         <div className="mx-auto hidden max-w-xl flex-1 md:block">

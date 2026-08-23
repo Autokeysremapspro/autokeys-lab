@@ -67,7 +67,7 @@ export default function MiCuentaPage() {
 
       const [servicios, ticketsRes] = await Promise.all([
         getTarifaDistribuidor(supabase, dist.id),
-        supabase.from('distribuidor_tickets').select('id,numero,asunto,estado,created_at').eq('distribuidor_id', dist.id).order('created_at', { ascending: false }).limit(5),
+        supabase.from('akcloud_tickets').select('id,numero,asunto,estado,created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
       ])
       setTarifa(servicios)
       setTickets((ticketsRes.data || []) as Ticket[])
@@ -97,9 +97,8 @@ export default function MiCuentaPage() {
     <main className="min-h-screen bg-[#07080b] text-zinc-100">
       <header className="sticky top-0 z-10 border-b border-white/10 bg-[#08090c]/95 px-5 py-3.5 backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center gap-3">
-          <LabLogoMark size={38} />
+          <LabLogoMark size={34} />
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-bold text-white">Autokeys Lab</div>
             <div className="truncate text-[11px] text-zinc-500">Portal de distribuidor</div>
           </div>
           <button onClick={logout} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-bold text-zinc-300 hover:bg-white/[0.06]">
@@ -164,7 +163,7 @@ export default function MiCuentaPage() {
             {tickets.map((t) => (
               <div key={t.id} className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 text-xs">
                 <span className="truncate text-zinc-300">{t.numero ? `#${t.numero} · ` : ''}{t.asunto}</span>
-                <LabBadge tone={t.estado === 'cerrado' ? 'zinc' : t.estado === 'en_curso' ? 'blue' : 'amber'}>{t.estado.replace('_', ' ')}</LabBadge>
+                <LabBadge tone={t.estado === 'cerrado' ? 'zinc' : t.estado === 'respondido' ? 'green' : t.estado === 'en_revision' ? 'blue' : 'amber'}>{t.estado.replace('_', ' ')}</LabBadge>
               </div>
             ))}
             {tickets.length === 0 && <div className="py-6 text-center text-xs text-zinc-600">Sin tickets registrados.</div>}

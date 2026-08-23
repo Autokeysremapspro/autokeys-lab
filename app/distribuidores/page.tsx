@@ -382,7 +382,7 @@ export default function DistribuidoresPage() {
                           {selected.tickets.map((t) => (
                             <div key={t.id} className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-xs">
                               <span className="truncate text-zinc-300">{t.numero ? `#${t.numero} · ` : ''}{t.asunto}</span>
-                              <LabBadge tone={t.estado === 'cerrado' ? 'zinc' : t.estado === 'en_curso' ? 'blue' : 'amber'}>{t.estado.replace('_', ' ')}</LabBadge>
+                              <LabBadge tone={t.estado === 'cerrado' ? 'zinc' : t.estado === 'respondido' ? 'green' : t.estado === 'en_revision' ? 'blue' : 'amber'}>{t.estado.replace('_', ' ')}</LabBadge>
                             </div>
                           ))}
                           {selected.tickets.length === 0 && <div className="text-xs text-zinc-600">Sin tickets registrados.</div>}

@@ -1,13 +1,12 @@
 export function LabLogoMark({ size = 44 }: { size?: number }) {
   return (
-    <div
-      className="grid shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#1a1b20] to-[#0a0a0c] ring-1 ring-white/10"
-      style={{ height: size, width: size }}
-    >
-      <svg width={size * 0.6} height={size * 0.6} viewBox="0 0 32 32" fill="none">
-        <path d="M4 27 L13 5 H17.5 L26.5 27 H21.8 L20 22.5 H11L9.2 27 Z M12.6 18.5H19L15.8 10.4Z" fill="#ff2d3d" />
-      </svg>
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/logo-ak-core.png"
+      alt="AK Core — Autokeys Remaps Pro"
+      className="shrink-0 object-contain"
+      style={{ height: size, width: 'auto' }}
+    />
   )
 }
 

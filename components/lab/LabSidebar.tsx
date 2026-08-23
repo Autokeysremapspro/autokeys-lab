@@ -17,7 +17,7 @@ import {
   MoreHorizontal,
   X,
 } from 'lucide-react'
-import { LabLogoMark, LabWordmark } from './LabBrand'
+import { LabLogoMark } from './LabBrand'
 
 const navigation = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -60,8 +60,7 @@ export default function LabSidebar({ open, onClose }: { open: boolean; onClose: 
       >
         <div className="flex items-center justify-between gap-2 px-1 lg:hidden">
           <Link href="/" onClick={onClose} className="flex items-center gap-3">
-            <LabLogoMark size={38} />
-            <LabWordmark />
+            <LabLogoMark size={34} />
           </Link>
           <button onClick={onClose} className="rounded-xl border border-white/10 p-2 text-zinc-400 hover:bg-white/5">
             <X size={18} />

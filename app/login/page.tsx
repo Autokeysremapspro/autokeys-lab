@@ -160,12 +160,8 @@ function LoginContent() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/45 to-black/85" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#07080b]/40 via-transparent to-transparent" />
 
-          <div className="relative flex items-center gap-3">
-            <LabLogoMark size={46} />
-            <div>
-              <div className="text-2xl font-bold text-white">Autokeys Lab</div>
-              <div className="text-xs font-medium text-zinc-300">by Autokeys Remaps Pro</div>
-            </div>
+          <div className="relative flex items-center">
+            <LabLogoMark size={52} />
           </div>
 
           <div className="relative">
@@ -197,12 +193,8 @@ function LoginContent() {
 
         <div className="flex items-center justify-center p-6 py-10 sm:p-10 xl:p-14">
           <div className="w-full max-w-md">
-            <div className="mb-8 flex items-center gap-3 xl:hidden">
-              <LabLogoMark size={40} />
-              <div>
-                <div className="text-lg font-bold text-white">Autokeys Lab</div>
-                <div className="text-[11px] font-medium text-zinc-500">by Autokeys Remaps Pro</div>
-              </div>
+            <div className="mb-8 flex items-center xl:hidden">
+              <LabLogoMark size={44} />
             </div>
             <div className="mb-6 flex gap-1 rounded-xl border border-white/10 bg-white/[0.02] p-1">
               <button className="flex-1 rounded-lg border-b-2 border-[#ff3b46] bg-white/[0.04] px-4 py-2.5 text-sm font-bold text-white">Iniciar sesión</button>

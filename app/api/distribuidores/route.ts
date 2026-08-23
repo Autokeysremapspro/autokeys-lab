@@ -20,7 +20,7 @@ export async function GET() {
     const [{ data: distribuidores, error }, { data: pedidos, error: pedidosError }, { data: tickets, error: ticketsError }, { data: precios, error: preciosError }] = await Promise.all([
       admin.from('akcloud_distribuidores').select('*').order('created_at', { ascending: false }),
       admin.from('file_service_pedidos').select('id,user_id,servicios,estado,precio,precio_final,created_at').gte('created_at', thirtyDaysAgo).order('created_at', { ascending: false }),
-      admin.from('distribuidor_tickets').select('*').order('created_at', { ascending: false }),
+      admin.from('akcloud_tickets').select('id,user_id,numero,asunto,estado,created_at').order('created_at', { ascending: false }),
       admin.from('distribuidor_precios').select('id,distribuidor_id,servicio_id'),
     ])
     if (error) throw error
@@ -33,7 +33,9 @@ export async function GET() {
         ? (pedidos || []).filter((p: any) => p.user_id === d.auth_user_id)
         : []
       const facturacion30d = pedidosDistribuidor.reduce((a: number, p: any) => a + Number(p.precio_final ?? p.precio ?? 0), 0)
-      const ticketsDistribuidor = (tickets || []).filter((t: any) => t.distribuidor_id === d.id)
+      const ticketsDistribuidor = d.auth_user_id
+        ? (tickets || []).filter((t: any) => t.user_id === d.auth_user_id)
+        : []
       const preciosDistribuidor = (precios || []).filter((p: any) => p.distribuidor_id === d.id)
 
       return {
