@@ -6,7 +6,7 @@ export type BackupTable =
   | 'expedientes'
   | 'facturas'
   | 'stock'
-  | 'file_service'
+  | 'file_service_pedidos'
   | 'usuarios'
   | 'agenda_eventos'
   | 'biblioteca_tecnica'
@@ -19,7 +19,7 @@ export const BACKUP_TABLES: { name: BackupTable; key: BackupTable; label: string
   { name: 'expedientes', key: 'expedientes', label: 'Expedientes' },
   { name: 'facturas', key: 'facturas', label: 'Facturas' },
   { name: 'stock', key: 'stock', label: 'Stock' },
-  { name: 'file_service', key: 'file_service', label: 'File Service' },
+  { name: 'file_service_pedidos', key: 'file_service_pedidos', label: 'Pedidos AK Cloud' },
   { name: 'usuarios', key: 'usuarios', label: 'Usuarios' },
   { name: 'agenda_eventos', key: 'agenda_eventos', label: 'Agenda' },
   { name: 'biblioteca_tecnica', key: 'biblioteca_tecnica', label: 'Biblioteca Técnica' },

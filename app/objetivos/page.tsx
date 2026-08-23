@@ -67,7 +67,7 @@ export default function ObjetivosPage() {
               <Target size={18} /> Autokeys Core v3.1
             </div>
             <h1 className="text-4xl font-bold mt-2">Objetivos / KPIs</h1>
-            <p className="text-zinc-500 mt-2">Controla objetivos mensuales, avance de facturación, beneficio, File Service y OT terminadas.</p>
+            <p className="text-zinc-500 mt-2">Controla objetivos mensuales, avance de facturación, beneficio, pedidos AK Cloud y OT terminadas.</p>
           </div>
           <button onClick={save} disabled={saving} className="btn btn-red flex items-center gap-2 disabled:opacity-50">
             {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
@@ -112,7 +112,7 @@ export default function ObjetivosPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <KpiProgress label="Facturación" value={resumen?.ingresosMes || 0} target={Number(objetivo.objetivo_facturacion || 0)} money />
                   <KpiProgress label="Beneficio" value={resumen?.beneficioMes || 0} target={Number(objetivo.objetivo_beneficio || 0)} money />
-                  <KpiProgress label="File Service" value={resumen?.fileServiceMes || 0} target={Number(objetivo.objetivo_file_service || 0)} />
+                  <KpiProgress label="Pedidos AK Cloud" value={resumen?.fileServiceMes || 0} target={Number(objetivo.objetivo_file_service || 0)} />
                   <KpiProgress label="OT terminadas" value={resumen?.otTerminadasMes || 0} target={Number(objetivo.objetivo_ot_terminadas || 0)} />
                 </div>
               </section>
@@ -123,7 +123,7 @@ export default function ObjetivosPage() {
                 <div className="space-y-4">
                   <label className="block"><span className="text-sm font-bold text-zinc-400">Facturación objetivo (€)</span><input type="number" className="input mt-1" value={objetivo.objetivo_facturacion || ''} onChange={(e) => setField('objetivo_facturacion', e.target.value)} /></label>
                   <label className="block"><span className="text-sm font-bold text-zinc-400">Beneficio objetivo (€)</span><input type="number" className="input mt-1" value={objetivo.objetivo_beneficio || ''} onChange={(e) => setField('objetivo_beneficio', e.target.value)} /></label>
-                  <label className="block"><span className="text-sm font-bold text-zinc-400">File Service objetivo</span><input type="number" className="input mt-1" value={objetivo.objetivo_file_service || ''} onChange={(e) => setField('objetivo_file_service', e.target.value)} /></label>
+                  <label className="block"><span className="text-sm font-bold text-zinc-400">Objetivo pedidos AK Cloud</span><input type="number" className="input mt-1" value={objetivo.objetivo_file_service || ''} onChange={(e) => setField('objetivo_file_service', e.target.value)} /></label>
                   <label className="block"><span className="text-sm font-bold text-zinc-400">OT terminadas objetivo</span><input type="number" className="input mt-1" value={objetivo.objetivo_ot_terminadas || ''} onChange={(e) => setField('objetivo_ot_terminadas', e.target.value)} /></label>
                 </div>
               </section>

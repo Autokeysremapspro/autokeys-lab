@@ -88,7 +88,7 @@ export async function getKpiResumenActual(): Promise<KpiResumen> {
   const [facturasRes, gastosRes, fileServiceRes, expedientesRes] = await Promise.all([
     supabase.from('facturas').select('*').gte('created_at', from).lte('created_at', to),
     supabase.from('gastos').select('*').gte('created_at', from).lte('created_at', to),
-    supabase.from('file_service').select('*').gte('created_at', from).lte('created_at', to),
+    supabase.from('file_service_pedidos').select('id').gte('created_at', from).lte('created_at', to),
     supabase.from('expedientes').select('*').gte('updated_at', from).lte('updated_at', to),
   ])
 

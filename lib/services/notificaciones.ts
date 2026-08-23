@@ -129,10 +129,10 @@ export async function getNotificacionesStats() {
 export async function crearAvisosAutomaticosBasicos() {
   const avisos: NotificacionInput[] = []
 
-  const [stock, facturas, fileService, expedientes] = await Promise.all([
+  const [stock, facturas, pedidosAkCloud, expedientes] = await Promise.all([
     supabase.from('stock').select('id,descripcion,cantidad,cantidad_minima').lte('cantidad', 2).limit(10),
     supabase.from('facturas').select('id,numero_documento,total,estado').eq('estado', 'pendiente').limit(10),
-    supabase.from('file_service').select('id,taller,servicio,estado').in('estado', ['pendiente', 'revision']).limit(10),
+    supabase.from('file_service_pedidos').select('id,numero,cliente_nombre,servicios,estado').in('estado', ['pendiente', 'en_proceso']).limit(10),
     supabase.from('expedientes').select('id,numero_ot,tipo_trabajo,prioridad,estado').in('prioridad', ['alta', 'urgente']).neq('estado', 'entregado').limit(10),
   ])
 
@@ -158,15 +158,15 @@ export async function crearAvisosAutomaticosBasicos() {
     metadata: { origen: 'auto', factura_id: f.id },
   }))
 
-  ;(fileService.data || []).forEach((fs: any) => avisos.push({
-    titulo: 'File Service pendiente',
-    mensaje: [fs.taller, fs.servicio, fs.estado].filter(Boolean).join(' · '),
-    modulo: 'File Service',
+  ;(pedidosAkCloud.data || []).forEach((p: any) => avisos.push({
+    titulo: 'Pedido AK Cloud pendiente',
+    mensaje: [p.numero ? `#${p.numero}` : null, p.cliente_nombre, Array.isArray(p.servicios) ? p.servicios.join(', ') : null].filter(Boolean).join(' · '),
+    modulo: 'AK Cloud',
     tipo: 'info',
-    prioridad: fs.estado === 'revision' ? 'alta' : 'normal',
-    href: '/file-service',
-    accion_texto: 'Abrir File Service',
-    metadata: { origen: 'auto', file_service_id: fs.id },
+    prioridad: p.estado === 'en_proceso' ? 'alta' : 'normal',
+    href: '/ak-cloud',
+    accion_texto: 'Abrir AK Cloud',
+    metadata: { origen: 'auto', pedido_id: p.id },
   }))
 
   ;(expedientes.data || []).forEach((e: any) => avisos.push({

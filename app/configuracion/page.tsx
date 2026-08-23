@@ -80,6 +80,7 @@ export default function ConfiguracionPage() {
     if (key === 'empresa' || key === 'fiscal') setEditOpen(true)
     else if (key === 'usuarios') window.location.href = '/usuarios'
     else if (key === 'notificaciones') window.location.href = '/notificaciones'
+    else if (key === 'branding' || key === 'facturacion') window.location.href = '/configuracion/documentos'
     else toast('Esta sección todavía no está disponible.', { icon: 'ℹ️' })
   }
 
@@ -172,8 +173,8 @@ export default function ConfiguracionPage() {
                     ? <img src={empresa.logo_url} alt="Logo" className="max-h-16 max-w-[80%] object-contain" />
                     : <div className="text-lg font-black tracking-tight text-white">AK <span className="text-[#ff3b46]">LAB</span></div>}
                 </div>
-                <p className="mt-3 text-xs text-zinc-500">Colores y personalización avanzada aún no están conectados a este ERP.</p>
-                <button onClick={() => toast('Esta sección todavía no está disponible.', { icon: 'ℹ️' })} className="mt-4 w-full rounded-xl bg-white/[0.05] py-2.5 text-xs font-bold text-white hover:bg-white/[0.09]">Personalizar marca</button>
+                <p className="mt-3 text-xs text-zinc-500">Logo, color y sello por tipo de documento (factura, presupuesto, albarán, ticket).</p>
+                <Link href="/configuracion/documentos" className="mt-4 block w-full rounded-xl bg-white/[0.05] py-2.5 text-center text-xs font-bold text-white hover:bg-white/[0.09]">Personalizar marca</Link>
               </LabPanel>
 
               <LabPanel title="Usuarios y roles">

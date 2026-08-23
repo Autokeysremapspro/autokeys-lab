@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { Search, User, Car, ClipboardList, FileText, Package, UploadCloud, BookOpen, X } from 'lucide-react'
+import { Search, User, Car, ClipboardList, FileText, Package, BookOpen, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 type SearchResult = {
@@ -31,13 +31,12 @@ export default function UniversalSearch({ placeholder = 'Buscar cliente, matríc
       const out: SearchResult[] = []
 
       try {
-        const [clientes, vehiculos, expedientes, facturas, stock, fileService, biblioteca] = await Promise.all([
+        const [clientes, vehiculos, expedientes, facturas, stock, biblioteca] = await Promise.all([
           supabase.from('clientes').select('id,nombre,telefono,email,nif').or(`nombre.ilike.${like},telefono.ilike.${like},email.ilike.${like},nif.ilike.${like}`).limit(5),
           supabase.from('vehiculos').select('id,marca,modelo,matricula,bastidor,ecu').or(`marca.ilike.${like},modelo.ilike.${like},matricula.ilike.${like},bastidor.ilike.${like},ecu.ilike.${like}`).limit(5),
           supabase.from('expedientes').select('id,numero_ot,tipo_trabajo,estado').or(`numero_ot.ilike.${like},tipo_trabajo.ilike.${like},descripcion.ilike.${like},estado.ilike.${like}`).limit(5),
           supabase.from('facturas').select('id,numero_documento,tipo_documento,total,estado').or(`numero_documento.ilike.${like},tipo_documento.ilike.${like},estado.ilike.${like}`).limit(5),
           supabase.from('stock').select('id,tipo,referencia,descripcion,cantidad').or(`tipo.ilike.${like},referencia.ilike.${like},descripcion.ilike.${like},marca.ilike.${like},modelo.ilike.${like}`).limit(5),
-          supabase.from('file_service').select('id,taller,marca,modelo,matricula,ecu,servicio,estado').or(`taller.ilike.${like},marca.ilike.${like},modelo.ilike.${like},matricula.ilike.${like},ecu.ilike.${like},servicio.ilike.${like},estado.ilike.${like}`).limit(5),
           supabase.from('biblioteca_tecnica').select('id,titulo,categoria,ecu,sintoma,solucion').or(`titulo.ilike.${like},categoria.ilike.${like},ecu.ilike.${like},sintoma.ilike.${like},solucion.ilike.${like}`).limit(5),
         ])
 
@@ -46,7 +45,6 @@ export default function UniversalSearch({ placeholder = 'Buscar cliente, matríc
         ;(expedientes.data || []).forEach((e: any) => out.push({ type: 'Expediente', title: e.numero_ot || 'OT', subtitle: [e.tipo_trabajo, e.estado].filter(Boolean).join(' · '), href: `/expedientes/${e.id}`, icon: ClipboardList }))
         ;(facturas.data || []).forEach((f: any) => out.push({ type: 'Documento', title: f.numero_documento || f.tipo_documento || 'Documento', subtitle: [f.tipo_documento, f.estado, f.total ? `${Number(f.total).toFixed(2)} €` : null].filter(Boolean).join(' · '), href: `/facturas`, icon: FileText }))
         ;(stock.data || []).forEach((s: any) => out.push({ type: 'Stock', title: s.descripcion || s.referencia || 'Stock', subtitle: [s.tipo, s.referencia, `Stock: ${s.cantidad ?? 0}`].filter(Boolean).join(' · '), href: `/stock`, icon: Package }))
-        ;(fileService.data || []).forEach((fs: any) => out.push({ type: 'File Service', title: fs.servicio || fs.ecu || 'Solicitud', subtitle: [fs.taller, fs.matricula, fs.estado].filter(Boolean).join(' · '), href: `/file-service`, icon: UploadCloud }))
         ;(biblioteca.data || []).forEach((b: any) => out.push({ type: 'Caso técnico', title: b.titulo || b.ecu || 'Caso técnico', subtitle: [b.categoria, b.ecu, b.sintoma].filter(Boolean).join(' · '), href: `/biblioteca/${b.id}`, icon: BookOpen }))
       } catch (err) {
         console.error('Universal search error', err)

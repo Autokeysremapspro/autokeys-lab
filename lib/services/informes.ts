@@ -85,7 +85,7 @@ export async function getInformesOverview(): Promise<InformesOverview> {
     supabase.from('expedientes').select('id,estado,tipo_trabajo,prioridad,created_at,updated_at,cliente_id'),
     supabase.from('facturas').select('id,tipo_documento,estado,total,fecha,created_at,cliente_id'),
     supabase.from('stock').select('id,tipo,referencia,descripcion,cantidad,cantidad_minima,precio_compra,precio_venta,ubicacion'),
-    supabase.from('file_service').select('id,estado,precio,pagado,created_at,taller,servicio,ecu'),
+    supabase.from('file_service_pedidos').select('id,estado,precio_final,precio,created_at'),
     supabase.from('casos_tecnicos').select('id', { count: 'exact', head: true }),
   ])
 

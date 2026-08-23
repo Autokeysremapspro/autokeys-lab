@@ -34,14 +34,14 @@ async function safeCount(table: string, filter?: (query: any) => any) {
 
 export async function getAdminOverview(): Promise<AdminOverview> {
   const [usuarios, usuariosActivos, clientes, vehiculos, expedientes, facturas, stockBajo, fileServicePendiente] = await Promise.all([
-    safeCount('usuarios'),
-    safeCount('usuarios', (q) => q.eq('activo', true)),
+    safeCount('usuarios_app'),
+    safeCount('usuarios_app', (q) => q.eq('activo', true)),
     safeCount('clientes'),
     safeCount('vehiculos'),
     safeCount('expedientes'),
     safeCount('facturas'),
     safeCount('stock', (q) => q.lte('cantidad', 1)),
-    safeCount('file_service', (q) => q.in('estado', ['pendiente', 'en_proceso', 'revision'])),
+    safeCount('file_service_pedidos', (q) => q.in('estado', ['pendiente', 'en_proceso'])),
   ])
 
   return { usuarios, usuariosActivos, clientes, vehiculos, expedientes, facturas, stockBajo, fileServicePendiente }

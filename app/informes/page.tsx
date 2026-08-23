@@ -101,7 +101,7 @@ export default function InformesPage() {
             <Stat icon={ClipboardList} label="OT abiertas" value={data.stats.otAbiertas} hint={`${data.stats.otTerminadas} terminadas/entregadas`} />
             <Stat icon={Package} label="Valor stock venta" value={formatMoney(data.stats.stockValorVenta)} hint={`${data.stats.stockBajo} referencias bajo mínimo`} />
             <Stat icon={Users} label="Clientes" value={data.stats.clientes} hint={`${data.stats.vehiculos} vehículos registrados`} />
-            <Stat icon={Wrench} label="File Service activo" value={data.stats.fileServicePendiente} hint="Pendiente, revisión o en proceso" />
+            <Stat icon={Wrench} label="Pedidos AK Cloud activos" value={data.stats.fileServicePendiente} hint="Pendiente o en proceso" />
             <Stat icon={FileText} label="Casos técnicos" value={data.stats.casosTecnicos} hint="Biblioteca de conocimiento" />
             <Stat icon={BarChart3} label="Módulos activos" value="ERP" hint="Core, laboratorio y administración" />
           </div>
@@ -112,7 +112,7 @@ export default function InformesPage() {
             <SimpleBars title="OT por estado" rows={data.otPorEstado} />
             <SimpleBars title="OT por tipo de trabajo" rows={data.otPorTipo} />
             <SimpleBars title="Facturación por documento" rows={data.facturacionPorDocumento} money />
-            <SimpleBars title="File Service por estado" rows={data.fileServicePorEstado} />
+            <SimpleBars title="Pedidos AK Cloud por estado" rows={data.fileServicePorEstado} />
           </div>
 
           <div className="card p-6">

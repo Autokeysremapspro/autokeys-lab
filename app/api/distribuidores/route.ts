@@ -9,7 +9,7 @@ function adminClient() {
   return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
 }
 
-// GET /api/distribuidores — listado con ventas por archivo (file_service) y tickets de soporte
+// GET /api/distribuidores — listado con ventas reales de AK Cloud (file_service_pedidos) y tickets de soporte
 export async function GET() {
   try {
     await requireStaff()
@@ -17,39 +17,43 @@ export async function GET() {
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-    const [{ data: distribuidores, error }, { data: ventas, error: ventasError }, { data: tickets, error: ticketsError }, { data: precios, error: preciosError }] = await Promise.all([
+    const [{ data: distribuidores, error }, { data: pedidos, error: pedidosError }, { data: tickets, error: ticketsError }, { data: precios, error: preciosError }] = await Promise.all([
       admin.from('akcloud_distribuidores').select('*').order('created_at', { ascending: false }),
-      admin.from('file_service').select('id,taller,servicio,estado,precio,created_at').gte('created_at', thirtyDaysAgo).order('created_at', { ascending: false }),
+      admin.from('file_service_pedidos').select('id,user_id,servicios,estado,precio,precio_final,created_at').gte('created_at', thirtyDaysAgo).order('created_at', { ascending: false }),
       admin.from('distribuidor_tickets').select('*').order('created_at', { ascending: false }),
       admin.from('distribuidor_precios').select('id,distribuidor_id,servicio_id'),
     ])
     if (error) throw error
-    if (ventasError) throw ventasError
+    if (pedidosError) throw pedidosError
     if (ticketsError) throw ticketsError
     if (preciosError) throw preciosError
 
     const rows = (distribuidores || []).map((d: any) => {
-      const empresaLower = String(d.empresa || '').trim().toLowerCase()
-      const ventasDistribuidor = empresaLower
-        ? (ventas || []).filter((v: any) => String(v.taller || '').trim().toLowerCase() === empresaLower)
+      const pedidosDistribuidor = d.auth_user_id
+        ? (pedidos || []).filter((p: any) => p.user_id === d.auth_user_id)
         : []
-      const facturacion30d = ventasDistribuidor.reduce((a: number, v: any) => a + Number(v.precio || 0), 0)
+      const facturacion30d = pedidosDistribuidor.reduce((a: number, p: any) => a + Number(p.precio_final ?? p.precio ?? 0), 0)
       const ticketsDistribuidor = (tickets || []).filter((t: any) => t.distribuidor_id === d.id)
       const preciosDistribuidor = (precios || []).filter((p: any) => p.distribuidor_id === d.id)
 
       return {
         ...d,
-        pedidos_30d: ventasDistribuidor.length,
+        pedidos_30d: pedidosDistribuidor.length,
         facturacion_30d: facturacion30d,
         comision_30d: (facturacion30d * Number(d.comision_porcentaje || 0)) / 100,
-        ordenes_recientes: ventasDistribuidor.slice(0, 4),
+        ordenes_recientes: pedidosDistribuidor.slice(0, 4).map((p: any) => ({
+          id: p.id,
+          servicio: Array.isArray(p.servicios) ? p.servicios.join(', ') : String(p.servicios || ''),
+          precio: Number(p.precio_final ?? p.precio ?? 0),
+          created_at: p.created_at,
+        })),
         tickets: ticketsDistribuidor.slice(0, 4),
         tickets_abiertos: ticketsDistribuidor.filter((t: any) => t.estado !== 'cerrado').length,
         precios_personalizados: preciosDistribuidor.length,
       }
     })
 
-    const ventasCanal = (ventas || []).reduce((a: number, v: any) => a + Number(v.precio || 0), 0)
+    const ventasCanal = rows.reduce((a: number, r: any) => a + r.facturacion_30d, 0)
     const comisionesCanal = rows.reduce((a: number, r: any) => a + r.comision_30d, 0)
 
     return NextResponse.json({ distribuidores: rows, ventasCanal, comisionesCanal })

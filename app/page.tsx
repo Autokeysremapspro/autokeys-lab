@@ -96,7 +96,7 @@ export default function Dashboard() {
           <LabStatCard icon={<Wallet size={19} />} tone="orange" label="Facturación mensual" value={money(stats.facturacionMes)} trend={18} subtitle="vs. mes anterior" />
           <LabStatCard icon={<FileText size={19} />} tone="blue" label="Archivos procesados" value={stats.fileServiceTotal.toLocaleString('es-ES')} trend={22} subtitle="vs. semana anterior" />
           <LabStatCard icon={<Car size={19} />} tone="green" label="Vehículos atendidos" value={stats.vehiculos} trend={9} subtitle="vs. semana anterior" />
-          <LabStatCard icon={<Ticket size={19} />} tone="purple" label="Tickets abiertos" value={stats.fileServiceActivos} trend={13} subtitle="vs. mes anterior" />
+          <LabStatCard icon={<Ticket size={19} />} tone="purple" label="Pedidos AK Cloud activos" value={stats.fileServiceActivos} trend={13} subtitle="vs. mes anterior" />
         </div>
 
         <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr_0.85fr]">
@@ -239,7 +239,7 @@ export default function Dashboard() {
             </div>
           </LabPanel>
 
-          <LabPanel title="File Service" action={<Link href="/file-service" className="flex items-center gap-1.5 text-xs font-bold text-[#ff5468] hover:text-[#ff7a86]"><UploadCloud size={13} /> Subir archivo</Link>}>
+          <LabPanel title="AK Cloud" action={<Link href="/ak-cloud" className="flex items-center gap-1.5 text-xs font-bold text-[#ff5468] hover:text-[#ff7a86]"><UploadCloud size={13} /> Ver pedidos</Link>}>
             <div className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-zinc-600">Actividad reciente</div>
             <div className="space-y-2">
               {overview.fileService.slice(0, 5).map((f: any) => (

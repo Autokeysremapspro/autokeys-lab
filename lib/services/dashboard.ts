@@ -96,11 +96,11 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
       .from('facturas')
       .select('id,total,estado,fecha,created_at'),
     supabase
-      .from('file_service')
-      .select('id,taller,matricula,ecu,servicio,estado,precio,pagado,created_at')
+      .from('file_service_pedidos')
+      .select('id,cliente_nombre,marca,modelo,ecu,servicios,estado,precio_final,precio,created_at')
       .order('created_at', { ascending: false })
       .limit(8),
-    supabase.from('file_service').select('id', { count: 'exact', head: true }),
+    supabase.from('file_service_pedidos').select('id', { count: 'exact', head: true }),
     supabase
       .from('expedientes')
       .select('id,created_at')
@@ -121,7 +121,16 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
 
   const expedientes = expedientesRes.data || []
   const facturas = facturasRes.data || []
-  const fileService = fileServiceRes.data || []
+  const fileService = (fileServiceRes.data || []).map((p: any) => ({
+    id: p.id,
+    taller: p.cliente_nombre,
+    marca: p.marca,
+    modelo: p.modelo,
+    matricula: p.ecu,
+    servicio: Array.isArray(p.servicios) ? p.servicios.join(', ') : p.servicios,
+    estado: p.estado,
+    precio: p.precio_final ?? p.precio,
+  }))
   const lowStock = (stockRes.data || []).filter((s: any) => Number(s.cantidad || 0) <= Number(s.cantidad_minima || 0))
 
   const clienteIds = Array.from(new Set((ultimosExpedientesRes.data || []).map((e: any) => e.cliente_id).filter(Boolean)))
