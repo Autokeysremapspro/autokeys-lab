@@ -16,11 +16,6 @@ import {
   Headset,
   Phone,
   MessageCircle,
-  Users,
-  Car,
-  FolderOpen,
-  Receipt,
-  UploadCloud,
 } from 'lucide-react'
 import { LabLogoMark } from '@/components/lab'
 
@@ -154,33 +149,42 @@ function LoginContent() {
 
   return (
     <main className="min-h-screen bg-[#07080b] text-white">
-      <div className="grid min-h-screen lg:grid-cols-2">
-        <div className="flex flex-col justify-between gap-10 border-b border-white/[0.06] p-8 lg:border-b-0 lg:border-r lg:p-14">
-          <div>
-            <div className="flex items-center gap-3">
-              <LabLogoMark size={46} />
-              <div>
-                <div className="text-2xl font-bold text-white">Autokeys Lab</div>
-                <div className="text-xs font-medium text-zinc-500">by Autokeys Remaps Pro</div>
-              </div>
-            </div>
+      <div className="grid min-h-screen xl:grid-cols-2">
+        <div className="relative hidden flex-col justify-between gap-10 overflow-hidden p-10 xl:flex xl:p-14 2xl:p-16">
+          <img
+            src="/login-hero.png"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover object-[center_32%]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/45 to-black/85" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#07080b]/40 via-transparent to-transparent" />
 
-            <h1 className="mt-10 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
+          <div className="relative flex items-center gap-3">
+            <LabLogoMark size={46} />
+            <div>
+              <div className="text-2xl font-bold text-white">Autokeys Lab</div>
+              <div className="text-xs font-medium text-zinc-300">by Autokeys Remaps Pro</div>
+            </div>
+          </div>
+
+          <div className="relative">
+            <h1 className="text-4xl font-bold leading-tight tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,.6)] sm:text-5xl">
               Acceso al <span className="text-[#ff3b46]">ERP</span> profesional
             </h1>
-            <p className="mt-4 max-w-md text-sm leading-6 text-zinc-400">
+            <p className="mt-4 max-w-md text-sm leading-6 text-zinc-200 drop-shadow-[0_1px_6px_rgba(0,0,0,.6)]">
               Gestiona tu taller de forma eficiente: clientes, vehículos, expedientes, facturación y file service en un solo lugar.
             </p>
 
-            <div className="mt-10 space-y-5">
+            <div className="mt-9 space-y-4">
               {FEATURES.map((f) => {
                 const Icon = f.icon
                 return (
                   <div key={f.title} className="flex items-start gap-3.5">
-                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#c81f2a]/25 bg-[#c81f2a]/10 text-[#ff5468]"><Icon size={20} /></div>
+                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#c81f2a]/30 bg-black/40 text-[#ff5468] backdrop-blur-sm"><Icon size={20} /></div>
                     <div>
                       <div className="text-sm font-bold text-white">{f.title}</div>
-                      <div className="text-xs leading-5 text-zinc-500">{f.desc}</div>
+                      <div className="text-xs leading-5 text-zinc-300">{f.desc}</div>
                     </div>
                   </div>
                 )
@@ -188,42 +192,18 @@ function LoginContent() {
             </div>
           </div>
 
-          <div className="hidden rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:block">
-            <div className="relative grid grid-cols-3 items-center gap-4">
-              <div className="flex flex-col items-center gap-2 text-center">
-                <div className="grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-zinc-400"><Users size={18} /></div>
-                <span className="text-[11px] font-semibold text-zinc-500">Clientes</span>
-              </div>
-              <div />
-              <div className="flex flex-col items-center gap-2 text-center">
-                <div className="grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-zinc-400"><FolderOpen size={18} /></div>
-                <span className="text-[11px] font-semibold text-zinc-500">Expedientes</span>
-              </div>
-              <div className="flex flex-col items-center gap-2 text-center">
-                <div className="grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-zinc-400"><Car size={18} /></div>
-                <span className="text-[11px] font-semibold text-zinc-500">Vehículos</span>
-              </div>
-              <div className="col-span-1 row-span-1 flex flex-col items-center justify-self-center">
-                <div className="grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-[#c81f2a] to-[#5e0d13] text-white shadow-lg shadow-[#c81f2a]/30">
-                  <span className="text-lg font-black">AK</span>
-                </div>
-              </div>
-              <div className="flex flex-col items-center gap-2 text-center">
-                <div className="grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-zinc-400"><Receipt size={18} /></div>
-                <span className="text-[11px] font-semibold text-zinc-500">Facturación</span>
-              </div>
-            </div>
-            <div className="mt-4 flex flex-col items-center gap-2">
-              <div className="grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-zinc-400"><UploadCloud size={18} /></div>
-              <span className="text-[11px] font-semibold text-zinc-500">File Service</span>
-            </div>
-          </div>
-
-          <p className="text-xs text-zinc-600">© 2024 <span className="font-bold text-zinc-400">Autokeys Lab</span> by Autokeys Remaps Pro. Todos los derechos reservados.</p>
+          <p className="relative text-xs text-zinc-400">© 2024 <span className="font-bold text-zinc-200">Autokeys Lab</span> by Autokeys Remaps Pro. Todos los derechos reservados.</p>
         </div>
 
-        <div className="flex items-center justify-center p-6 sm:p-10 lg:p-14">
+        <div className="flex items-center justify-center p-6 py-10 sm:p-10 xl:p-14">
           <div className="w-full max-w-md">
+            <div className="mb-8 flex items-center gap-3 xl:hidden">
+              <LabLogoMark size={40} />
+              <div>
+                <div className="text-lg font-bold text-white">Autokeys Lab</div>
+                <div className="text-[11px] font-medium text-zinc-500">by Autokeys Remaps Pro</div>
+              </div>
+            </div>
             <div className="mb-6 flex gap-1 rounded-xl border border-white/10 bg-white/[0.02] p-1">
               <button className="flex-1 rounded-lg border-b-2 border-[#ff3b46] bg-white/[0.04] px-4 py-2.5 text-sm font-bold text-white">Iniciar sesión</button>
               <Link href="/register" className="flex flex-1 items-center justify-center rounded-lg px-4 py-2.5 text-sm font-bold text-zinc-500 hover:text-zinc-300">Solicitar acceso</Link>
