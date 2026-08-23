@@ -6,8 +6,17 @@ import toast from 'react-hot-toast'
 import { LogOut, Tag, LifeBuoy, Mail, Phone, MapPin } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { LabLogoMark, LabBadge } from '@/components/lab'
+import { getTarifaDistribuidor, CATEGORIA_LABELS, type ServicioConPrecio } from '@/lib/services/precios'
 
-const SERVICIOS_TARIFA = ['Stage 1', 'Stage 2', 'DPF OFF', 'EGR OFF', 'AdBlue / SCR OFF', 'IMMO OFF', 'Pops & Bangs', 'Hardcut', 'Clone / Repair', 'DTC Off', 'Speed Limit Off']
+function groupByCategoria(items: ServicioConPrecio[]) {
+  const groups = new Map<string, ServicioConPrecio[]>()
+  for (const item of items) {
+    const arr = groups.get(item.categoria) || []
+    arr.push(item)
+    groups.set(item.categoria, arr)
+  }
+  return Array.from(groups.entries())
+}
 
 const NIVEL_TONE: Record<string, 'purple' | 'amber' | 'zinc' | 'blue'> = { Platinum: 'purple', Gold: 'amber', Silver: 'blue', Bronze: 'zinc' }
 
@@ -23,15 +32,13 @@ type Distribuidor = {
   estado: string
 }
 
-type PrecioRow = { servicio: string; precio: number }
 type Ticket = { id: string; numero: string | null; asunto: string; estado: string; created_at: string }
 
 export default function MiCuentaPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [distribuidor, setDistribuidor] = useState<Distribuidor | null>(null)
-  const [propios, setPropios] = useState<PrecioRow[]>([])
-  const [estandar, setEstandar] = useState<PrecioRow[]>([])
+  const [tarifa, setTarifa] = useState<ServicioConPrecio[]>([])
   const [tickets, setTickets] = useState<Ticket[]>([])
 
   useEffect(() => { load() }, [])
@@ -58,13 +65,11 @@ export default function MiCuentaPage() {
 
       setDistribuidor(dist as Distribuidor)
 
-      const [preciosRes, estandarRes, ticketsRes] = await Promise.all([
-        supabase.from('distribuidor_precios').select('servicio,precio').eq('distribuidor_id', dist.id),
-        supabase.from('precios_estandar').select('servicio,precio'),
+      const [servicios, ticketsRes] = await Promise.all([
+        getTarifaDistribuidor(supabase, dist.id),
         supabase.from('distribuidor_tickets').select('id,numero,asunto,estado,created_at').eq('distribuidor_id', dist.id).order('created_at', { ascending: false }).limit(5),
       ])
-      setPropios((preciosRes.data || []) as PrecioRow[])
-      setEstandar((estandarRes.data || []) as PrecioRow[])
+      setTarifa(servicios)
       setTickets((ticketsRes.data || []) as Ticket[])
     } catch (err: any) {
       toast.error(err.message || 'No se pudo cargar tu cuenta')
@@ -77,9 +82,6 @@ export default function MiCuentaPage() {
     await supabase.auth.signOut()
     router.replace('/login')
   }
-
-  const propiosMap = Object.fromEntries(propios.map((p) => [p.servicio, p.precio]))
-  const estandarMap = Object.fromEntries(estandar.map((p) => [p.servicio, p.precio]))
 
   if (loading) {
     return (
@@ -132,21 +134,24 @@ export default function MiCuentaPage() {
             <Tag size={16} className="text-[#ff5468]" />
             <h2 className="text-[15px] font-bold text-white">Mis precios por servicio</h2>
           </div>
-          <div className="space-y-2">
-            {SERVICIOS_TARIFA.map((servicio) => {
-              const propio = propiosMap[servicio]
-              const base = estandarMap[servicio]
-              const precio = propio ?? base
-              return (
-                <div key={servicio} className="flex items-center justify-between gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
-                  <span className="text-sm font-semibold text-zinc-300">{servicio}</span>
-                  <div className="flex items-center gap-2">
-                    {propio !== undefined && <LabBadge tone="purple">Precio especial</LabBadge>}
-                    <span className="text-sm font-bold text-white">{precio !== undefined ? `${precio.toFixed(2)} €` : 'Consultar'}</span>
-                  </div>
+          <div className="max-h-[55vh] space-y-4 overflow-y-auto pr-1">
+            {groupByCategoria(tarifa).map(([categoria, servicios]) => (
+              <div key={categoria}>
+                <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-zinc-600">{CATEGORIA_LABELS[categoria] || categoria}</div>
+                <div className="space-y-2">
+                  {servicios.map((s) => (
+                    <div key={s.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
+                      <span className="text-sm font-semibold text-zinc-300">{s.nombre}</span>
+                      <div className="flex items-center gap-2">
+                        {s.personalizado && <LabBadge tone="purple">Precio especial</LabBadge>}
+                        <span className="text-sm font-bold text-white">{s.precioEfectivo.toFixed(2)} €</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              )
-            })}
+              </div>
+            ))}
+            {tarifa.length === 0 && <div className="py-6 text-center text-xs text-zinc-600">Sin servicios activos.</div>}
           </div>
         </section>
 
