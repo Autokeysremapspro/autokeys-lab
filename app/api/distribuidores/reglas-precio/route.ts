@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireStaff } from '@/lib/supabase/server'
+import {
+  cleanPricingRuleList,
+  removePricingRuleForAllEnabled,
+  syncPricingRuleForAllEnabled,
+} from '@/lib/services/pricingRuleSync'
 
 function adminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -9,22 +14,18 @@ function adminClient() {
   return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
 }
 
-function cleanList(value: unknown) {
-  return Array.isArray(value) ? Array.from(new Set(value.map(String).map((v) => v.trim()).filter(Boolean))) : []
-}
-
 function normalizeRule(body: any) {
   const nombre = String(body.nombre || '').trim()
   const tipo = body.tipo === 'combo_fijo' ? 'combo_fijo' : 'extras_gratis'
   const servicioPrincipalSlug = String(body.servicioPrincipalSlug || '').trim()
-  const serviciosGratis = cleanList(body.serviciosGratis).filter((slug) => slug !== servicioPrincipalSlug)
-  const serviciosRequeridos = cleanList(body.serviciosRequeridos)
+  const serviciosGratis = cleanPricingRuleList(body.serviciosGratis).filter((slug) => slug !== servicioPrincipalSlug)
+  const serviciosRequeridos = cleanPricingRuleList(body.serviciosRequeridos)
   const precioConjunto = body.precioConjunto == null || body.precioConjunto === '' ? null : Number(body.precioConjunto)
 
   if (!nombre) throw new Error('Pon un nombre a la regla')
 
   if (tipo === 'combo_fijo') {
-    if (serviciosRequeridos.length < 2) throw new Error('Un pack necesita al menos dos servicios')
+    if (serviciosRequeridos.length !== 2) throw new Error('Un pack de precio fijo debe tener exactamente dos servicios')
     if (precioConjunto == null || !Number.isFinite(precioConjunto) || precioConjunto < 0) throw new Error('Indica un precio total válido para el pack')
     return {
       nombre,
@@ -50,64 +51,8 @@ function normalizeRule(body: any) {
   }
 }
 
-async function deleteSyncedExtras(admin: ReturnType<typeof adminClient>, rule: any) {
-  if (String(rule.tipo || 'extras_gratis') !== 'extras_gratis') return
-  const distribuidorIds = Array.isArray(rule.solo_distribuidores) ? rule.solo_distribuidores.map(String) : []
-  const triggerSlug = String(rule.servicio_principal_slug || '').trim()
-  const freeSlugs = cleanList(rule.servicios_gratis)
-  if (!distribuidorIds.length || !triggerSlug || !freeSlugs.length) return
-
-  const { data: servicios, error } = await admin
-    .from('akcloud_servicios')
-    .select('id,slug')
-    .in('slug', Array.from(new Set([triggerSlug, ...freeSlugs])))
-  if (error) throw error
-
-  const bySlug = new Map((servicios || []).map((s: any) => [String(s.slug), String(s.id)]))
-  const triggerId = bySlug.get(triggerSlug)
-  const targetIds = freeSlugs.map((slug) => bySlug.get(slug)).filter(Boolean) as string[]
-  if (!triggerId || !targetIds.length) return
-
-  const { error: deleteError } = await admin
-    .from('distribuidor_precios_condicionales')
-    .delete()
-    .in('distribuidor_id', distribuidorIds)
-    .eq('requiere_servicio_id', triggerId)
-    .in('servicio_id', targetIds)
-  if (deleteError) throw deleteError
-}
-
-async function syncExtrasForDistributors(admin: ReturnType<typeof adminClient>, rule: any) {
-  if (String(rule.tipo || 'extras_gratis') !== 'extras_gratis') return
-  const distribuidorIds = Array.isArray(rule.solo_distribuidores) ? rule.solo_distribuidores.map(String) : []
-  if (!distribuidorIds.length) return
-
-  const triggerSlug = String(rule.servicio_principal_slug || '').trim()
-  const freeSlugs = cleanList(rule.servicios_gratis)
-  if (!triggerSlug || !freeSlugs.length) return
-
-  const { data: servicios, error } = await admin
-    .from('akcloud_servicios')
-    .select('id,slug')
-    .in('slug', Array.from(new Set([triggerSlug, ...freeSlugs])))
-  if (error) throw error
-
-  const bySlug = new Map((servicios || []).map((s: any) => [String(s.slug), String(s.id)]))
-  const triggerId = bySlug.get(triggerSlug)
-  const targetIds = freeSlugs.map((slug) => bySlug.get(slug)).filter(Boolean) as string[]
-  if (!triggerId || !targetIds.length) return
-
-  const rows = distribuidorIds.flatMap((distribuidorId) => targetIds.map((servicioId) => ({
-    distribuidor_id: distribuidorId,
-    servicio_id: servicioId,
-    requiere_servicio_id: triggerId,
-    precio: 0,
-    activo: true,
-    updated_at: new Date().toISOString(),
-  })))
-
-  const { error: insertError } = await admin.from('distribuidor_precios_condicionales').insert(rows)
-  if (insertError) throw insertError
+function isValidationError(message: string) {
+  return /Pon un nombre|Selecciona|exactamente dos|precio total válido/.test(message)
 }
 
 export async function POST(request: Request) {
@@ -144,8 +89,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, id: created.id })
   } catch (error: any) {
-    const status = error.message === 'No autorizado' ? 401 : error.message?.includes('Selecciona') || error.message?.includes('Pon ') || error.message?.includes('necesita') || error.message?.includes('precio total') ? 400 : 500
-    return NextResponse.json({ error: error.message || 'Error creando la regla' }, { status })
+    const message = error.message || 'Error creando la regla'
+    const status = message === 'No autorizado' ? 401 : isValidationError(message) ? 400 : 500
+    return NextResponse.json({ error: message }, { status })
   }
 }
 
@@ -166,7 +112,7 @@ export async function PATCH(request: Request) {
     if (!existing) return NextResponse.json({ error: 'La regla no existe' }, { status: 404 })
 
     const normalized = normalizeRule(body)
-    await deleteSyncedExtras(admin, existing)
+    await removePricingRuleForAllEnabled(admin, existing)
 
     const { data: updated, error: updateError } = await admin
       .from('akcloud_reglas_precios')
@@ -176,7 +122,7 @@ export async function PATCH(request: Request) {
       .single()
     if (updateError) throw updateError
 
-    await syncExtrasForDistributors(admin, updated)
+    await syncPricingRuleForAllEnabled(admin, updated)
 
     await admin.from('auditoria_core').insert({
       usuario: usuario.nombre,
@@ -191,8 +137,9 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ ok: true })
   } catch (error: any) {
-    const status = error.message === 'No autorizado' ? 401 : error.message?.includes('Selecciona') || error.message?.includes('Pon ') || error.message?.includes('necesita') || error.message?.includes('precio total') ? 400 : 500
-    return NextResponse.json({ error: error.message || 'Error actualizando la regla' }, { status })
+    const message = error.message || 'Error actualizando la regla'
+    const status = message === 'No autorizado' ? 401 : isValidationError(message) ? 400 : 500
+    return NextResponse.json({ error: message }, { status })
   }
 }
 
@@ -211,7 +158,7 @@ export async function DELETE(request: Request) {
     if (existingError) throw existingError
     if (!existing) return NextResponse.json({ error: 'La regla no existe' }, { status: 404 })
 
-    await deleteSyncedExtras(admin, existing)
+    await removePricingRuleForAllEnabled(admin, existing)
 
     const { error: updateError } = await admin
       .from('akcloud_reglas_precios')
