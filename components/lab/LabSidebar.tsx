@@ -14,6 +14,7 @@ import {
   Gauge,
   Headphones,
   Handshake,
+  BadgeEuro,
   UserCog,
   Settings,
   Lock,
@@ -34,6 +35,7 @@ const navigation = [
   { href: '/ak-cloud/soporte', label: 'Soporte AK Cloud', icon: Headphones },
   { href: '/ak-cloud', label: 'AK Cloud', icon: Cloud },
   { href: '/distribuidores', label: 'Distribuidores', icon: Handshake },
+  { href: '/distribuidores/reglas', label: 'Reglas de precios', icon: BadgeEuro },
   { href: '/tecnicos', label: 'Técnicos', icon: UserCog },
   { href: '/configuracion', label: 'Ajustes', icon: Settings },
 ]
@@ -43,9 +45,6 @@ function matchesPath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
-// /ak-cloud/produccion es un sub-path de /ak-cloud: sin esto, estar en
-// Producción marcaría a la vez "Trabajos AK Cloud" y "AK Cloud" como
-// activos. Se queda activo el enlace más específico que coincida.
 function bestMatch(pathname: string) {
   return navigation.reduce<(typeof navigation)[number] | null>((best, item) => {
     if (!matchesPath(pathname, item.href)) return best
