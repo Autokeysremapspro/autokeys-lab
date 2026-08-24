@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
-import AppShell from '@/components/AppShell'
+import { LabShell } from '@/components/lab'
 import CustomSelect from '@/components/ak/CustomSelect'
 import {
   AkCloudRecargaFactura,
@@ -114,9 +114,9 @@ export default function AkCloudFacturacionPage() {
   }
 
   return (
-    <AppShell>
+    <LabShell>
       <div className="space-y-7">
-        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#111827] to-[#1b0b12] p-7 shadow-2xl shadow-black/30">
+        <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#111827] to-[#1b0b12] p-7 shadow-2xl shadow-black/30">
           <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#c81f2a]/20 blur-3xl" />
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
@@ -131,7 +131,7 @@ export default function AkCloudFacturacionPage() {
                 Genera facturas de recargas aprobadas usando el sistema de documentos de Autokeys Core. AK Cloud solo muestra el documento al distribuidor.
               </p>
             </div>
-            <button onClick={load} className="btn btn-dark inline-flex items-center gap-2">
+            <button onClick={load} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] inline-flex items-center gap-2">
               <RefreshCw size={18} /> Actualizar
             </button>
           </div>
@@ -227,10 +227,10 @@ export default function AkCloudFacturacionPage() {
                         <div className="flex justify-end gap-2">
                           {recarga.core_factura_id ? (
                             <>
-                              <button onClick={() => openFactura(recarga.core_factura_id!)} className="btn btn-dark inline-flex items-center gap-2 text-sm">
+                              <button onClick={() => openFactura(recarga.core_factura_id!)} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] inline-flex items-center gap-2 text-sm">
                                 <FileText size={15} /> Ver
                               </button>
-                              <button onClick={() => openFactura(recarga.core_factura_id!, true)} className="btn btn-dark inline-flex items-center gap-2 text-sm">
+                              <button onClick={() => openFactura(recarga.core_factura_id!, true)} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] inline-flex items-center gap-2 text-sm">
                                 <Printer size={15} /> Imprimir
                               </button>
                             </>
@@ -238,7 +238,7 @@ export default function AkCloudFacturacionPage() {
                             <button
                               onClick={() => crearFactura(recarga)}
                               disabled={working === recarga.id || recarga.estado !== 'aprobado'}
-                              className="btn btn-red inline-flex items-center gap-2 text-sm disabled:opacity-50"
+                              className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] inline-flex items-center gap-2 text-sm disabled:opacity-50"
                             >
                               {working === recarga.id ? <Loader2 className="animate-spin" size={15} /> : <FileText size={15} />}
                               Crear factura
@@ -254,6 +254,6 @@ export default function AkCloudFacturacionPage() {
           )}
         </section>
       </div>
-    </AppShell>
+    </LabShell>
   )
 }

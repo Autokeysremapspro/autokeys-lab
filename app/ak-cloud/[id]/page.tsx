@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-import AppShell from '@/components/AppShell'
+import { LabShell } from '@/components/lab'
 import CustomSelect from '@/components/ak/CustomSelect'
 import {
   AkCloudMensaje,
@@ -293,22 +293,22 @@ export default function AkCloudPedidoPage() {
 
   if (loading) {
     return (
-      <AppShell>
+      <LabShell>
         <div className="card p-8 text-zinc-500">Cargando pedido AK Cloud...</div>
-      </AppShell>
+      </LabShell>
     )
   }
 
   if (!pedido) {
     return (
-      <AppShell>
+      <LabShell>
         <div className="card p-8 text-zinc-500">Pedido no encontrado.</div>
-      </AppShell>
+      </LabShell>
     )
   }
 
   return (
-    <AppShell>
+    <LabShell>
       <div className="space-y-7">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
@@ -325,13 +325,13 @@ export default function AkCloudPedidoPage() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <button onClick={load} className="btn btn-dark inline-flex items-center gap-2"><RefreshCw size={17} /> Actualizar</button>
+            <button onClick={load} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] inline-flex items-center gap-2"><RefreshCw size={17} /> Actualizar</button>
             {pedido.core_expediente_id ? (
-              <Link href={`/expedientes/${pedido.core_expediente_id}`} className="btn btn-red inline-flex items-center gap-2">
+              <Link href={`/expedientes/${pedido.core_expediente_id}`} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] inline-flex items-center gap-2">
                 Abrir expediente <ExternalLink size={17} />
               </Link>
             ) : (
-              <button onClick={convertir} disabled={working === 'convertir'} className="btn btn-red inline-flex items-center gap-2 disabled:opacity-50">
+              <button onClick={convertir} disabled={working === 'convertir'} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] inline-flex items-center gap-2 disabled:opacity-50">
                 {working === 'convertir' ? <Loader2 className="animate-spin" size={17} /> : <Link2 size={17} />} Convertir en expediente
               </button>
             )}
@@ -340,7 +340,7 @@ export default function AkCloudPedidoPage() {
 
         <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[1fr_440px]">
           <main className="space-y-6">
-            <section className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0B1220] to-[#111827] p-6">
+            <section className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-white/[0.012] p-6">
               <div className="mb-5 flex items-center gap-3">
                 <Cloud className="text-[#ff5468]" />
                 <div>
@@ -363,7 +363,7 @@ export default function AkCloudPedidoPage() {
               </div>
             </section>
 
-            <section className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-6">
+            <section className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-white/[0.012] p-6">
               <div className="mb-5 flex items-center gap-3">
                 <FileCode2 className="text-[#ff5468]" />
                 <div>
@@ -408,7 +408,7 @@ export default function AkCloudPedidoPage() {
                 <button
                   onClick={confirmarEcu}
                   disabled={working === 'confirm-ecu' || !pedido.ori_bucket || !pedido.ori_path}
-                  className="btn btn-red mt-4 inline-flex w-full items-center justify-center gap-2 disabled:opacity-50"
+                  className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] mt-4 inline-flex w-full items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {working === 'confirm-ecu' ? <Loader2 className="animate-spin" size={17} /> : <ShieldCheck size={17} />}
                   Confirmar identificación y enseñar
@@ -428,7 +428,7 @@ export default function AkCloudPedidoPage() {
               )}
             </section>
 
-            <section className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-6">
+            <section className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-white/[0.012] p-6">
               <div className="mb-5 flex items-center gap-3">
                 <MessageCircle className="text-[#ff5468]" />
                 <div>
@@ -463,7 +463,7 @@ export default function AkCloudPedidoPage() {
                   placeholder="Escribe un mensaje para el distribuidor..."
                   className="flex-1 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-[#c81f2a]/50"
                 />
-                <button onClick={sendMessage} disabled={working === 'message'} className="btn btn-red inline-flex items-center gap-2 disabled:opacity-50">
+                <button onClick={sendMessage} disabled={working === 'message'} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] inline-flex items-center gap-2 disabled:opacity-50">
                   {working === 'message' ? <Loader2 className="animate-spin" size={17} /> : <Send size={17} />} Enviar
                 </button>
               </div>
@@ -471,7 +471,7 @@ export default function AkCloudPedidoPage() {
           </main>
 
           <aside className="space-y-6">
-            <section className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-6">
+            <section className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-white/[0.012] p-6">
               <h2 className="text-2xl font-bold">Control interno</h2>
               <p className="mt-1 text-sm text-zinc-500">Datos solo visibles en Autokeys Core.</p>
 
@@ -511,21 +511,21 @@ export default function AkCloudPedidoPage() {
                   <textarea value={notas} onChange={(e) => setNotas(e.target.value)} className="h-32 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none" />
                 </label>
 
-                <button onClick={saveAdmin} disabled={working === 'save'} className="btn btn-red inline-flex w-full items-center justify-center gap-2 disabled:opacity-50">
+                <button onClick={saveAdmin} disabled={working === 'save'} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] inline-flex w-full items-center justify-center gap-2 disabled:opacity-50">
                   {working === 'save' ? <Loader2 className="animate-spin" size={17} /> : <Save size={17} />} Guardar cambios
                 </button>
               </div>
             </section>
 
-            <section className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-6">
+            <section className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-white/[0.012] p-6">
               <div className="flex items-center gap-3"><GitBranch className="text-[#ff5468]"/><div><h2 className="text-2xl font-bold">Versiones del archivo</h2><p className="text-sm text-zinc-500">Sube V1, V2, V3… sin cerrar automáticamente el pedido.</p></div></div>
-              <button onClick={() => downloadFile('ori')} className="btn btn-dark mt-5 inline-flex w-full items-center justify-center gap-2"><Download size={17}/> Descargar ORI</button>
+              <button onClick={() => downloadFile('ori')} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] mt-5 inline-flex w-full items-center justify-center gap-2"><Download size={17}/> Descargar ORI</button>
               <div className="mt-4 space-y-3">
                 {versiones.length === 0 ? <div className="rounded-2xl border border-dashed border-white/10 p-5 text-center text-sm text-zinc-500">Aún no hay versiones.</div> : versiones.map(v => (
                   <div key={v.id} className={`rounded-2xl border p-4 ${v.es_final ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-white/10 bg-black/20'}`}>
                     <div className="flex items-center justify-between gap-3"><div><div className="font-bold">V{v.numero_version} · {v.nombre_archivo}</div><div className="text-xs text-zinc-500">{v.created_at ? new Date(v.created_at).toLocaleString('es-ES') : ''}</div></div>{v.es_final && <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-300">FINAL</span>}</div>
                     {v.nota_cliente && <p className="mt-2 text-sm text-zinc-300">{v.nota_cliente}</p>}
-                    <div className="mt-3 flex gap-2"><button onClick={()=>downloadVersion(v)} className="btn btn-dark flex-1">Descargar</button><button onClick={()=>setFinalVersion(v.id)} disabled={!!v.es_final} className="btn btn-dark flex-1 disabled:opacity-40">Marcar final</button></div>
+                    <div className="mt-3 flex gap-2"><button onClick={()=>downloadVersion(v)} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] flex-1">Descargar</button><button onClick={()=>setFinalVersion(v.id)} disabled={!!v.es_final} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] flex-1 disabled:opacity-40">Marcar final</button></div>
                   </div>
                 ))}
               </div>
@@ -534,15 +534,15 @@ export default function AkCloudPedidoPage() {
                 <input ref={fileInputRef} type="file" onChange={(e)=>setModFile(e.target.files?.[0] || null)} className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 p-3 text-sm"/>
                 <input value={notaCliente} onChange={(e)=>setNotaCliente(e.target.value)} placeholder="Nota visible para el cliente" className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm"/>
                 <input value={notaInternaVersion} onChange={(e)=>setNotaInternaVersion(e.target.value)} placeholder="Nota interna (solo laboratorio)" className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm"/>
-                <button onClick={uploadMod} disabled={working === 'upload-mod'} className="btn btn-red mt-3 inline-flex w-full items-center justify-center gap-2 disabled:opacity-50"><UploadCloud size={17}/> Subir versión (mantener abierto)</button>
+                <button onClick={uploadMod} disabled={working === 'upload-mod'} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] mt-3 inline-flex w-full items-center justify-center gap-2 disabled:opacity-50"><UploadCloud size={17}/> Subir versión (mantener abierto)</button>
               </div>
               <div className="mt-5 border-t border-white/10 pt-5">
-                {pedido.estado === 'finalizado' ? <button onClick={reopenOrder} className="btn btn-dark inline-flex w-full items-center justify-center gap-2"><RotateCcw size={17}/> Reabrir pedido</button> : <button onClick={finishOrder} disabled={working === 'finish'} className="btn btn-red inline-flex w-full items-center justify-center gap-2"><LockKeyhole size={17}/> Marcar pedido como finalizado</button>}
+                {pedido.estado === 'finalizado' ? <button onClick={reopenOrder} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] inline-flex w-full items-center justify-center gap-2"><RotateCcw size={17}/> Reabrir pedido</button> : <button onClick={finishOrder} disabled={working === 'finish'} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] inline-flex w-full items-center justify-center gap-2"><LockKeyhole size={17}/> Marcar pedido como finalizado</button>}
                 <p className="mt-2 text-center text-xs text-zinc-500">Ninguna subida finaliza el pedido automáticamente.</p>
               </div>
             </section>
 
-            <section className="rounded-[2rem] border border-emerald-500/20 bg-emerald-500/10 p-6">
+            <section className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-6">
               <ShieldCheck className="text-emerald-300" />
               <h3 className="mt-3 text-xl font-bold">Sincronización Core</h3>
               <p className="mt-2 text-sm text-zinc-400">Desde esta ficha puedes convertir el pedido en expediente, responder al distribuidor y entregar el archivo final.</p>
@@ -550,7 +550,7 @@ export default function AkCloudPedidoPage() {
           </aside>
         </div>
       </div>
-    </AppShell>
+    </LabShell>
   )
 }
 

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
-import AppShell from '@/components/AppShell'
+import { LabShell } from '@/components/lab'
 import {
   AkCloudRecarga,
   aprobarRecargaAkCloud,
@@ -126,9 +126,9 @@ export default function AkCloudRecargasPage() {
   }
 
   return (
-    <AppShell>
+    <LabShell>
       <div className="space-y-7">
-        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#101827] to-[#19070d] p-7 shadow-2xl shadow-black/30">
+        <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#101827] to-[#19070d] p-7 shadow-2xl shadow-black/30">
           <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#c81f2a]/20 blur-3xl" />
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
@@ -143,7 +143,7 @@ export default function AkCloudRecargasPage() {
                 Aprueba solicitudes de recarga desde Autokeys Core. Al aprobar, se suman créditos al distribuidor y se notifica en AK Cloud.
               </p>
             </div>
-            <button onClick={load} className="btn btn-dark inline-flex items-center gap-2">
+            <button onClick={load} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] inline-flex items-center gap-2">
               <RefreshCw size={18} /> Actualizar
             </button>
           </div>
@@ -222,10 +222,10 @@ export default function AkCloudRecargasPage() {
                     )}
                   </div>
                   <div className="flex shrink-0 flex-wrap gap-2 xl:flex-col">
-                    <button disabled={working === recarga.id || recarga.estado === 'aprobado'} onClick={() => aprobar(recarga)} className="btn btn-red inline-flex items-center gap-2 disabled:opacity-50">
+                    <button disabled={working === recarga.id || recarga.estado === 'aprobado'} onClick={() => aprobar(recarga)} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] inline-flex items-center gap-2 disabled:opacity-50">
                       <CheckCircle2 size={18} /> Aprobar
                     </button>
-                    <button disabled={working === recarga.id || recarga.estado === 'rechazado'} onClick={() => rechazar(recarga)} className="btn btn-dark inline-flex items-center gap-2 text-red-300 disabled:opacity-50">
+                    <button disabled={working === recarga.id || recarga.estado === 'rechazado'} onClick={() => rechazar(recarga)} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] inline-flex items-center gap-2 text-red-300 disabled:opacity-50">
                       <XCircle size={18} /> Rechazar
                     </button>
                   </div>
@@ -235,6 +235,6 @@ export default function AkCloudRecargasPage() {
           )}
         </section>
       </div>
-    </AppShell>
+    </LabShell>
   )
 }

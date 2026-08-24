@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
-import AppShell from '@/components/AppShell'
+import { LabShell, LabBadge } from '@/components/lab'
 import CustomSelect from '@/components/ak/CustomSelect'
 import { supabase } from '@/lib/supabase'
 import { AkCloudVersion, getVersionesAkCloud } from '@/lib/services/akCloud'
@@ -28,7 +28,6 @@ import {
   CheckCircle2,
   ClipboardList,
   CloudCog,
-  Factory,
   FileCode2,
   Gauge,
   GitBranch,
@@ -159,25 +158,17 @@ export default function ProduccionAkCloudPage() {
   }
 
   return (
-    <AppShell>
-      <div className="space-y-6">
-        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#080b10] via-[#101827] to-[#21040b] p-7 shadow-2xl shadow-black/40">
-          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#c81f2a]/20 blur-3xl" />
-          <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-            <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ff5468]">
-                <Factory size={16} /> Mesa de producción
-              </div>
-              <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">Producción AK Cloud</h1>
-              <p className="mt-3 max-w-3xl text-zinc-400">Una sola mesa de trabajo para recibir, priorizar, asignar, revisar y entregar archivos sin navegar por fases.</p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/ak-cloud" className="btn btn-dark inline-flex items-center gap-2"><CloudCog size={17} /> Centro AK Cloud</Link>
-              <button onClick={() => load()} className="btn btn-red inline-flex items-center gap-2"><RefreshCw size={17} /> Actualizar</button>
-            </div>
-          </div>
-        </section>
-
+    <LabShell
+      title="Trabajos AK Cloud"
+      subtitle="Una sola mesa de trabajo para recibir, priorizar, asignar, revisar y entregar archivos sin navegar por fases."
+      actions={
+        <>
+          <Link href="/ak-cloud" className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-bold text-zinc-300 hover:bg-white/[0.08]"><CloudCog size={16} /> Centro AK Cloud</Link>
+          <button onClick={() => load()} className="flex items-center gap-2 rounded-xl bg-[#c81f2a] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#e2242f]"><RefreshCw size={15} /> Actualizar</button>
+        </>
+      }
+    >
+      <div className="space-y-4">
         <section className="grid grid-cols-2 gap-3 md:grid-cols-4 2xl:grid-cols-7">
           <QuickFilter active={filtro === 'todos'} onClick={() => setFiltro('todos')} label="Activos" value={stats.total} icon={Inbox} />
           <QuickFilter active={filtro === 'nuevos'} onClick={() => setFiltro('nuevos')} label="Nuevos" value={stats.nuevos} icon={AlertTriangle} />
@@ -188,14 +179,14 @@ export default function ProduccionAkCloudPage() {
           <QuickFilter active={filtro === 'finalizados'} onClick={() => setFiltro('finalizados')} label="Finalizados" value={stats.finalizados} icon={CheckCircle2} />
         </section>
 
-        <section className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-4">
+        <section className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-white/[0.012] p-4">
           <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
-            <div className="flex flex-1 items-center gap-2 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
-              <Search size={17} className="text-zinc-500" />
-              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Pedido, cliente, VIN, matrícula, DTC, ECU, HW, SW, herramienta o archivo…" className="w-full bg-transparent outline-none" />
+            <div className="flex flex-1 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5">
+              <Search size={16} className="text-zinc-500" />
+              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Pedido, cliente, VIN, matrícula, DTC, ECU, HW, SW, herramienta o archivo…" className="w-full bg-transparent text-sm outline-none" />
               {query && <button onClick={() => setQuery('')} className="text-zinc-500 hover:text-white"><X size={16} /></button>}
             </div>
-            <div className="min-w-[220px] rounded-2xl border border-white/10 bg-black/20 px-3 py-2">
+            <div className="min-w-[220px] rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5">
               <CustomSelect value={tecnicoFiltro} onChange={setTecnicoFiltro} placeholder="Todos los técnicos" options={[{ value: '', label: 'Todos los técnicos' }, ...tecnicos.map((t) => ({ value: t, label: t }))]} />
             </div>
             <div className="inline-flex items-center gap-2 px-3 text-xs font-bold uppercase tracking-wider text-zinc-500"><SlidersHorizontal size={15} /> {filtrados.length} resultados</div>
@@ -203,11 +194,12 @@ export default function ProduccionAkCloudPage() {
         </section>
 
         {loading ? (
-          <div className="rounded-[2rem] border border-dashed border-white/10 p-12 text-center text-zinc-500">Cargando producción…</div>
+          <div className="rounded-2xl border border-dashed border-white/10 p-12 text-center text-zinc-500">Cargando producción…</div>
         ) : (
-          <div className="grid gap-5 2xl:grid-cols-[minmax(0,1.35fr)_minmax(390px,.65fr)]">
-            <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#080d16]">
-              <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(150px,.7fr)_minmax(120px,.55fr)_110px] gap-3 border-b border-white/10 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-600">
+          <div className="grid gap-4 2xl:grid-cols-[minmax(0,1.35fr)_minmax(390px,.65fr)]">
+            <section className="overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-white/[0.012]">
+              <div className="overflow-x-auto">
+              <div className="grid min-w-[640px] grid-cols-[minmax(0,1.6fr)_minmax(150px,.7fr)_minmax(120px,.55fr)_110px] gap-3 border-b border-white/[0.07] px-5 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-600">
                 <div>Trabajo</div><div>Técnico</div><div>Estado</div><div className="text-right">Tiempo</div>
               </div>
               <div className="max-h-[720px] overflow-auto">
@@ -216,28 +208,29 @@ export default function ProduccionAkCloudPage() {
                   const estado = normalizarEstado(pedido.estado)
                   const active = selected?.id === pedido.id
                   return (
-                    <button key={pedido.id} onClick={() => setSelectedId(pedido.id)} className={`grid w-full grid-cols-[minmax(0,1.6fr)_minmax(150px,.7fr)_minmax(120px,.55fr)_110px] gap-3 border-b border-white/5 px-5 py-4 text-left transition ${active ? 'bg-[#c81f2a]/10' : 'hover:bg-white/[0.035]'}`}>
+                    <button key={pedido.id} onClick={() => setSelectedId(pedido.id)} className={`grid w-full min-w-[640px] grid-cols-[minmax(0,1.6fr)_minmax(150px,.7fr)_minmax(120px,.55fr)_110px] gap-3 border-b border-white/[0.05] px-5 py-4 text-left transition ${active ? 'bg-[#c81f2a]/10' : 'hover:bg-white/[0.035]'}`}>
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2"><span className="font-mono text-xs font-bold text-[#ff5468]">{pedido.numero || 'FS-SIN-NUM'}</span>{urgente && <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-[9px] font-bold uppercase text-red-300">Urgente</span>}{pedido.mod_nombre && <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold uppercase text-emerald-300">MOD</span>}</div>
                         <div className="mt-1 truncate font-bold">{tituloPedido(pedido)}</div>
                         <div className="mt-1 truncate text-xs text-zinc-500">{pedido.cliente_nombre || pedido.cliente_email || 'Distribuidor'} · {serviciosTexto(pedido.servicios)}</div>
                       </div>
                       <div className="flex items-center text-sm font-semibold text-zinc-300">{pedido.tecnico_asignado || <span className="text-amber-300">Sin asignar</span>}</div>
-                      <div className="flex items-center"><span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase ${estadoClass(estado)}`}>{estadoLabel(estado)}</span></div>
+                      <div className="flex items-center"><LabBadge tone={estado === 'calidad' ? 'blue' : undefined} status={estado === 'calidad' ? undefined : estado}>{estadoLabel(estado)}</LabBadge></div>
                       <div className="flex items-center justify-end text-xs font-bold text-zinc-500">{tiempoHumano(minutosDesde(pedido.created_at))}</div>
                     </button>
                   )
                 })}
               </div>
+              </div>
             </section>
 
             <aside className="2xl:sticky 2xl:top-5 2xl:self-start">
-              {selected ? <WorkPanel pedido={selected} working={working === selected.id} onMove={moverPedido} onAssign={asignar} onNotesSaved={notasGuardadas} /> : <div className="rounded-[2rem] border border-dashed border-white/10 p-10 text-center text-zinc-500">Selecciona un trabajo.</div>}
+              {selected ? <WorkPanel pedido={selected} working={working === selected.id} onMove={moverPedido} onAssign={asignar} onNotesSaved={notasGuardadas} /> : <div className="rounded-2xl border border-dashed border-white/10 p-10 text-center text-zinc-500">Selecciona un trabajo.</div>}
             </aside>
           </div>
         )}
       </div>
-    </AppShell>
+    </LabShell>
   )
 }
 
@@ -273,7 +266,7 @@ function WorkPanel({ pedido, working, onMove, onAssign, onNotesSaved }: { pedido
   const hasMod = Boolean(pedido.mod_path || pedido.mod_nombre || pedido.version_final_id || versiones.length)
 
   return (
-    <div className="rounded-[2rem] border border-white/10 bg-gradient-to-b from-[#111827] to-[#090e17] p-5 shadow-2xl shadow-black/30">
+    <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-white/[0.012] p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0"><div className="font-mono text-xs font-bold text-[#ff5468]">{pedido.numero || 'FS-SIN-NUM'}</div><h2 className="mt-1 text-2xl font-bold leading-tight">{tituloPedido(pedido)}</h2><p className="mt-1 text-sm text-zinc-500">{pedido.cliente_nombre || pedido.cliente_email || 'Distribuidor'}</p></div>
         {urgente && <span className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-[10px] font-bold uppercase text-red-300">Urgente</span>}
@@ -306,13 +299,13 @@ function WorkPanel({ pedido, working, onMove, onAssign, onNotesSaved }: { pedido
         {loadingVersions ? <div className="mt-3 text-xs text-zinc-600">Cargando versiones…</div> : versiones.length === 0 ? <div className="mt-3 text-xs text-zinc-600">Todavía no hay revisiones MOD.</div> : <div className="mt-3 space-y-2">{versiones.slice(0, 4).map((version) => <div key={version.id} className="rounded-xl border border-white/5 bg-white/[0.025] p-3"><div className="flex items-center justify-between gap-2"><div className="min-w-0 truncate text-xs font-bold">V{version.numero_version} · {version.nombre_archivo}</div>{version.es_final && <span className="shrink-0 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold uppercase text-emerald-300">Final</span>}</div>{version.nota_interna && <div className="mt-1 line-clamp-2 text-[11px] text-amber-200/80">Interna: {version.nota_interna}</div>}{version.nota_cliente && <div className="mt-1 line-clamp-2 text-[11px] text-zinc-500">Cliente: {version.nota_cliente}</div>}</div>)}</div>}
       </div>
 
-      <Link href={`/ak-cloud/${pedido.id}`} className="mt-5 flex items-center justify-center gap-2 rounded-2xl bg-[#c81f2a] px-4 py-3.5 text-sm font-bold text-[#0a0d12] shadow-lg shadow-[#7a0f16]/30 hover:bg-[#ff5468]">Abrir mesa completa del pedido <ArrowRight size={16} /></Link>
+      <Link href={`/ak-cloud/${pedido.id}`} className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-[#c81f2a] px-4 py-3.5 text-sm font-bold text-white hover:bg-[#e2242f]">Abrir mesa completa del pedido <ArrowRight size={16} /></Link>
     </div>
   )
 }
 
 function QuickFilter({ active, onClick, label, value, icon: Icon, danger = false }: { active: boolean; onClick: () => void; label: string; value: number; icon: any; danger?: boolean }) {
-  return <button onClick={onClick} className={`rounded-[1.4rem] border p-4 text-left transition ${active ? (danger ? 'border-red-500/40 bg-red-500/10' : 'border-[#c81f2a]/40 bg-[#c81f2a]/10') : 'border-white/10 bg-[#0B1220] hover:bg-white/[0.04]'}`}><div className="flex items-center justify-between"><span className="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">{label}</span><Icon size={16} className={danger ? 'text-red-300' : active ? 'text-[#ff5468]' : 'text-zinc-600'} /></div><div className="mt-2 text-2xl font-bold">{value}</div></button>
+  return <button onClick={onClick} className={`rounded-2xl border p-4 text-left transition ${active ? (danger ? 'border-red-500/40 bg-red-500/10' : 'border-[#c81f2a]/40 bg-[#c81f2a]/10') : 'border-white/10 bg-gradient-to-b from-white/[0.03] to-white/[0.012] hover:bg-white/[0.04]'}`}><div className="flex items-center justify-between"><span className="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">{label}</span><Icon size={16} className={danger ? 'text-red-300' : active ? 'text-[#ff5468]' : 'text-zinc-600'} /></div><div className="mt-2 text-2xl font-bold text-white">{value}</div></button>
 }
 
 function Info({ label, value }: { label: string; value?: string | null }) {

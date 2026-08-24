@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
-import AppShell from '@/components/AppShell'
+import { LabShell } from '@/components/lab'
 import CustomSelect from '@/components/ak/CustomSelect'
 import { supabase } from '@/lib/supabase'
 
@@ -351,14 +351,14 @@ export default function AkCloudAdminPage() {
   )
 
   return (
-    <AppShell>
+    <LabShell>
       <div className="mb-6 flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
         <div>
           <div className="mb-2 inline-flex rounded-full border border-[#c81f2a]/30 bg-[#c81f2a]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-[#ff5468]">AK Cloud Admin</div>
           <h1 className="text-3xl font-bold tracking-tight">Centro de control AK Cloud</h1>
           <p className="mt-1 text-zinc-500">Configura desde Core lo que verán los distribuidores en el portal: catálogo y precio por archivo, métodos de pago, novedades y branding.</p>
         </div>
-        <button onClick={loadAll} className="btn btn-dark">Actualizar</button>
+        <button onClick={loadAll} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08]">Actualizar</button>
       </div>
 
       <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
@@ -401,7 +401,7 @@ export default function AkCloudAdminPage() {
               <div className="grid grid-cols-3 gap-3"><Field label="Icono"><input className="w-full" value={servicio.icono || ''} onChange={(e) => setServicio({ ...servicio, icono: e.target.value })} /></Field><Field label="Precio €"><input type="number" className="w-full" value={servicio.precio} onChange={(e) => setServicio({ ...servicio, precio: Number(e.target.value) })} /></Field><Field label="Créditos"><input type="number" className="w-full" value={servicio.creditos} onChange={(e) => setServicio({ ...servicio, creditos: Number(e.target.value) })} /></Field></div>
               <Field label="Descripción"><textarea className="h-24 w-full" value={servicio.descripcion || ''} onChange={(e) => setServicio({ ...servicio, descripcion: e.target.value })} /></Field>
               <div className="flex gap-3"><Toggle checked={servicio.activo} onChange={(v) => setServicio({ ...servicio, activo: v })} label="Visible en portal" /><Field label="Orden"><input type="number" className="w-24" value={servicio.orden} onChange={(e) => setServicio({ ...servicio, orden: Number(e.target.value) })} /></Field></div>
-              <div className="flex gap-2"><button onClick={saveServicio} className="btn btn-red flex-1">Guardar servicio</button><button onClick={() => setServicio(emptyServicio)} className="btn btn-dark">Limpiar</button></div>
+              <div className="flex gap-2"><button onClick={saveServicio} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] flex-1">Guardar servicio</button><button onClick={() => setServicio(emptyServicio)} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08]">Limpiar</button></div>
             </div>
           </div>
 
@@ -410,7 +410,7 @@ export default function AkCloudAdminPage() {
             <div className="overflow-auto">
               <table>
                 <thead><tr><th>Servicio</th><th>Categoría</th><th>Precio</th><th>Créditos</th><th>Estado</th><th>Acciones</th></tr></thead>
-                <tbody>{servicios.map((s) => <tr key={s.id}><td><b>{s.icono} {s.nombre}</b><div className="text-xs text-zinc-500">{s.descripcion}</div></td><td>{CATEGORIA_LABELS[s.categoria] || s.categoria}</td><td>{s.precio} €</td><td>{s.creditos}</td><td><span className={`badge ${s.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{s.activo ? 'Activo' : 'Inactivo'}</span></td><td><div className="flex gap-2"><button className="btn btn-dark" onClick={() => setServicio(s)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_servicios', s.id)}>Eliminar</button></div></td></tr>)}</tbody>
+                <tbody>{servicios.map((s) => <tr key={s.id}><td><b>{s.icono} {s.nombre}</b><div className="text-xs text-zinc-500">{s.descripcion}</div></td><td>{CATEGORIA_LABELS[s.categoria] || s.categoria}</td><td>{s.precio} €</td><td>{s.creditos}</td><td><span className={`badge ${s.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{s.activo ? 'Activo' : 'Inactivo'}</span></td><td><div className="flex gap-2"><button className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08]" onClick={() => setServicio(s)}>Editar</button><button className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] text-red-300" onClick={() => remove('akcloud_servicios', s.id)}>Eliminar</button></div></td></tr>)}</tbody>
               </table>
             </div>
           </div>
@@ -426,9 +426,9 @@ export default function AkCloudAdminPage() {
             <Field label="Descripción"><textarea className="h-20 w-full" value={plan.descripcion || ''} onChange={(e) => setPlan({ ...plan, descripcion: e.target.value })} /></Field>
             <Field label="Ventajas (una por línea)"><textarea className="h-28 w-full" value={(plan.ventajas || []).join('\n')} onChange={(e) => setPlan({ ...plan, ventajas: e.target.value.split('\n').map((v) => v.trim()).filter(Boolean) })} /></Field>
             <div className="flex gap-2"><Toggle checked={plan.activo} onChange={(v) => setPlan({ ...plan, activo: v })} label="Plan activo" /><Toggle checked={plan.destacado} onChange={(v) => setPlan({ ...plan, destacado: v })} label="Destacado" /></div>
-            <div className="flex gap-2"><button onClick={savePlan} className="btn btn-red flex-1">Guardar plan</button><button onClick={() => setPlan(emptyPlan)} className="btn btn-dark">Limpiar</button></div>
+            <div className="flex gap-2"><button onClick={savePlan} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] flex-1">Guardar plan</button><button onClick={() => setPlan(emptyPlan)} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08]">Limpiar</button></div>
           </div></div>
-          <div className="grid gap-4 md:grid-cols-2">{planes.map((p) => <div key={p.id} className="card p-5"><div className="flex justify-between"><h3 className="text-xl font-bold">{p.nombre}</h3><span className="badge bg-red-500/10 text-red-300">{p.precio_mensual} €/mes</span></div><p className="mt-2 text-sm text-zinc-400">{p.descripcion}</p><p className="mt-4 text-3xl font-bold">{p.creditos_mes} créditos</p><p className="mt-2 text-xs text-zinc-500">Qué servicios cubre gratis → pestaña "Servicios por plan"</p><ul className="mt-4 space-y-1 text-sm text-zinc-400">{(p.ventajas || []).map((v) => <li key={v}>✓ {v}</li>)}</ul><div className="mt-5 flex gap-2"><button className="btn btn-dark" onClick={() => setPlan(p)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_planes', p.id)}>Eliminar</button></div></div>)}</div>
+          <div className="grid gap-4 md:grid-cols-2">{planes.map((p) => <div key={p.id} className="card p-5"><div className="flex justify-between"><h3 className="text-xl font-bold">{p.nombre}</h3><span className="badge bg-red-500/10 text-red-300">{p.precio_mensual} €/mes</span></div><p className="mt-2 text-sm text-zinc-400">{p.descripcion}</p><p className="mt-4 text-3xl font-bold">{p.creditos_mes} créditos</p><p className="mt-2 text-xs text-zinc-500">Qué servicios cubre gratis → pestaña "Servicios por plan"</p><ul className="mt-4 space-y-1 text-sm text-zinc-400">{(p.ventajas || []).map((v) => <li key={v}>✓ {v}</li>)}</ul><div className="mt-5 flex gap-2"><button className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08]" onClick={() => setPlan(p)}>Editar</button><button className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] text-red-300" onClick={() => remove('akcloud_planes', p.id)}>Eliminar</button></div></div>)}</div>
         </div>
       )}
 
@@ -457,7 +457,7 @@ export default function AkCloudAdminPage() {
                 <p className="text-sm text-zinc-400">
                   Marca qué servicios están incluidos con descuento en <b>{planes.find((p) => p.id === planSeleccionado)?.nombre}</b>. Los que dejes sin marcar se pueden pedir igual, pero al precio completo.
                 </p>
-                <button onClick={guardarPlanServicios} disabled={savingPlanServicios} className="btn btn-red">
+                <button onClick={guardarPlanServicios} disabled={savingPlanServicios} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f]">
                   {savingPlanServicios ? 'Guardando...' : 'Guardar cambios'}
                 </button>
               </div>
@@ -524,9 +524,9 @@ export default function AkCloudAdminPage() {
             <Field label="Descripción"><textarea className="h-20 w-full" value={metodo.descripcion || ''} onChange={(e) => setMetodo({ ...metodo, descripcion: e.target.value })} /></Field>
             <Field label="Instrucciones visibles"><textarea className="h-28 w-full" value={metodo.instrucciones || ''} onChange={(e) => setMetodo({ ...metodo, instrucciones: e.target.value })} /></Field>
             <div className="flex gap-2"><Toggle checked={metodo.activo} onChange={(v) => setMetodo({ ...metodo, activo: v })} label="Visible" /><Toggle checked={metodo.automatico} onChange={(v) => setMetodo({ ...metodo, automatico: v })} label="Automático" /></div>
-            <div className="flex gap-2"><button onClick={saveMetodo} className="btn btn-red flex-1">Guardar método</button><button onClick={() => setMetodo(emptyMetodo)} className="btn btn-dark">Limpiar</button></div>
+            <div className="flex gap-2"><button onClick={saveMetodo} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] flex-1">Guardar método</button><button onClick={() => setMetodo(emptyMetodo)} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08]">Limpiar</button></div>
           </div></div>
-          <div className="grid gap-4 md:grid-cols-2">{metodos.map((m) => <div key={m.id} className="card p-5"><div className="flex items-start justify-between"><h3 className="text-xl font-bold">{m.nombre}</h3><span className={`badge ${m.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{m.activo ? 'Activo' : 'Oculto'}</span></div><p className="mt-2 text-sm text-zinc-400">{m.descripcion}</p><p className="mt-3 rounded-2xl bg-black/20 p-3 text-sm text-zinc-400">{m.instrucciones || 'Sin instrucciones'}</p><p className="mt-3 text-xs uppercase tracking-wider text-zinc-500">{m.automatico ? 'Activación automática' : 'Activación manual'}</p><div className="mt-5 flex gap-2"><button className="btn btn-dark" onClick={() => setMetodo(m)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_metodos_pago', m.id)}>Eliminar</button></div></div>)}</div>
+          <div className="grid gap-4 md:grid-cols-2">{metodos.map((m) => <div key={m.id} className="card p-5"><div className="flex items-start justify-between"><h3 className="text-xl font-bold">{m.nombre}</h3><span className={`badge ${m.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{m.activo ? 'Activo' : 'Oculto'}</span></div><p className="mt-2 text-sm text-zinc-400">{m.descripcion}</p><p className="mt-3 rounded-2xl bg-black/20 p-3 text-sm text-zinc-400">{m.instrucciones || 'Sin instrucciones'}</p><p className="mt-3 text-xs uppercase tracking-wider text-zinc-500">{m.automatico ? 'Activación automática' : 'Activación manual'}</p><div className="mt-5 flex gap-2"><button className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08]" onClick={() => setMetodo(m)}>Editar</button><button className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] text-red-300" onClick={() => remove('akcloud_metodos_pago', m.id)}>Eliminar</button></div></div>)}</div>
         </div>
       )}
 
@@ -543,7 +543,7 @@ export default function AkCloudAdminPage() {
                 <Field label="Orden"><input type="number" className="w-full" value={novedad.orden} onChange={(e) => setNovedad({ ...novedad, orden: Number(e.target.value) })} /></Field>
               </div>
               <div className="flex gap-3"><Toggle checked={novedad.activo} onChange={(v) => setNovedad({ ...novedad, activo: v })} label="Visible en portal" /><Toggle checked={novedad.destacado} onChange={(v) => setNovedad({ ...novedad, destacado: v })} label="Destacada" /></div>
-              <div className="flex gap-2"><button onClick={saveNovedad} className="btn btn-red flex-1">Guardar novedad</button><button onClick={() => setNovedad(emptyNovedad)} className="btn btn-dark">Limpiar</button></div>
+              <div className="flex gap-2"><button onClick={saveNovedad} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] flex-1">Guardar novedad</button><button onClick={() => setNovedad(emptyNovedad)} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08]">Limpiar</button></div>
             </div>
           </div>
 
@@ -555,7 +555,7 @@ export default function AkCloudAdminPage() {
             <div className="overflow-auto">
               <table>
                 <thead><tr><th>Novedad</th><th>Orden</th><th>Estado</th><th>Acciones</th></tr></thead>
-                <tbody>{novedades.map((n) => <tr key={n.id}><td><b>{n.icono} {n.titulo}</b>{n.destacado && <span className="badge ml-2 bg-red-500/10 text-red-300">Destacada</span>}<div className="text-xs text-zinc-500 max-w-md">{n.contenido}</div></td><td>{n.orden}</td><td><span className={`badge ${n.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{n.activo ? 'Visible' : 'Oculta'}</span></td><td><div className="flex gap-2"><button className="btn btn-dark" onClick={() => setNovedad(n)}>Editar</button><button className="btn btn-dark text-red-300" onClick={() => remove('akcloud_novedades', n.id)}>Eliminar</button></div></td></tr>)}</tbody>
+                <tbody>{novedades.map((n) => <tr key={n.id}><td><b>{n.icono} {n.titulo}</b>{n.destacado && <span className="badge ml-2 bg-red-500/10 text-red-300">Destacada</span>}<div className="text-xs text-zinc-500 max-w-md">{n.contenido}</div></td><td>{n.orden}</td><td><span className={`badge ${n.activo ? 'bg-emerald-500/10 text-emerald-300' : 'bg-zinc-500/10 text-zinc-400'}`}>{n.activo ? 'Visible' : 'Oculta'}</span></td><td><div className="flex gap-2"><button className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08]" onClick={() => setNovedad(n)}>Editar</button><button className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] text-red-300" onClick={() => remove('akcloud_novedades', n.id)}>Eliminar</button></div></td></tr>)}</tbody>
               </table>
               {novedades.length === 0 && <div className="p-8 text-center text-zinc-500">Aún no has publicado ninguna novedad.</div>}
             </div>
@@ -572,11 +572,11 @@ export default function AkCloudAdminPage() {
             <div className="grid grid-cols-2 gap-3"><Field label="Email soporte"><input className="w-full" value={branding.email_soporte || ''} onChange={(e) => setBranding({ ...branding, email_soporte: e.target.value })} /></Field><Field label="WhatsApp"><input className="w-full" value={branding.whatsapp_soporte || ''} onChange={(e) => setBranding({ ...branding, whatsapp_soporte: e.target.value })} /></Field></div>
             <Field label="Aviso del portal"><textarea className="h-24 w-full" value={branding.aviso_portal || ''} onChange={(e) => setBranding({ ...branding, aviso_portal: e.target.value })} /></Field>
             <Field label="Color principal"><input className="w-full" value={branding.color_principal || '#D90429'} onChange={(e) => setBranding({ ...branding, color_principal: e.target.value })} /></Field>
-            <button onClick={saveBranding} className="btn btn-red">Guardar branding</button>
+            <button onClick={saveBranding} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f]">Guardar branding</button>
           </div></div>
           <div className="card overflow-hidden p-0"><div className="bg-gradient-to-br from-[#c81f2a]/25 via-black to-zinc-950 p-8"><p className="text-xs font-bold uppercase tracking-[0.3em] text-[#ff5468]">Preview AK Cloud</p><h3 className="mt-8 text-5xl font-bold">{branding.nombre_producto}</h3><p className="mt-3 max-w-xl text-xl text-zinc-300">{branding.slogan}</p><p className="mt-2 text-zinc-500">{branding.subtitulo}</p><div className="mt-8 inline-flex rounded-2xl bg-[#c81f2a] px-5 py-3 font-bold">Entrar al portal</div></div></div>
         </div>
       )}
-    </AppShell>
+    </LabShell>
   )
 }

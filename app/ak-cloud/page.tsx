@@ -3,11 +3,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
-import AppShell from '@/components/AppShell'
+import { LabShell, LabStatCard, LabPanel, LabBadge } from '@/components/lab'
 import CustomSelect from '@/components/ak/CustomSelect'
 import {
   AkCloudPedido,
-  akCloudEstadoClass,
   formatPedidoTitle,
   formatServicios,
   getAkCloudPedidos,
@@ -19,10 +18,10 @@ import {
   AlertTriangle,
   ArrowRight,
   CheckCircle2,
-  Cloud,
   CreditCard,
-  DownloadCloud,
   ExternalLink,
+  Gauge,
+  Headphones,
   RefreshCw,
   Search,
   Settings,
@@ -32,6 +31,14 @@ import {
 } from 'lucide-react'
 
 const estados = ['todos', 'pendiente', 'en_proceso', 'finalizado', 'cancelado']
+
+const QUICK_LINKS = [
+  { href: '/ak-cloud/solicitudes', label: 'Solicitudes', desc: 'Aprobar distribuidores', icon: ShieldCheck },
+  { href: '/ak-cloud/produccion', label: 'Producción', desc: 'Pedidos en el laboratorio', icon: Gauge },
+  { href: '/ak-cloud/soporte', label: 'Soporte', desc: 'Responder tickets', icon: Headphones },
+  { href: '/ak-cloud/facturacion', label: 'Facturación', desc: 'Cobros AK Cloud', icon: CreditCard },
+  { href: '/ak-cloud/admin', label: 'Catálogo y precios', desc: 'Categorías, precio por archivo, branding', icon: Settings },
+]
 
 export default function AkCloudPage() {
   const [pedidos, setPedidos] = useState<AkCloudPedido[]>([])
@@ -94,94 +101,59 @@ export default function AkCloudPage() {
     }
   }
 
-
   return (
-    <AppShell>
-      <div className="space-y-7">
-        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#111827] to-[#1b0b12] p-7 shadow-2xl shadow-black/30">
-          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#c81f2a]/20 blur-3xl" />
-          <div className="absolute bottom-[-140px] left-[20%] h-72 w-72 rounded-full bg-blue-600/10 blur-3xl" />
-          <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-            <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ff5468]">
-                <Cloud size={16} /> AK Cloud Sync
-              </div>
-              <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">Centro AK Cloud</h1>
-              <p className="mt-3 max-w-3xl text-zinc-400">
-                Gestión interna de pedidos, pagos y sincronización con Autokeys Core. Los distribuidores trabajan en AK Cloud; tú lo controlas desde aquí.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <a href="https://autokeys-file-service.vercel.app" target="_blank" className="btn btn-dark inline-flex items-center gap-2">
-                Abrir AK Cloud <ExternalLink size={17} />
-              </a>
-              <button onClick={load} className="btn btn-red inline-flex items-center gap-2">
-                <RefreshCw size={17} /> Actualizar
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <section className="grid grid-cols-2 gap-3 md:grid-cols-5">
-          <Link href="/ak-cloud/solicitudes" className="card flex items-center gap-3 p-4 transition hover:border-[#ff5468]/30">
-            <ShieldCheck className="text-[#ff5468]" size={22} />
-            <div>
-              <p className="font-bold">Solicitudes</p>
-              <p className="text-xs text-zinc-500">Aprobar distribuidores</p>
-            </div>
-          </Link>
-          <Link href="/ak-cloud/produccion" className="card flex items-center gap-3 p-4 transition hover:border-[#ff5468]/30">
-            <UploadCloud className="text-[#ff5468]" size={22} />
-            <div>
-              <p className="font-bold">Producción</p>
-              <p className="text-xs text-zinc-500">Pedidos en el laboratorio</p>
-            </div>
-          </Link>
-          <Link href="/ak-cloud/soporte" className="card flex items-center gap-3 p-4 transition hover:border-[#ff5468]/30">
-            <Sparkles className="text-[#ff5468]" size={22} />
-            <div>
-              <p className="font-bold">Soporte</p>
-              <p className="text-xs text-zinc-500">Responder tickets</p>
-            </div>
-          </Link>
-          <Link href="/ak-cloud/facturacion" className="card flex items-center gap-3 p-4 transition hover:border-[#ff5468]/30">
-            <CreditCard className="text-[#ff5468]" size={22} />
-            <div>
-              <p className="font-bold">Facturación</p>
-              <p className="text-xs text-zinc-500">Cobros AK Cloud</p>
-            </div>
-          </Link>
-          <Link href="/ak-cloud/admin" className="card flex items-center gap-3 p-4 transition hover:border-[#ff5468]/30">
-            <Settings className="text-[#ff5468]" size={22} />
-            <div>
-              <p className="font-bold">Catálogo y precios</p>
-              <p className="text-xs text-zinc-500">Categorías, precio por archivo, branding</p>
-            </div>
-          </Link>
-        </section>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
-          <Stat title="Pedidos" value={stats?.total || 0} icon={UploadCloud} />
-          <Stat title="Pendientes" value={stats?.pendientes || 0} icon={AlertTriangle} tone="amber" />
-          <Stat title="En proceso" value={stats?.enProceso || 0} icon={Sparkles} tone="blue" />
-          <Stat title="Finalizados" value={stats?.finalizados || 0} icon={CheckCircle2} tone="emerald" />
-          <Stat title="Importe" value={`${Number(stats?.facturacion || 0).toFixed(0)} €`} icon={CreditCard} />
+    <LabShell
+      title="AK Cloud"
+      subtitle="Gestión interna de pedidos, pagos y sincronización con Autokeys Lab. Los distribuidores trabajan en AK Cloud; tú lo controlas desde aquí."
+      actions={
+        <>
+          <a href="https://autokeys-file-service.vercel.app" target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-bold text-zinc-300 hover:bg-white/[0.08]">
+            Abrir AK Cloud <ExternalLink size={15} />
+          </a>
+          <button onClick={load} className="flex items-center gap-2 rounded-xl bg-[#c81f2a] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#e2242f]">
+            <RefreshCw size={15} /> Actualizar
+          </button>
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+          {QUICK_LINKS.map((item) => {
+            const Icon = item.icon
+            return (
+              <Link key={item.href} href={item.href} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-white/[0.012] p-4 transition hover:border-[#c81f2a]/35">
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#c81f2a]/10 text-[#ff5468]"><Icon size={19} /></div>
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-bold text-white">{item.label}</div>
+                  <div className="truncate text-[11px] text-zinc-500">{item.desc}</div>
+                </div>
+              </Link>
+            )
+          })}
         </div>
 
-        <section className="grid grid-cols-1 gap-6 2xl:grid-cols-[1fr_380px]">
-          <div className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-5">
-            <div className="mb-5 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+          <LabStatCard icon={<UploadCloud size={19} />} tone="red" label="Pedidos" value={stats?.total || 0} />
+          <LabStatCard icon={<AlertTriangle size={19} />} tone="orange" label="Pendientes" value={stats?.pendientes || 0} />
+          <LabStatCard icon={<Sparkles size={19} />} tone="blue" label="En proceso" value={stats?.enProceso || 0} />
+          <LabStatCard icon={<CheckCircle2 size={19} />} tone="green" label="Finalizados" value={stats?.finalizados || 0} />
+          <LabStatCard icon={<CreditCard size={19} />} tone="purple" label="Importe" value={`${Number(stats?.facturacion || 0).toFixed(0)} €`} />
+        </div>
+
+        <div className="grid gap-4 2xl:grid-cols-[1fr_340px]">
+          <LabPanel padded={false}>
+            <div className="flex flex-col gap-3 border-b border-white/[0.07] p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-2xl font-bold">Pedidos AK Cloud</h2>
-                <p className="mt-1 text-sm text-zinc-500">Pedidos recibidos desde el portal de distribuidores.</p>
+                <h2 className="text-[15px] font-bold text-white">Pedidos AK Cloud</h2>
+                <p className="mt-0.5 text-xs text-zinc-500">Pedidos recibidos desde el portal de distribuidores.</p>
               </div>
-              <div className="flex flex-col gap-3 md:flex-row">
-                <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
-                  <Search size={17} className="text-zinc-500" />
-                  <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar por pedido, ECU, HW, cliente..." className="w-full bg-transparent outline-none" />
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <div className="flex min-w-[220px] items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5">
+                  <Search size={16} className="text-zinc-500" />
+                  <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar por pedido, ECU, HW, cliente..." className="w-full border-0 bg-transparent p-0 text-sm outline-none" />
                 </div>
                 <CustomSelect
-                  className="min-w-[160px]"
+                  className="min-w-[150px]"
                   value={estado}
                   onChange={setEstado}
                   options={estados.map((item) => ({ value: item, label: item.replace('_', ' ') }))}
@@ -189,104 +161,80 @@ export default function AkCloudPage() {
               </div>
             </div>
 
-            {loading ? (
-              <div className="rounded-3xl border border-dashed border-white/10 p-10 text-center text-zinc-500">Cargando pedidos...</div>
-            ) : filtered.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-white/10 p-10 text-center text-zinc-500">No hay pedidos con esos filtros.</div>
-            ) : (
-              <div className="grid gap-4">
-                {filtered.map((pedido) => (
-                  <article key={pedido.id} className="group rounded-3xl border border-white/10 bg-[#111827] p-5 transition hover:border-[#c81f2a]/35">
-                    <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                      <div>
+            <div className="max-h-[70vh] space-y-3 overflow-y-auto p-4">
+              {loading ? (
+                <div className="py-10 text-center text-sm text-zinc-500">Cargando pedidos...</div>
+              ) : filtered.length === 0 ? (
+                <div className="py-10 text-center text-sm text-zinc-500">No hay pedidos con esos filtros.</div>
+              ) : (
+                filtered.map((pedido) => (
+                  <article key={pedido.id} className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4 transition hover:border-[#c81f2a]/30">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-mono text-sm font-bold text-[#ff5468]">{pedido.numero || 'FS-SIN-NUM'}</span>
-                          <span className={`rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${akCloudEstadoClass(pedido.estado)}`}>{(pedido.estado || 'pendiente').replace('_', ' ')}</span>
-                          {pedido.prioridad === 'urgente' && <span className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-[11px] font-bold uppercase text-red-300">Urgente</span>}
-                          {pedido.core_expediente_id && <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-bold uppercase text-emerald-300">Sincronizado</span>}
+                          <span className="font-mono text-xs font-bold text-[#ff5468]">{pedido.numero || 'FS-SIN-NUM'}</span>
+                          <LabBadge status={pedido.estado}>{(pedido.estado || 'pendiente').replace('_', ' ')}</LabBadge>
+                          {pedido.prioridad === 'urgente' && <LabBadge tone="red">Urgente</LabBadge>}
+                          {pedido.core_expediente_id && <LabBadge tone="green">Sincronizado</LabBadge>}
                         </div>
-                        <h3 className="mt-2 text-2xl font-bold">{formatPedidoTitle(pedido)}</h3>
-                        <p className="mt-1 text-sm text-zinc-500">{pedido.cliente_nombre || pedido.cliente_email || 'Distribuidor sin identificar'}</p>
+                        <h3 className="mt-1.5 truncate text-base font-bold text-white">{formatPedidoTitle(pedido)}</h3>
+                        <p className="text-xs text-zinc-500">{pedido.cliente_nombre || pedido.cliente_email || 'Distribuidor sin identificar'}</p>
                       </div>
-                      <div className="text-left xl:text-right">
-                        <div className="text-2xl font-bold">{Number(pedido.precio || 0).toFixed(2)} €</div>
-                        <div className="text-xs text-zinc-500">{pedido.created_at ? new Date(pedido.created_at).toLocaleString('es-ES') : '—'}</div>
+                      <div className="text-left sm:text-right">
+                        <div className="text-lg font-bold text-white">{Number(pedido.precio || 0).toFixed(2)} €</div>
+                        <div className="text-[11px] text-zinc-600">{pedido.created_at ? new Date(pedido.created_at).toLocaleString('es-ES') : '—'}</div>
                       </div>
                     </div>
 
-                    <div className="mt-5 grid gap-3 md:grid-cols-4">
+                    <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
                       <Mini label="ECU" value={pedido.ecu || '—'} />
                       <Mini label="HW" value={pedido.hw || '—'} />
                       <Mini label="SW" value={pedido.sw || '—'} />
                       <Mini label="ORI" value={pedido.ori_nombre || '—'} />
                     </div>
 
-                    <div className="mt-4 rounded-2xl border border-white/5 bg-black/20 p-4">
-                      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Servicios</div>
-                      <div className="mt-2 font-bold text-[#ff5468]">{formatServicios(pedido.servicios)}</div>
+                    <div className="mt-3 rounded-xl border border-white/[0.06] bg-black/10 px-3 py-2.5">
+                      <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-600">Servicios</div>
+                      <div className="mt-1 truncate text-sm font-bold text-[#ff5468]">{formatServicios(pedido.servicios)}</div>
                     </div>
 
-                    <div className="mt-5 flex flex-wrap justify-end gap-2">
+                    <div className="mt-3 flex flex-wrap justify-end gap-2">
                       {!pedido.core_expediente_id && (
-                        <button disabled={working === pedido.id} onClick={() => quickUpdate(pedido.id, { prioridad: 'urgente' })} className="btn btn-dark text-sm disabled:opacity-50">
+                        <button disabled={working === pedido.id} onClick={() => quickUpdate(pedido.id, { prioridad: 'urgente' })} className="rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-bold text-zinc-300 hover:bg-white/[0.08] disabled:opacity-50">
                           Marcar urgente
                         </button>
                       )}
                       {pedido.estado !== 'en_proceso' && pedido.estado !== 'finalizado' && (
-                        <button disabled={working === pedido.id} onClick={() => quickUpdate(pedido.id, { estado: 'en_proceso' })} className="btn btn-dark text-sm disabled:opacity-50">
+                        <button disabled={working === pedido.id} onClick={() => quickUpdate(pedido.id, { estado: 'en_proceso' })} className="rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-bold text-zinc-300 hover:bg-white/[0.08] disabled:opacity-50">
                           En proceso
                         </button>
                       )}
-                      <Link href={`/ak-cloud/${pedido.id}`} className="btn btn-red inline-flex items-center gap-2 text-sm">
-                        Abrir <ArrowRight size={16} />
+                      <Link href={`/ak-cloud/${pedido.id}`} className="flex items-center gap-1.5 rounded-xl bg-[#c81f2a] px-3.5 py-2 text-xs font-bold text-white hover:bg-[#e2242f]">
+                        Abrir <ArrowRight size={13} />
                       </Link>
                     </div>
                   </article>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <aside className="space-y-5">
-            <div className="rounded-[2rem] border border-[#c81f2a]/20 bg-gradient-to-br from-[#c81f2a]/10 to-transparent p-5">
-              <DownloadCloud className="text-[#ff5468]" size={28} />
-              <h3 className="mt-3 text-xl font-bold">Flujo recomendado</h3>
-              <p className="mt-2 text-sm text-zinc-400">
-                El distribuidor sube el ORI en AK Cloud. Tú revisas aquí, conviertes en expediente, trabajas en Core y subes el MOD desde el pedido.
-              </p>
+                ))
+              )}
             </div>
-          </aside>
-        </section>
-      </div>
-    </AppShell>
-  )
-}
+          </LabPanel>
 
-function Stat({ title, value, icon: Icon, tone = 'red' }: { title: string; value: any; icon: any; tone?: 'red' | 'amber' | 'blue' | 'emerald' | 'purple' }) {
-  const tones: Record<string, string> = {
-    red: 'text-[#ff5468] bg-[#c81f2a]/10 border-[#c81f2a]/20',
-    amber: 'text-amber-300 bg-amber-500/10 border-amber-500/20',
-    blue: 'text-blue-300 bg-blue-500/10 border-blue-500/20',
-    emerald: 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20',
-    purple: 'text-purple-300 bg-purple-500/10 border-purple-500/20',
-  }
-
-  return (
-    <div className="rounded-3xl border border-white/10 bg-[#0B1220] p-5">
-      <div className="flex items-center justify-between text-zinc-500">
-        <span className="text-xs font-bold uppercase tracking-[0.18em]">{title}</span>
-        <div className={`rounded-2xl border p-2 ${tones[tone]}`}><Icon size={18} /></div>
+          <LabPanel title="Flujo recomendado">
+            <p className="text-sm text-zinc-400">
+              El distribuidor sube el ORI en AK Cloud. Tú revisas aquí, conviertes en expediente, trabajas en Lab y subes el MOD desde el pedido.
+            </p>
+          </LabPanel>
+        </div>
       </div>
-      <div className="mt-3 text-3xl font-bold">{value}</div>
-    </div>
+    </LabShell>
   )
 }
 
 function Mini({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/5 bg-black/20 p-3">
-      <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">{label}</div>
-      <div className="mt-1 truncate font-bold">{value}</div>
+    <div className="rounded-xl border border-white/[0.06] bg-black/10 px-3 py-2">
+      <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-600">{label}</div>
+      <div className="mt-0.5 truncate text-xs font-bold text-zinc-200">{value}</div>
     </div>
   )
 }

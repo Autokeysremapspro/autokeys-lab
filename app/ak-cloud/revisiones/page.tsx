@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { ArrowLeft, Bell, CheckCircle2, ClipboardCheck, RefreshCw, Save, Search } from 'lucide-react'
-import AppShell from '@/components/AppShell'
+import { LabShell } from '@/components/lab'
 import { supabase } from '@/lib/supabase'
 
 type Pedido = {
@@ -189,7 +189,7 @@ export default function AkCloudRevisionesPage() {
   }
 
   return (
-    <AppShell>
+    <LabShell>
       <div className="space-y-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div>
@@ -199,10 +199,10 @@ export default function AkCloudRevisionesPage() {
             <div className="flex items-center gap-3"><ClipboardCheck className="text-[#ff5468]"/><h1 className="text-4xl font-bold">Revisiones y entregas</h1></div>
             <p className="mt-2 text-zinc-500">Versiones estructuradas, instrucciones de entrega, checklist técnico y aviso controlado al distribuidor.</p>
           </div>
-          <button onClick={load} className="btn btn-dark inline-flex items-center gap-2"><RefreshCw size={17}/> Actualizar</button>
+          <button onClick={load} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] inline-flex items-center gap-2"><RefreshCw size={17}/> Actualizar</button>
         </div>
 
-        <div className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-5">
+        <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-white/[0.012] p-5">
           <div className="mb-5 flex items-center gap-2 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
             <Search size={17} className="text-zinc-500"/>
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar pedido, cliente, vehículo, ECU o versión..." className="w-full bg-transparent outline-none"/>
@@ -223,7 +223,7 @@ export default function AkCloudRevisionesPage() {
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
                         {row.notificacion_enviada_at && <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-300"><CheckCircle2 size={14}/> Notificado</span>}
-                        <Link href={`/ak-cloud/${row.pedido_id}`} className="btn btn-dark text-sm">Abrir pedido</Link>
+                        <Link href={`/ak-cloud/${row.pedido_id}`} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] text-sm">Abrir pedido</Link>
                       </div>
                     </div>
 
@@ -251,7 +251,7 @@ export default function AkCloudRevisionesPage() {
                         <Bell size={16} className="text-[#ff5468]"/>
                         {row.notificacion_enviada_at ? 'Notificación técnica ya enviada' : 'Notificar al cliente al guardar'}
                       </label>
-                      <button onClick={() => save(row)} disabled={working === row.id} className="btn btn-red inline-flex items-center justify-center gap-2 disabled:opacity-50"><Save size={16}/> {working === row.id ? 'Guardando...' : 'Guardar revisión'}</button>
+                      <button onClick={() => save(row)} disabled={working === row.id} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] inline-flex items-center justify-center gap-2 disabled:opacity-50"><Save size={16}/> {working === row.id ? 'Guardando...' : 'Guardar revisión'}</button>
                     </div>
                   </article>
                 )
@@ -260,6 +260,6 @@ export default function AkCloudRevisionesPage() {
           )}
         </div>
       </div>
-    </AppShell>
+    </LabShell>
   )
 }

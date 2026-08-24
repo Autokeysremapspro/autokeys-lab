@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { AlertTriangle, ArrowLeft, RefreshCw, Search } from 'lucide-react'
-import AppShell from '@/components/AppShell'
+import { LabShell } from '@/components/lab'
 import { supabase } from '@/lib/supabase'
 
  type PedidoDtc = {
@@ -51,7 +51,7 @@ export default function AkCloudDtcOffPage() {
   }, [rows, query])
 
   return (
-    <AppShell>
+    <LabShell>
       <div className="space-y-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div>
@@ -59,10 +59,10 @@ export default function AkCloudDtcOffPage() {
             <div className="flex items-center gap-3"><AlertTriangle className="text-amber-300"/><h1 className="text-4xl font-bold">DTC OFF</h1></div>
             <p className="mt-2 text-zinc-500">Códigos DTC estructurados recibidos desde AK Cloud, separados de las observaciones generales.</p>
           </div>
-          <button onClick={load} className="btn btn-dark inline-flex items-center gap-2"><RefreshCw size={17}/> Actualizar</button>
+          <button onClick={load} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] inline-flex items-center gap-2"><RefreshCw size={17}/> Actualizar</button>
         </div>
 
-        <div className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-5">
+        <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-white/[0.012] p-5">
           <div className="mb-5 flex items-center gap-2 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
             <Search size={17} className="text-zinc-500"/>
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar pedido, cliente, ECU o código DTC..." className="w-full bg-transparent outline-none"/>
@@ -78,7 +78,7 @@ export default function AkCloudDtcOffPage() {
                       <h2 className="mt-2 text-2xl font-bold">{[r.marca,r.modelo,r.motor].filter(Boolean).join(' · ') || 'Pedido AK Cloud'}</h2>
                       <p className="mt-1 text-sm text-zinc-500">{r.cliente_nombre || r.cliente_email || 'Distribuidor sin identificar'} · {r.ecu || 'ECU —'}</p>
                     </div>
-                    <Link href={`/ak-cloud/${r.id}`} className="btn btn-red text-sm">Abrir pedido</Link>
+                    <Link href={`/ak-cloud/${r.id}`} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] text-sm">Abrir pedido</Link>
                   </div>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {(r.dtc_codes || []).map((code) => <span key={code} className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-3 py-2 font-mono text-sm font-black text-amber-200">{code}</span>)}
@@ -90,6 +90,6 @@ export default function AkCloudDtcOffPage() {
           )}
         </div>
       </div>
-    </AppShell>
+    </LabShell>
   )
 }

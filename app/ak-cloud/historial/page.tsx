@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { ArrowLeft, Car, MessageSquare, RefreshCw, Search, Wrench } from 'lucide-react'
-import AppShell from '@/components/AppShell'
+import { LabShell } from '@/components/lab'
 import { supabase } from '@/lib/supabase'
 
 type Pedido = {
@@ -110,7 +110,7 @@ export default function AkCloudHistorialPage() {
   }, [groups, query])
 
   return (
-    <AppShell>
+    <LabShell>
       <div className="space-y-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div>
@@ -118,10 +118,10 @@ export default function AkCloudHistorialPage() {
             <div className="flex items-center gap-3"><Car className="text-[#ff5468]"/><h1 className="text-4xl font-bold">Historial de vehículos y trabajos</h1></div>
             <p className="mt-2 text-zinc-500">Agrupa los pedidos por vehículo y mantiene acceso directo al pedido y a su conversación técnica.</p>
           </div>
-          <button onClick={load} className="btn btn-dark inline-flex items-center gap-2"><RefreshCw size={17}/> Actualizar</button>
+          <button onClick={load} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] inline-flex items-center gap-2"><RefreshCw size={17}/> Actualizar</button>
         </div>
 
-        <div className="rounded-[2rem] border border-white/10 bg-[#0B1220] p-5">
+        <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-white/[0.012] p-5">
           <div className="mb-5 flex items-center gap-2 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
             <Search size={17} className="text-zinc-500"/>
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar cliente, vehículo, ECU, HW, SW, servicio o pedido..." className="w-full bg-transparent outline-none"/>
@@ -145,8 +145,8 @@ export default function AkCloudHistorialPage() {
                         <p className="mt-1 text-sm text-zinc-500">{p.cliente_nombre || p.cliente_email || 'Distribuidor sin identificar'} · {p.ecu || 'ECU —'}</p>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        <Link href={`/ak-cloud/${p.id}`} className="btn btn-dark inline-flex items-center gap-2"><Wrench size={16}/> Abrir último trabajo</Link>
-                        <Link href={`/ak-cloud/${p.id}`} className="btn btn-red inline-flex items-center gap-2"><MessageSquare size={16}/> Abrir chat</Link>
+                        <Link href={`/ak-cloud/${p.id}`} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] inline-flex items-center gap-2"><Wrench size={16}/> Abrir último trabajo</Link>
+                        <Link href={`/ak-cloud/${p.id}`} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] inline-flex items-center gap-2"><MessageSquare size={16}/> Abrir chat</Link>
                       </div>
                     </div>
 
@@ -185,7 +185,7 @@ export default function AkCloudHistorialPage() {
           )}
         </div>
       </div>
-    </AppShell>
+    </LabShell>
   )
 }
 

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
-import AppShell from '@/components/AppShell'
+import { LabShell } from '@/components/lab'
 import { supabase } from '@/lib/supabase'
 import { ArrowLeft, Building2, Clock3, RefreshCw, Users } from 'lucide-react'
 
@@ -75,9 +75,9 @@ export default function DistribuidoresPage() {
   const pendientesRenovacion = distribuidores.filter((d) => d.solicito_renovacion).length
 
   return (
-    <AppShell>
+    <LabShell>
       <div className="space-y-7">
-        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#101827] to-[#19070d] p-7 shadow-2xl shadow-black/30">
+        <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#101827] to-[#19070d] p-7 shadow-2xl shadow-black/30">
           <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#c81f2a]/20 blur-3xl" />
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
@@ -90,7 +90,7 @@ export default function DistribuidoresPage() {
               <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">Renovaciones</h1>
               <p className="mt-3 max-w-3xl text-zinc-400">Confirma el pago fuera de aquí y luego dale a renovar — extiende el plan según los días configurados.</p>
             </div>
-            <button onClick={loadAll} className="btn btn-dark inline-flex items-center gap-2">
+            <button onClick={loadAll} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] inline-flex items-center gap-2">
               <RefreshCw size={18} /> Actualizar
             </button>
           </div>
@@ -138,7 +138,7 @@ export default function DistribuidoresPage() {
                       </p>
                     )}
                   </div>
-                  <button onClick={() => confirmarRenovacion(d)} className="btn btn-red">
+                  <button onClick={() => confirmarRenovacion(d)} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f]">
                     {d.plan_expira_at ? 'Confirmar renovación' : 'Confirmar activación'} (+{plan?.duracion_dias || 30} días)
                   </button>
                 </article>
@@ -147,6 +147,6 @@ export default function DistribuidoresPage() {
           )}
         </section>
       </div>
-    </AppShell>
+    </LabShell>
   )
 }

@@ -1,10 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
 import toast from 'react-hot-toast'
-import AppShell from '@/components/AppShell'
-import { ArrowLeft, Building2, CheckCircle2, Clock3, RefreshCw, ShieldCheck, XCircle } from 'lucide-react'
+import { LabShell, LabPanel, LabBadge } from '@/components/lab'
+import { Building2, CheckCircle2, Clock3, RefreshCw, XCircle } from 'lucide-react'
 
 type Solicitud = {
   id: string
@@ -21,12 +20,12 @@ type Solicitud = {
   created_at: string
 }
 
-function estadoClass(estado?: string) {
+function estadoTone(estado?: string): 'green' | 'red' | 'amber' | 'blue' {
   switch (estado) {
-    case 'aprobada': return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-    case 'rechazada': return 'border-red-500/30 bg-red-500/10 text-red-300'
-    case 'informacion_solicitada': return 'border-amber-500/30 bg-amber-500/10 text-amber-300'
-    default: return 'border-sky-500/30 bg-sky-500/10 text-sky-300'
+    case 'aprobada': return 'green'
+    case 'rechazada': return 'red'
+    case 'informacion_solicitada': return 'amber'
+    default: return 'blue'
   }
 }
 
@@ -107,90 +106,75 @@ export default function AkCloudSolicitudesPage() {
   const pendientes = solicitudes.filter((s) => (s.estado || 'pendiente') === 'pendiente').length
 
   return (
-    <AppShell>
-      <div className="space-y-7">
-        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#101827] to-[#19070d] p-7 shadow-2xl shadow-black/30">
-          <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#c81f2a]/20 blur-3xl" />
-          <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-            <div>
-              <Link href="/ak-cloud" className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-white">
-                <ArrowLeft size={16} /> Volver a AK Cloud
-              </Link>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#c81f2a]/25 bg-[#c81f2a]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#ff5468]">
-                <ShieldCheck size={16} /> Alta controlada de distribuidores
-              </div>
-              <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">Solicitudes</h1>
-              <p className="mt-3 max-w-3xl text-zinc-400">
-                Cada persona que se registra en AK Cloud aparece aquí como pendiente. No entra al portal hasta que la apruebes.
-              </p>
-            </div>
-            <button onClick={load} className="btn btn-dark inline-flex items-center gap-2">
-              <RefreshCw size={18} /> Actualizar
-            </button>
-          </div>
-        </section>
-
+    <LabShell
+      title="Solicitudes"
+      subtitle="Cada persona que se registra en AK Cloud aparece aquí como pendiente. No entra al portal hasta que la apruebes."
+      actions={
+        <button onClick={load} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-bold text-zinc-300 hover:bg-white/[0.08]">
+          <RefreshCw size={15} /> Actualizar
+        </button>
+      }
+    >
+      <div className="space-y-4">
         {pendientes > 0 && (
-          <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4 text-sm text-amber-200">
+          <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 p-4 text-sm text-amber-200">
             Tienes {pendientes} solicitud{pendientes === 1 ? '' : 'es'} pendiente{pendientes === 1 ? '' : 's'} de revisar.
           </div>
         )}
 
-        <section className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2">
           {['pendiente', 'aprobada', 'rechazada', 'informacion_solicitada', 'todos'].map((item) => (
             <button
               key={item}
               onClick={() => setEstado(item)}
-              className={`rounded-2xl px-4 py-2 text-sm font-bold uppercase tracking-wider transition ${estado === item ? 'bg-[#c81f2a] text-[#0a0d12]' : 'bg-white/5 text-zinc-400 hover:bg-white/10'}`}
+              className={`rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider transition ${estado === item ? 'bg-[#c81f2a] text-white' : 'bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08]'}`}
             >
               {item.replace('_', ' ')}
             </button>
           ))}
-        </section>
+        </div>
 
-        <section className="space-y-4">
+        <div className="space-y-3">
           {loading ? (
-            <div className="card p-8 text-zinc-500">Cargando solicitudes...</div>
+            <LabPanel><div className="py-6 text-center text-sm text-zinc-500">Cargando solicitudes...</div></LabPanel>
           ) : filtered.length === 0 ? (
-            <div className="card p-8 text-zinc-500">No hay solicitudes en este estado.</div>
+            <LabPanel><div className="py-6 text-center text-sm text-zinc-500">No hay solicitudes en este estado.</div></LabPanel>
           ) : (
             filtered.map((s) => (
-              <article key={s.id} className="card p-5">
-                <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+              <LabPanel key={s.id}>
+                <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                   <div className="min-w-0">
-                    <div className="mb-3 flex flex-wrap items-center gap-2">
-                      <span className={`rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider ${estadoClass(s.estado)}`}>{s.estado || 'pendiente'}</span>
-                      <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-bold text-zinc-400">
-                        <Clock3 size={12} className="mr-1 inline" /> {formatDate(s.created_at)}
+                    <div className="mb-2.5 flex flex-wrap items-center gap-2">
+                      <LabBadge tone={estadoTone(s.estado)}>{s.estado || 'pendiente'}</LabBadge>
+                      <span className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-bold text-zinc-400">
+                        <Clock3 size={12} /> {formatDate(s.created_at)}
                       </span>
                     </div>
-                    <h3 className="flex items-center gap-2 text-2xl font-bold"><Building2 size={20} className="text-[#ff5468]" /> {s.empresa}</h3>
-                    <p className="mt-1 text-zinc-500">{s.nombre} · {s.email} · {s.telefono || 'sin teléfono'}</p>
-                    <div className="mt-3 flex flex-wrap gap-2 text-xs text-zinc-400">
-                      {s.ciudad && <span className="rounded-full border border-white/10 bg-black/25 px-3 py-1">{s.ciudad}</span>}
-                      {s.especialidad && <span className="rounded-full border border-white/10 bg-black/25 px-3 py-1">{s.especialidad}</span>}
-                      {(s.herramientas || []).map((h) => <span key={h} className="rounded-full border border-white/10 bg-black/25 px-3 py-1">{h}</span>)}
+                    <h3 className="flex items-center gap-2 text-lg font-bold text-white"><Building2 size={18} className="text-[#ff5468]" /> {s.empresa}</h3>
+                    <p className="mt-1 text-sm text-zinc-500">{s.nombre} · {s.email} · {s.telefono || 'sin teléfono'}</p>
+                    <div className="mt-2.5 flex flex-wrap gap-1.5 text-xs text-zinc-400">
+                      {s.ciudad && <span className="rounded-full border border-white/[0.07] bg-white/[0.02] px-2.5 py-1">{s.ciudad}</span>}
+                      {s.especialidad && <span className="rounded-full border border-white/[0.07] bg-white/[0.02] px-2.5 py-1">{s.especialidad}</span>}
+                      {(s.herramientas || []).map((h) => <span key={h} className="rounded-full border border-white/[0.07] bg-white/[0.02] px-2.5 py-1">{h}</span>)}
                     </div>
-                    {s.motivo_estado && <p className="mt-3 text-sm text-zinc-500">Motivo: {s.motivo_estado}</p>}
+                    {s.motivo_estado && <p className="mt-2.5 text-sm text-zinc-500">Motivo: {s.motivo_estado}</p>}
                   </div>
                   {(s.estado || 'pendiente') === 'pendiente' && (
-                    <div className="flex shrink-0 flex-col gap-2">
-                      <div className="flex gap-2">
-                        <button disabled={working === s.id} onClick={() => aprobar(s)} className="btn btn-red inline-flex items-center gap-2 disabled:opacity-50">
-                          <CheckCircle2 size={18} /> Aprobar
-                        </button>
-                        <button disabled={working === s.id} onClick={() => rechazar(s)} className="btn btn-dark inline-flex items-center gap-2 text-red-300 disabled:opacity-50">
-                          <XCircle size={18} /> Rechazar
-                        </button>
-                      </div>
+                    <div className="flex shrink-0 gap-2">
+                      <button disabled={working === s.id} onClick={() => aprobar(s)} className="flex items-center gap-1.5 rounded-xl bg-[#c81f2a] px-3.5 py-2 text-xs font-bold text-white hover:bg-[#e2242f] disabled:opacity-50">
+                        <CheckCircle2 size={15} /> Aprobar
+                      </button>
+                      <button disabled={working === s.id} onClick={() => rechazar(s)} className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-bold text-red-300 hover:bg-white/[0.08] disabled:opacity-50">
+                        <XCircle size={15} /> Rechazar
+                      </button>
                     </div>
                   )}
                 </div>
-              </article>
+              </LabPanel>
             ))
           )}
-        </section>
+        </div>
       </div>
-    </AppShell>
+    </LabShell>
   )
 }

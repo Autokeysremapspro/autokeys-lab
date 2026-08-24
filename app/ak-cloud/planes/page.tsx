@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
-import AppShell from '@/components/AppShell'
+import { LabShell } from '@/components/lab'
 import CustomSelect from '@/components/ak/CustomSelect'
 import { supabase } from '@/lib/supabase'
 import { ArrowLeft, Layers, Plus, Save, Sparkles, Trash2, X } from 'lucide-react'
@@ -189,9 +189,9 @@ export default function PlanesAkPage() {
   }
 
   return (
-    <AppShell>
+    <LabShell>
       <div className="space-y-7">
-        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#101827] to-[#19070d] p-7 shadow-2xl shadow-black/30">
+        <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#0b0f19] via-[#101827] to-[#19070d] p-7 shadow-2xl shadow-black/30">
           <div className="absolute right-[-120px] top-[-120px] h-80 w-80 rounded-full bg-[#c81f2a]/20 blur-3xl" />
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
@@ -204,7 +204,7 @@ export default function PlanesAkPage() {
               <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">Diseña tus planes</h1>
               <p className="mt-3 max-w-3xl text-zinc-400">Crea cada plan y decide qué servicios lleva y a qué precio exacto — libre, sin porcentajes ni reglas automáticas.</p>
             </div>
-            <button onClick={() => setMostrarNuevo(true)} className="btn btn-red inline-flex items-center gap-2">
+            <button onClick={() => setMostrarNuevo(true)} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] inline-flex items-center gap-2">
               <Plus size={18} /> Nuevo plan
             </button>
           </div>
@@ -242,7 +242,7 @@ export default function PlanesAkPage() {
                 <input type="number" className="w-full" placeholder="Sin límite" value={nuevoPlan.limite_diario_pedidos ?? ''} onChange={(e) => setNuevoPlan({ ...nuevoPlan, limite_diario_pedidos: e.target.value === '' ? null : Number(e.target.value) })} />
               </div>
             </div>
-            <button onClick={crearPlan} className="btn btn-red mt-4 inline-flex items-center gap-2"><Save size={16} /> Crear plan</button>
+            <button onClick={crearPlan} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] mt-4 inline-flex items-center gap-2"><Save size={16} /> Crear plan</button>
           </section>
         )}
 
@@ -306,8 +306,8 @@ export default function PlanesAkPage() {
                     </div>
                   </div>
                   <div className="mt-4 flex items-center gap-3">
-                    <button onClick={guardarDatosPlan} className="btn btn-red inline-flex items-center gap-2"><Save size={16} /> Guardar datos del plan</button>
-                    <button onClick={() => borrarPlan(plan.id)} className="btn btn-dark inline-flex items-center gap-2 text-red-300"><Trash2 size={16} /> Borrar plan</button>
+                    <button onClick={guardarDatosPlan} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] inline-flex items-center gap-2"><Save size={16} /> Guardar datos del plan</button>
+                    <button onClick={() => borrarPlan(plan.id)} className="rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] inline-flex items-center gap-2 text-red-300"><Trash2 size={16} /> Borrar plan</button>
                   </div>
                 </div>
 
@@ -322,7 +322,7 @@ export default function PlanesAkPage() {
                       placeholder="Elige un servicio para añadir..."
                       options={serviciosDisponibles.map((s) => ({ value: s.id, label: `${s.icono} ${s.nombre}` }))}
                     />
-                    <button onClick={agregarServicio} disabled={!servicioAAgregar} className="btn btn-red inline-flex items-center gap-2 disabled:opacity-40">
+                    <button onClick={agregarServicio} disabled={!servicioAAgregar} className="rounded-xl bg-[#c81f2a] text-white hover:bg-[#e2242f] inline-flex items-center gap-2 disabled:opacity-40">
                       <Plus size={16} /> Añadir
                     </button>
                   </div>
@@ -380,6 +380,6 @@ export default function PlanesAkPage() {
           </div>
         </section>
       </div>
-    </AppShell>
+    </LabShell>
   )
 }
