@@ -44,6 +44,7 @@ import {
   GitBranch,
   LockKeyhole,
   RotateCcw,
+  Wrench,
 } from 'lucide-react'
 
 const timeline = [
@@ -420,6 +421,14 @@ export default function AkCloudPedidoPage() {
                 <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Servicios</div>
                 <div className="mt-2 text-xl font-bold text-[#ff5468]">{formatServicios(pedido.servicios)}</div>
               </div>
+              {formatDtc(pedido.dtc_codes) && (
+                <div className="mt-4 rounded-2xl border border-red-500/15 bg-red-500/5 p-4">
+                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-red-300">
+                    <Wrench size={14} /> DTC solicitados
+                  </div>
+                  <div className="mt-2 break-words font-mono text-sm font-bold text-zinc-200">{formatDtc(pedido.dtc_codes)}</div>
+                </div>
+              )}
               {pedido.observaciones && (
                 <div className="mt-4 rounded-2xl border border-white/5 bg-black/20 p-4">
                   <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Observaciones del distribuidor</div>
@@ -561,4 +570,9 @@ function Info({ label, value }: { label: string; value: string }) {
       <div className="mt-1 truncate text-lg font-bold">{value}</div>
     </div>
   )
+}
+
+function formatDtc(value?: string | string[] | null) {
+  if (!value) return ''
+  return Array.isArray(value) ? value.filter(Boolean).join(', ') : String(value)
 }

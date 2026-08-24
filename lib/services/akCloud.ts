@@ -17,6 +17,7 @@ export type AkCloudPedido = {
   cambio?: string | null
   servicios?: string[] | null
   observaciones?: string | null
+  dtc_codes?: string[] | string | null
   estado?: string | null
   prioridad?: string | null
   ori_nombre?: string | null
