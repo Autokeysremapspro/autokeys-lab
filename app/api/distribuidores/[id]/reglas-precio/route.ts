@@ -1,61 +1,13 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireStaff } from '@/lib/supabase/server'
+import { cleanPricingRuleList, syncPricingRuleForDistributor } from '@/lib/services/pricingRuleSync'
 
 function adminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!url || !key) throw new Error('Faltan variables Supabase en el entorno')
   return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
-}
-
-async function syncExtrasRule(
-  admin: ReturnType<typeof adminClient>,
-  distribuidorId: string,
-  rule: any,
-  enabled: boolean,
-) {
-  if (String(rule.tipo || 'extras_gratis') !== 'extras_gratis') return
-
-  const triggerSlug = String(rule.servicio_principal_slug || '').trim()
-  const freeSlugs = Array.isArray(rule.servicios_gratis)
-    ? Array.from(new Set(rule.servicios_gratis.map(String).filter(Boolean)))
-    : []
-  if (!triggerSlug || !freeSlugs.length) return
-
-  const { data: servicios, error } = await admin
-    .from('akcloud_servicios')
-    .select('id,slug')
-    .in('slug', Array.from(new Set([triggerSlug, ...freeSlugs])))
-  if (error) throw error
-
-  const bySlug = new Map((servicios || []).map((s: any) => [String(s.slug), String(s.id)]))
-  const triggerId = bySlug.get(triggerSlug)
-  if (!triggerId) throw new Error(`No existe el servicio principal ${triggerSlug}`)
-
-  const targetIds = freeSlugs.map((slug) => bySlug.get(slug)).filter(Boolean) as string[]
-  if (!targetIds.length) return
-
-  const { error: deleteError } = await admin
-    .from('distribuidor_precios_condicionales')
-    .delete()
-    .eq('distribuidor_id', distribuidorId)
-    .eq('requiere_servicio_id', triggerId)
-    .in('servicio_id', targetIds)
-  if (deleteError) throw deleteError
-
-  if (!enabled) return
-
-  const rows = targetIds.map((servicioId) => ({
-    distribuidor_id: distribuidorId,
-    servicio_id: servicioId,
-    requiere_servicio_id: triggerId,
-    precio: 0,
-    activo: true,
-    updated_at: new Date().toISOString(),
-  }))
-  const { error: insertError } = await admin.from('distribuidor_precios_condicionales').insert(rows)
-  if (insertError) throw insertError
 }
 
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
@@ -81,14 +33,14 @@ export async function GET(_request: Request, { params }: { params: { id: string 
     if (serviciosError) throw serviciosError
 
     const mapped = (rules || []).map((rule: any) => {
-      const ids = Array.isArray(rule.solo_distribuidores) ? rule.solo_distribuidores.map(String) : []
+      const ids = cleanPricingRuleList(rule.solo_distribuidores)
       return {
         id: String(rule.id),
         nombre: String(rule.nombre),
         tipo: String(rule.tipo || 'extras_gratis'),
         servicioPrincipalSlug: String(rule.servicio_principal_slug || ''),
-        serviciosGratis: Array.isArray(rule.servicios_gratis) ? rule.servicios_gratis.map(String) : [],
-        serviciosRequeridos: Array.isArray(rule.servicios_requeridos) ? rule.servicios_requeridos.map(String) : [],
+        serviciosGratis: cleanPricingRuleList(rule.servicios_gratis),
+        serviciosRequeridos: cleanPricingRuleList(rule.servicios_requeridos),
         precioConjunto: rule.precio_conjunto == null ? null : Number(rule.precio_conjunto),
         enabledForDistributor: ids.includes(params.id),
         orden: Number(rule.orden || 100),
@@ -121,7 +73,27 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     if (!rule) return NextResponse.json({ error: 'La regla no existe' }, { status: 404 })
 
     const enabled = body.enabled === true
-    const currentIds = Array.isArray(rule.solo_distribuidores) ? rule.solo_distribuidores.map(String) : []
+    const currentIds = cleanPricingRuleList(rule.solo_distribuidores)
+
+    if (enabled && String(rule.tipo) === 'combo_fijo') {
+      const targetSlugs = new Set(cleanPricingRuleList(rule.servicios_requeridos))
+      const { data: otherRules, error: conflictError } = await admin
+        .from('akcloud_reglas_precios')
+        .select('id,nombre,servicios_requeridos')
+        .eq('activo', true)
+        .eq('tipo', 'combo_fijo')
+        .neq('id', ruleId)
+        .contains('solo_distribuidores', [params.id])
+      if (conflictError) throw conflictError
+
+      const conflict = (otherRules || []).find((other: any) => cleanPricingRuleList(other.servicios_requeridos).some((slug) => targetSlugs.has(slug)))
+      if (conflict) {
+        return NextResponse.json({
+          error: `No se puede activar porque comparte un servicio con el pack "${conflict.nombre}". Desactiva primero esa regla para evitar descuentos dobles.`,
+        }, { status: 409 })
+      }
+    }
+
     const nextIds = enabled
       ? Array.from(new Set([...currentIds, params.id]))
       : currentIds.filter((id: string) => id !== params.id)
@@ -132,7 +104,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       .eq('id', ruleId)
     if (updateError) throw updateError
 
-    await syncExtrasRule(admin, params.id, rule, enabled)
+    await syncPricingRuleForDistributor(admin, params.id, rule, enabled)
 
     await admin.from('auditoria_core').insert({
       usuario: usuario.nombre,
