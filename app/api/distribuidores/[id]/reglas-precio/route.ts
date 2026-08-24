@@ -15,7 +15,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
     await requireStaff()
     const admin = adminClient()
 
-    const [{ data: rules, error: rulesError }, { data: servicios, error: serviciosError }] = await Promise.all([
+    const [{ data: rules, error: rulesError }, { data: servicios, error: serviciosError }, { data: overrides, error: overridesError }] = await Promise.all([
       admin
         .from('akcloud_reglas_precios')
         .select('id,nombre,tipo,servicio_principal_slug,servicios_gratis,servicios_requeridos,precio_conjunto,solo_distribuidores,activo,orden,nota')
@@ -27,10 +27,27 @@ export async function GET(_request: Request, { params }: { params: { id: string 
         .select('id,nombre,slug,categoria,precio,activo,orden')
         .eq('activo', true)
         .order('orden', { ascending: true }),
+      admin
+        .from('distribuidor_precios')
+        .select('servicio_id,precio')
+        .eq('distribuidor_id', params.id),
     ])
 
     if (rulesError) throw rulesError
     if (serviciosError) throw serviciosError
+    if (overridesError) throw overridesError
+
+    const overrideMap = new Map((overrides || []).map((row: any) => [String(row.servicio_id), Number(row.precio)]))
+    const serviciosConPrecio = (servicios || []).map((servicio: any) => {
+      const personalizado = overrideMap.has(String(servicio.id))
+      const precioBase = Number(servicio.precio || 0)
+      return {
+        ...servicio,
+        precio: precioBase,
+        precioEfectivo: personalizado ? overrideMap.get(String(servicio.id))! : precioBase,
+        personalizado,
+      }
+    })
 
     const mapped = (rules || []).map((rule: any) => {
       const ids = cleanPricingRuleList(rule.solo_distribuidores)
@@ -48,7 +65,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
       }
     })
 
-    return NextResponse.json({ rules: mapped, servicios: servicios || [] })
+    return NextResponse.json({ rules: mapped, servicios: serviciosConPrecio })
   } catch (error: any) {
     const status = error.message === 'No autorizado' ? 401 : 500
     return NextResponse.json({ error: error.message || 'Error cargando reglas de precios' }, { status })
