@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Check, Gift, Package, Pencil, Plus, Trash2, X } from 'lucide-react'
+import DistributorPricingSimulator from './DistributorPricingSimulator'
 
 type Servicio = {
   id: string
@@ -10,6 +11,8 @@ type Servicio = {
   slug: string
   categoria: string
   precio: number
+  precioEfectivo?: number
+  personalizado?: boolean
 }
 
 type PricingRule = {
@@ -240,6 +243,8 @@ export default function DistributorPricingPreset({ distribuidorId, distribuidorN
           })}
         </div>
       )}
+
+      <DistributorPricingSimulator distribuidorNombre={distribuidorNombre} servicios={servicios} rules={rules} />
 
       {builderOpen && (
         <div className="rounded-2xl border border-[#c81f2a]/25 bg-[#c81f2a]/[0.05] p-4">
