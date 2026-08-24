@@ -79,6 +79,7 @@ function defaultECU(expediente_id: string): ExpedienteECU {
     dpf: '',
     egr: '',
     adblue: '',
+    dtc: '',
     checksum: '',
     lectura: '',
     herramienta: '',
@@ -437,6 +438,7 @@ export default function ExpedienteFichaPage() {
             <TechnicalField label="DPF" value={ecu.dpf} onChange={(v) => setEcu({ ...ecu, dpf: v })} />
             <TechnicalField label="EGR" value={ecu.egr} onChange={(v) => setEcu({ ...ecu, egr: v })} />
             <TechnicalField label="AdBlue / SCR" value={ecu.adblue} onChange={(v) => setEcu({ ...ecu, adblue: v })} />
+            <TechnicalField label="DTC" value={ecu.dtc} onChange={(v) => setEcu({ ...ecu, dtc: v })} placeholder="P0401, P2002..." />
             <TechnicalField label="Checksum" value={ecu.checksum} onChange={(v) => setEcu({ ...ecu, checksum: v })} placeholder="Correcto, pendiente..." />
             <TechnicalField label="Lectura" value={ecu.lectura} onChange={(v) => setEcu({ ...ecu, lectura: v })} placeholder="Bench, Boot, OBD..." />
             <div className="md:col-span-3"><TechnicalField label="Notas ECU" textarea value={ecu.notas} onChange={(v) => setEcu({ ...ecu, notas: v })} /></div>

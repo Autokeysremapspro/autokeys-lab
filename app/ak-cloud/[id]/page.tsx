@@ -13,6 +13,7 @@ import {
   akCloudEstadoClass,
   convertirAkCloudPedidoEnExpediente,
   crearMensajeAkCloud,
+  formatDtc,
   formatPedidoTitle,
   formatServicios,
   getAkCloudPedido,
@@ -570,9 +571,4 @@ function Info({ label, value }: { label: string; value: string }) {
       <div className="mt-1 truncate text-lg font-bold">{value}</div>
     </div>
   )
-}
-
-function formatDtc(value?: string | string[] | null) {
-  if (!value) return ''
-  return Array.isArray(value) ? value.filter(Boolean).join(', ') : String(value)
 }

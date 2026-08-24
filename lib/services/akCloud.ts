@@ -208,6 +208,11 @@ export function formatServicios(servicios?: string[] | null) {
   return servicios.join(' + ')
 }
 
+export function formatDtc(value?: string | string[] | null) {
+  if (!value) return ''
+  return Array.isArray(value) ? value.filter(Boolean).join(', ') : String(value)
+}
+
 export function formatPedidoTitle(pedido: AkCloudPedido) {
   return [pedido.marca, pedido.modelo, pedido.motor].filter(Boolean).join(' · ') || 'Pedido AK Cloud'
 }
@@ -468,6 +473,7 @@ async function createCoreExpediente(pedido: AkCloudPedido, clienteId: string, ve
     dpf: pedido.servicios?.some((s) => s.toLowerCase().includes('dpf')) ? 'OFF' : null,
     egr: pedido.servicios?.some((s) => s.toLowerCase().includes('egr')) ? 'OFF' : null,
     adblue: pedido.servicios?.some((s) => s.toLowerCase().includes('adblue')) ? 'OFF' : null,
+    dtc: formatDtc(pedido.dtc_codes) || null,
     checksum: 'Pendiente',
     lectura: 'AK Cloud',
     herramienta: 'File Service',

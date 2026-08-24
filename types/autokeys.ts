@@ -77,6 +77,7 @@ export type ExpedienteECU = {
   dpf?: string | null
   egr?: string | null
   adblue?: string | null
+  dtc?: string | null
   checksum?: string | null
   lectura?: string | null
   herramienta?: string | null
