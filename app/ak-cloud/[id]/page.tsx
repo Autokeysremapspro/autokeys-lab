@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { LabShell } from '@/components/lab'
 import CustomSelect from '@/components/ak/CustomSelect'
+import { supabase } from '@/lib/supabase'
 import {
   AkCloudMensaje,
   AkCloudPedido,
@@ -106,6 +107,22 @@ export default function AkCloudPedidoPage() {
 
   useEffect(() => {
     load()
+  }, [id])
+
+  useEffect(() => {
+    if (!id) return
+    const channel = supabase
+      .channel(`ak-cloud-pedido-chat-${id}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'file_service_mensajes', filter: `pedido_id=eq.${id}` },
+        (payload) => {
+          const nuevo = payload.new as AkCloudMensaje
+          setMensajes((current) => (current.some((item) => item.id === nuevo.id) ? current : [...current, nuevo]))
+        }
+      )
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
   }, [id])
 
   const currentIndex = useMemo(() => {
