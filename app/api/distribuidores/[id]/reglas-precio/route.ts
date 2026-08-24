@@ -2,10 +2,6 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireStaff } from '@/lib/supabase/server'
 
-const PRESET_NAME = 'Extras gratis con Stage 1'
-const DEFAULT_TRIGGER = 'stage-1-coche'
-const DEFAULT_FREE = ['dpf-off-coche','egr-off-coche','adblue-off-coche','decat-coche','pops-bangs-coche','hardcut-coche','launch-control-coche','dtc-off']
-
 function adminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -13,34 +9,51 @@ function adminClient() {
   return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
 }
 
-async function getOrCreatePreset(admin: ReturnType<typeof adminClient>) {
-  const { data: existing, error } = await admin.from('akcloud_reglas_precios').select('*').eq('nombre', PRESET_NAME).maybeSingle()
-  if (error) throw error
-  if (existing) return existing
-  const { data, error: insertError } = await admin.from('akcloud_reglas_precios').insert({
-    nombre: PRESET_NAME,
-    servicio_principal_slug: DEFAULT_TRIGGER,
-    servicios_gratis: DEFAULT_FREE,
-    descuentos: {}, solo_planes: [], solo_distribuidores: [], activo: true, orden: 10,
-    nota: 'Plantilla administrable desde AK Core. Los extras quedan a 0 € solo si el pedido incluye el servicio principal.',
-  }).select('*').single()
-  if (insertError) throw insertError
-  return data
-}
+async function syncExtrasRule(
+  admin: ReturnType<typeof adminClient>,
+  distribuidorId: string,
+  rule: any,
+  enabled: boolean,
+) {
+  if (String(rule.tipo || 'extras_gratis') !== 'extras_gratis') return
 
-async function syncRules(admin: ReturnType<typeof adminClient>, distribuidorId: string, triggerSlug: string, freeSlugs: string[], enabled: boolean) {
-  const { data: servicios, error } = await admin.from('akcloud_servicios').select('id,slug').in('slug', Array.from(new Set([triggerSlug, ...freeSlugs])))
+  const triggerSlug = String(rule.servicio_principal_slug || '').trim()
+  const freeSlugs = Array.isArray(rule.servicios_gratis)
+    ? Array.from(new Set(rule.servicios_gratis.map(String).filter(Boolean)))
+    : []
+  if (!triggerSlug || !freeSlugs.length) return
+
+  const { data: servicios, error } = await admin
+    .from('akcloud_servicios')
+    .select('id,slug')
+    .in('slug', Array.from(new Set([triggerSlug, ...freeSlugs])))
   if (error) throw error
+
   const bySlug = new Map((servicios || []).map((s: any) => [String(s.slug), String(s.id)]))
   const triggerId = bySlug.get(triggerSlug)
   if (!triggerId) throw new Error(`No existe el servicio principal ${triggerSlug}`)
+
   const targetIds = freeSlugs.map((slug) => bySlug.get(slug)).filter(Boolean) as string[]
-  if (targetIds.length) {
-    const { error: deleteError } = await admin.from('distribuidor_precios_condicionales').delete().eq('distribuidor_id', distribuidorId).eq('requiere_servicio_id', triggerId).in('servicio_id', targetIds)
-    if (deleteError) throw deleteError
-  }
-  if (!enabled || !targetIds.length) return
-  const rows = targetIds.map((servicioId) => ({ distribuidor_id: distribuidorId, servicio_id: servicioId, requiere_servicio_id: triggerId, precio: 0, activo: true, updated_at: new Date().toISOString() }))
+  if (!targetIds.length) return
+
+  const { error: deleteError } = await admin
+    .from('distribuidor_precios_condicionales')
+    .delete()
+    .eq('distribuidor_id', distribuidorId)
+    .eq('requiere_servicio_id', triggerId)
+    .in('servicio_id', targetIds)
+  if (deleteError) throw deleteError
+
+  if (!enabled) return
+
+  const rows = targetIds.map((servicioId) => ({
+    distribuidor_id: distribuidorId,
+    servicio_id: servicioId,
+    requiere_servicio_id: triggerId,
+    precio: 0,
+    activo: true,
+    updated_at: new Date().toISOString(),
+  }))
   const { error: insertError } = await admin.from('distribuidor_precios_condicionales').insert(rows)
   if (insertError) throw insertError
 }
@@ -49,11 +62,41 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   try {
     await requireStaff()
     const admin = adminClient()
-    const preset = await getOrCreatePreset(admin)
-    const activeIds = Array.isArray(preset.solo_distribuidores) ? preset.solo_distribuidores.map(String) : []
-    const { data: servicios, error } = await admin.from('akcloud_servicios').select('id,nombre,slug,categoria,precio,activo,orden').eq('activo', true).order('orden', { ascending: true })
-    if (error) throw error
-    return NextResponse.json({ preset: { id: preset.id, nombre: preset.nombre, activo: preset.activo !== false, enabledForDistributor: activeIds.includes(params.id), servicioPrincipalSlug: preset.servicio_principal_slug || DEFAULT_TRIGGER, serviciosGratis: Array.isArray(preset.servicios_gratis) ? preset.servicios_gratis : DEFAULT_FREE }, servicios: servicios || [] })
+
+    const [{ data: rules, error: rulesError }, { data: servicios, error: serviciosError }] = await Promise.all([
+      admin
+        .from('akcloud_reglas_precios')
+        .select('id,nombre,tipo,servicio_principal_slug,servicios_gratis,servicios_requeridos,precio_conjunto,solo_distribuidores,activo,orden,nota')
+        .eq('activo', true)
+        .order('orden', { ascending: true })
+        .order('created_at', { ascending: true }),
+      admin
+        .from('akcloud_servicios')
+        .select('id,nombre,slug,categoria,precio,activo,orden')
+        .eq('activo', true)
+        .order('orden', { ascending: true }),
+    ])
+
+    if (rulesError) throw rulesError
+    if (serviciosError) throw serviciosError
+
+    const mapped = (rules || []).map((rule: any) => {
+      const ids = Array.isArray(rule.solo_distribuidores) ? rule.solo_distribuidores.map(String) : []
+      return {
+        id: String(rule.id),
+        nombre: String(rule.nombre),
+        tipo: String(rule.tipo || 'extras_gratis'),
+        servicioPrincipalSlug: String(rule.servicio_principal_slug || ''),
+        serviciosGratis: Array.isArray(rule.servicios_gratis) ? rule.servicios_gratis.map(String) : [],
+        serviciosRequeridos: Array.isArray(rule.servicios_requeridos) ? rule.servicios_requeridos.map(String) : [],
+        precioConjunto: rule.precio_conjunto == null ? null : Number(rule.precio_conjunto),
+        enabledForDistributor: ids.includes(params.id),
+        orden: Number(rule.orden || 100),
+        nota: rule.nota || null,
+      }
+    })
+
+    return NextResponse.json({ rules: mapped, servicios: servicios || [] })
   } catch (error: any) {
     const status = error.message === 'No autorizado' ? 401 : 500
     return NextResponse.json({ error: error.message || 'Error cargando reglas de precios' }, { status })
@@ -64,36 +107,45 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   try {
     const { usuario } = await requireStaff()
     const admin = adminClient()
-    const preset = await getOrCreatePreset(admin)
     const body = await request.json()
-    const currentIds = Array.isArray(preset.solo_distribuidores) ? preset.solo_distribuidores.map(String) : []
-    let triggerSlug = String(preset.servicio_principal_slug || DEFAULT_TRIGGER)
-    let freeSlugs = Array.isArray(preset.servicios_gratis) ? preset.servicios_gratis.map(String) : DEFAULT_FREE
+    const ruleId = String(body.ruleId || '').trim()
+    if (!ruleId) return NextResponse.json({ error: 'Falta ruleId' }, { status: 400 })
 
-    if (body.action === 'configure') {
-      triggerSlug = String(body.servicioPrincipalSlug || '').trim()
-      const incoming = Array.isArray(body.serviciosGratis) ? body.serviciosGratis.map(String).filter(Boolean) : []
-      freeSlugs = Array.from(new Set(incoming.filter((slug) => slug !== triggerSlug)))
-      if (!triggerSlug || !freeSlugs.length) return NextResponse.json({ error: 'Selecciona un servicio principal y al menos un servicio incluido' }, { status: 400 })
-      const { error: updateError } = await admin.from('akcloud_reglas_precios').update({ servicio_principal_slug: triggerSlug, servicios_gratis: freeSlugs, updated_at: new Date().toISOString() }).eq('id', preset.id)
-      if (updateError) throw updateError
-      for (const distribuidorId of currentIds) await syncRules(admin, distribuidorId, triggerSlug, freeSlugs, true)
-    } else {
-      const enabled = body.enabled === true
-      const nextIds = enabled ? Array.from(new Set([...currentIds, params.id])) : currentIds.filter((id: string) => id !== params.id)
-      const { error: updateError } = await admin.from('akcloud_reglas_precios').update({ solo_distribuidores: nextIds, updated_at: new Date().toISOString() }).eq('id', preset.id)
-      if (updateError) throw updateError
-      await syncRules(admin, params.id, triggerSlug, freeSlugs, enabled)
-    }
+    const { data: rule, error: ruleError } = await admin
+      .from('akcloud_reglas_precios')
+      .select('*')
+      .eq('id', ruleId)
+      .eq('activo', true)
+      .maybeSingle()
+    if (ruleError) throw ruleError
+    if (!rule) return NextResponse.json({ error: 'La regla no existe' }, { status: 404 })
+
+    const enabled = body.enabled === true
+    const currentIds = Array.isArray(rule.solo_distribuidores) ? rule.solo_distribuidores.map(String) : []
+    const nextIds = enabled
+      ? Array.from(new Set([...currentIds, params.id]))
+      : currentIds.filter((id: string) => id !== params.id)
+
+    const { error: updateError } = await admin
+      .from('akcloud_reglas_precios')
+      .update({ solo_distribuidores: nextIds, updated_at: new Date().toISOString() })
+      .eq('id', ruleId)
+    if (updateError) throw updateError
+
+    await syncExtrasRule(admin, params.id, rule, enabled)
 
     await admin.from('auditoria_core').insert({
-      usuario: usuario.nombre, usuario_id: usuario.id, modulo: 'distribuidores',
-      accion: body.action === 'configure' ? 'configurar_plantilla_precio' : 'alternar_plantilla_precio',
-      descripcion: body.action === 'configure' ? `Plantilla "${PRESET_NAME}" actualizada` : `${body.enabled === true ? 'Activada' : 'Desactivada'} plantilla "${PRESET_NAME}"`,
-      entidad: 'akcloud_reglas_precios', entidad_id: preset.id,
-      metadata: { distribuidor_id: params.id, triggerSlug, freeSlugs, enabled: body.enabled === true },
+      usuario: usuario.nombre,
+      usuario_id: usuario.id,
+      modulo: 'distribuidores',
+      accion: 'alternar_regla_precio',
+      descripcion: `${enabled ? 'Activada' : 'Desactivada'} regla "${rule.nombre}"`,
+      entidad: 'akcloud_reglas_precios',
+      entidad_id: ruleId,
+      metadata: { distribuidor_id: params.id, enabled, tipo: rule.tipo },
     })
-    return NextResponse.json({ ok: true })
+
+    return NextResponse.json({ ok: true, enabled })
   } catch (error: any) {
     const status = error.message === 'No autorizado' ? 401 : 500
     return NextResponse.json({ error: error.message || 'Error guardando reglas de precios' }, { status })
