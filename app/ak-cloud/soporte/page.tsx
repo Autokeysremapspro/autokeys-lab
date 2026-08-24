@@ -4,6 +4,7 @@ import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { LabShell, LabPanel, LabBadge } from '@/components/lab'
+import { supabase } from '@/lib/supabase'
 import { RefreshCw, Send } from 'lucide-react'
 
 type Ticket = {
@@ -93,6 +94,22 @@ function AkCloudSoporteContent() {
 
   useEffect(() => {
     if (activeId) loadMensajes(activeId)
+  }, [activeId])
+
+  useEffect(() => {
+    if (!activeId) return
+    const channel = supabase
+      .channel(`ak-cloud-ticket-chat-${activeId}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'akcloud_ticket_mensajes', filter: `ticket_id=eq.${activeId}` },
+        (payload) => {
+          const nuevo = payload.new as Mensaje
+          setMensajes((current) => (current.some((item) => item.id === nuevo.id) ? current : [...current, nuevo]))
+        }
+      )
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
   }, [activeId])
 
   const activeTicket = useMemo(() => tickets.find((t) => t.id === activeId) || null, [tickets, activeId])
