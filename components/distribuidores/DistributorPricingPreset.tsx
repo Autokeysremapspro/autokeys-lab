@@ -119,11 +119,18 @@ export default function DistributorPricingPreset({ distribuidorId, distribuidorN
   function toggleList(field: 'serviciosGratis' | 'serviciosRequeridos', slug: string) {
     setDraft((current) => {
       const values = current[field]
-      return { ...current, [field]: values.includes(slug) ? values.filter((item) => item !== slug) : [...values, slug] }
+      if (values.includes(slug)) return { ...current, [field]: values.filter((item) => item !== slug) }
+      if (field === 'serviciosRequeridos' && values.length >= 2) return current
+      return { ...current, [field]: [...values, slug] }
     })
   }
 
   async function saveRule() {
+    if (draft.tipo === 'combo_fijo' && draft.serviciosRequeridos.length !== 2) {
+      toast.error('Selecciona exactamente dos servicios para el pack')
+      return
+    }
+
     setSavingId(draft.id || 'new')
     try {
       const res = await fetch('/api/distribuidores/reglas-precio', {
@@ -270,15 +277,19 @@ export default function DistributorPricingPreset({ distribuidorId, distribuidorN
             </label>
           )}
 
-          <div className="mt-4 text-[11px] font-bold uppercase tracking-wider text-zinc-500">{draft.tipo === 'combo_fijo' ? 'Servicios que forman el pack' : 'Servicios incluidos a 0 €'}</div>
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">{draft.tipo === 'combo_fijo' ? 'Servicios que forman el pack' : 'Servicios incluidos a 0 €'}</div>
+            {draft.tipo === 'combo_fijo' && <div className="text-[10px] font-bold text-zinc-600">{draft.serviciosRequeridos.length}/2 seleccionados</div>}
+          </div>
           <div className="mt-2 grid max-h-72 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
             {servicios
               .filter((s) => draft.tipo === 'combo_fijo' || s.slug !== draft.servicioPrincipalSlug)
               .map((s) => {
                 const field = draft.tipo === 'combo_fijo' ? 'serviciosRequeridos' : 'serviciosGratis'
                 const checked = draft[field].includes(s.slug)
+                const blocked = field === 'serviciosRequeridos' && !checked && draft.serviciosRequeridos.length >= 2
                 return (
-                  <button key={s.id} type="button" onClick={() => toggleList(field, s.slug)} className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-[11px] ${checked ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100' : 'border-white/[0.07] bg-white/[0.02] text-zinc-500'}`}>
+                  <button key={s.id} type="button" disabled={blocked} onClick={() => toggleList(field, s.slug)} className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-[11px] disabled:cursor-not-allowed disabled:opacity-35 ${checked ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100' : 'border-white/[0.07] bg-white/[0.02] text-zinc-500'}`}>
                     <span className={`grid h-4 w-4 shrink-0 place-items-center rounded border ${checked ? 'border-emerald-400 bg-emerald-500 text-black' : 'border-zinc-700'}`}>{checked && <Check size={11} />}</span>
                     <span className="truncate">{s.nombre}</span>
                   </button>
