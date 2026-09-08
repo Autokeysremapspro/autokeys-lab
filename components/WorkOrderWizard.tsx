@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
+import SignaturePad, { type SignaturePadHandle } from '@/components/SignaturePad'
 import {
   ArrowLeft,
   ArrowRight,
@@ -69,6 +70,7 @@ function normalize(text: string) {
 
 export default function WorkOrderWizard() {
   const router = useRouter()
+  const signatureRef = useRef<SignaturePadHandle | null>(null)
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
 
@@ -80,6 +82,9 @@ export default function WorkOrderWizard() {
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null)
   const [selectedVehiculo, setSelectedVehiculo] = useState<Vehiculo | null>(null)
   const [selectedWork, setSelectedWork] = useState<WorkType>(workTypes[0])
+  const [receptionType, setReceptionType] = useState<'vehiculo' | 'componente'>('vehiculo')
+  const [reception, setReception] = useState({ kilometros: '', combustible: '', componente: '', referencia: '', danos_previos: '', accesorios: '', objetos_personales: '', recibido_por: 'Carlos', firmante_nombre: '', firmante_dni: '', autoriza_diagnostico: true })
+  const [photos, setPhotos] = useState<File[]>([])
 
   const [newCliente, setNewCliente] = useState({ nombre: '', telefono: '', email: '', nif: '', direccion: '', poblacion: '', provincia: '' })
   const [newVehiculo, setNewVehiculo] = useState({ marca: '', modelo: '', motor: '', matricula: '', bastidor: '', anio: '', ecu: '' })
@@ -177,14 +182,17 @@ export default function WorkOrderWizard() {
 
   async function createOT() {
     if (!selectedCliente) return toast.error('Falta seleccionar cliente')
-    if (!selectedVehiculo) return toast.error('Falta seleccionar vehículo')
+    if (receptionType === 'vehiculo' && !selectedVehiculo) return toast.error('Falta seleccionar vehículo')
+    if (receptionType === 'componente' && !reception.componente.trim()) return toast.error('Indica el componente recibido')
+    if (!reception.firmante_nombre.trim()) return toast.error('Indica quién firma la recepción')
+    if (!signatureRef.current || signatureRef.current.isEmpty()) return toast.error('Falta la firma del cliente')
     if (!selectedWork) return toast.error('Falta seleccionar trabajo')
 
     setLoading(true)
 
     const payload = {
       cliente_id: selectedCliente.id,
-      vehiculo_id: selectedVehiculo.id,
+      vehiculo_id: selectedVehiculo?.id || null,
       tipo_trabajo: selectedWork.label,
       descripcion: ot.descripcion || selectedWork.description,
       estado: 'recibido',
@@ -211,8 +219,8 @@ export default function WorkOrderWizard() {
       technicalInserts.push(
         supabase.from('expediente_ecu').insert({
           expediente_id: expediente.id,
-          marca_ecu: selectedVehiculo.ecu ? null : null,
-          modelo_ecu: selectedVehiculo.ecu || null,
+          marca_ecu: null,
+          modelo_ecu: selectedVehiculo?.ecu || reception.referencia || null,
           estado_immo: selectedWork.technical === 'immo' ? 'pendiente' : null,
           stage: selectedWork.id === 'reprogramacion' ? 'pendiente' : null,
           checksum: 'pendiente',
@@ -246,6 +254,33 @@ export default function WorkOrderWizard() {
 
     const results = await Promise.allSettled(technicalInserts)
     const failed = results.find((r) => r.status === 'fulfilled' && (r as any).value?.error)
+    try {
+      const firmaBlob = await signatureRef.current.toBlob()
+      const firmaPath = `${expediente.id}/recepcion/firma-${Date.now()}.png`
+      const { error: firmaError } = await supabase.storage.from('autokeys-expedientes').upload(firmaPath, firmaBlob, { contentType: 'image/png', upsert: false })
+      if (firmaError) throw firmaError
+      const photoPaths: string[] = []
+      const receptionPhotos = photos.slice(0, 8)
+      for (let index = 0; index < receptionPhotos.length; index += 1) {
+        const file = receptionPhotos[index]
+        const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '-')
+        const path = `${expediente.id}/recepcion/foto-${index + 1}-${Date.now()}-${safe}`
+        const { error: photoError } = await supabase.storage.from('autokeys-expedientes').upload(path, file, { contentType: file.type || 'image/jpeg', upsert: false })
+        if (!photoError) photoPaths.push(path)
+      }
+      const { error: receptionError } = await supabase.from('recepciones_ot').insert({
+        expediente_id: expediente.id, tipo: receptionType, kilometros: reception.kilometros ? Number(reception.kilometros) : null,
+        combustible: reception.combustible || null, componente: reception.componente || null, referencia: reception.referencia || null,
+        danos_previos: reception.danos_previos || null, accesorios: reception.accesorios || null, objetos_personales: reception.objetos_personales || null,
+        autoriza_diagnostico: reception.autoriza_diagnostico, firmante_nombre: reception.firmante_nombre, firmante_dni: reception.firmante_dni || null,
+        firma_storage_path: firmaPath, fotos_storage_paths: photoPaths, recibido_por: reception.recibido_por || ot.tecnico || 'Autokeys Core',
+      })
+      if (receptionError) throw receptionError
+      await fetch(`/api/recepciones/${expediente.id}/email`, { method: 'POST' })
+      window.open(`/api/recepciones/${expediente.id}/pdf`, '_blank', 'noopener,noreferrer')
+    } catch (receptionError: any) {
+      toast.error(`OT creada, pero la recepción necesita revisión: ${receptionError.message || 'error'}`)
+    }
     setLoading(false)
 
     if (failed) toast.error('OT creada, pero hubo un aviso creando la ficha técnica')
@@ -256,7 +291,7 @@ export default function WorkOrderWizard() {
 
   function next() {
     if (step === 1 && !selectedCliente) return toast.error('Selecciona o crea un cliente')
-    if (step === 2 && !selectedVehiculo) return toast.error('Selecciona o crea un vehículo')
+    if (step === 2 && receptionType === 'vehiculo' && !selectedVehiculo) return toast.error('Selecciona o crea un vehículo')
     setStep((s) => Math.min(4, s + 1))
   }
 
@@ -310,6 +345,8 @@ export default function WorkOrderWizard() {
         {step === 2 && (
           <section className="mt-7">
             <SectionTitle icon={<Car size={22} />} title="Paso 2 · Vehículo" subtitle="Selecciona un vehículo del cliente o crea uno nuevo." />
+            <div className="mt-5 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-white/[0.02] p-1.5"><button onClick={()=>setReceptionType('vehiculo')} className={cx('rounded-xl px-4 py-3 font-bold',receptionType==='vehiculo'?'bg-[#c81f2a] text-white':'text-zinc-400')}>Vehículo completo</button><button onClick={()=>{setReceptionType('componente');setSelectedVehiculo(null)}} className={cx('rounded-xl px-4 py-3 font-bold',receptionType==='componente'?'bg-[#c81f2a] text-white':'text-zinc-400')}>Solo componente</button></div>
+            {receptionType==='componente'?<div className="mt-6 grid gap-3 rounded-3xl border border-white/10 bg-white/[0.02] p-5 md:grid-cols-2"><input placeholder="Componente recibido (ECU, BCM, airbag...)" value={reception.componente} onChange={e=>setReception({...reception,componente:e.target.value})}/><input placeholder="Referencia / HW / SW" value={reception.referencia} onChange={e=>setReception({...reception,referencia:e.target.value})}/><p className="md:col-span-2 text-sm text-zinc-500">La orden se creará sin vincular un vehículo completo. Podrás añadirlo después si fuese necesario.</p></div>:
             <div className="grid lg:grid-cols-2 gap-6 mt-6">
               <div>
                 <SearchBox value={vehiculoQuery} onChange={setVehiculoQuery} placeholder="Buscar matrícula, VIN, modelo, motor o ECU..." />
@@ -343,7 +380,7 @@ export default function WorkOrderWizard() {
                   <button disabled={loading || !selectedCliente} onClick={createVehiculo} className="btn btn-red">Crear y continuar</button>
                 </div>
               </div>
-            </div>
+            </div>}
           </section>
         )}
 
@@ -386,6 +423,8 @@ export default function WorkOrderWizard() {
                 <input placeholder="Precio estimado" type="number" value={ot.precio_estimado} onChange={(e) => setOt({ ...ot, precio_estimado: e.target.value })} />
                 <textarea placeholder="Descripción para cliente" value={ot.descripcion} onChange={(e) => setOt({ ...ot, descripcion: e.target.value })} />
                 <textarea placeholder="Notas internas de laboratorio" value={ot.notas_internas} onChange={(e) => setOt({ ...ot, notas_internas: e.target.value })} />
+                <div className="grid gap-3 border-t border-white/10 pt-4 md:grid-cols-2"><input placeholder="Kilómetros" type="number" value={reception.kilometros} onChange={e=>setReception({...reception,kilometros:e.target.value})}/><input placeholder="Combustible / nivel" value={reception.combustible} onChange={e=>setReception({...reception,combustible:e.target.value})}/><textarea placeholder="Daños previos / estado exterior" value={reception.danos_previos} onChange={e=>setReception({...reception,danos_previos:e.target.value})}/><textarea placeholder="Accesorios y llaves entregados" value={reception.accesorios} onChange={e=>setReception({...reception,accesorios:e.target.value})}/><input placeholder="Nombre de quien firma" value={reception.firmante_nombre} onChange={e=>setReception({...reception,firmante_nombre:e.target.value})}/><input placeholder="DNI/NIF del firmante" value={reception.firmante_dni} onChange={e=>setReception({...reception,firmante_dni:e.target.value})}/><input className="md:col-span-2" type="file" accept="image/*" multiple onChange={e=>setPhotos(Array.from(e.target.files||[]).slice(0,8))}/><label className="md:col-span-2 flex items-start gap-2 text-sm text-zinc-400"><input type="checkbox" checked={reception.autoriza_diagnostico} onChange={e=>setReception({...reception,autoriza_diagnostico:e.target.checked})}/> Autoriza diagnóstico y acepta que cualquier reparación requerirá presupuesto o autorización previa.</label></div>
+                <div><p className="mb-2 text-sm font-bold text-zinc-300">Firma del cliente</p><SignaturePad ref={signatureRef}/></div>
                 <button disabled={loading} onClick={createOT} className="btn btn-red text-lg py-4">Crear OT y abrir ficha</button>
               </div>
             </div>
