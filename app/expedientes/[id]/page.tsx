@@ -12,6 +12,7 @@ import TimeTrackerPanel from '@/components/TimeTrackerPanel'
 import FacturacionPanel from '@/components/FacturacionPanel'
 import MaterialPanel from '@/components/MaterialPanel'
 import GarantiaPanel from '@/components/GarantiaPanel'
+import { supabase } from '@/lib/supabase'
 import { ExpedienteService } from '@/lib/services/expedientes'
 import type { ExpedienteConRelaciones, ExpedienteECU, ExpedienteLlaves } from '@/types/autokeys'
 import {
@@ -32,7 +33,9 @@ import {
   KeyRound,
   Layers3,
   MessageSquareText,
+  Mail,
   Phone,
+  Printer,
   Save,
   ShieldCheck,
   UserRound,
@@ -147,6 +150,8 @@ export default function ExpedienteFichaPage() {
   const [tab, setTab] = useState<Tab>('360°')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [hasReception, setHasReception] = useState(false)
+  const [sendingReception, setSendingReception] = useState(false)
   const [error, setError] = useState('')
   const [ok, setOk] = useState('')
 
@@ -158,6 +163,12 @@ export default function ExpedienteFichaPage() {
       setItem(data)
       setEcu(data?.ecu || defaultECU(id))
       setLlaves(data?.llaves || defaultLlaves(id))
+      const { data: reception } = await supabase
+        .from('recepciones_ot')
+        .select('id')
+        .eq('expediente_id', id)
+        .maybeSingle()
+      setHasReception(Boolean(reception))
     } catch (err: any) {
       setError(err.message || 'No se pudo cargar la OT')
     } finally {
@@ -179,6 +190,22 @@ export default function ExpedienteFichaPage() {
   const ecuTitle = useMemo(() => {
     return [ecu?.marca_ecu, ecu?.modelo_ecu].filter(Boolean).join(' ') || item?.vehiculo?.ecu || 'ECU sin definir'
   }, [ecu, item?.vehiculo])
+
+  async function resendReception() {
+    setSendingReception(true)
+    setError('')
+    setOk('')
+    try {
+      const response = await fetch(`/api/recepciones/${id}/email`, { method: 'POST' })
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(result.error || 'No se pudo enviar el correo')
+      setOk('Copia de recepción enviada al cliente')
+    } catch (err: any) {
+      setError(err.message || 'No se pudo enviar la recepción')
+    } finally {
+      setSendingReception(false)
+    }
+  }
 
   async function saveExpediente() {
     if (!item) return
@@ -277,6 +304,17 @@ export default function ExpedienteFichaPage() {
           </div>
         </div>
       </div>
+
+      {hasReception && (
+        <div className="mb-5 flex flex-wrap gap-3">
+          <a href={`/api/recepciones/${id}/pdf`} target="_blank" rel="noreferrer" className="btn btn-red inline-flex items-center gap-2">
+            <Printer size={18} /> Abrir PDF de recepción
+          </a>
+          <button disabled={sendingReception} onClick={resendReception} className="btn btn-dark inline-flex items-center gap-2">
+            <Mail size={18} /> {sendingReception ? 'Enviando...' : 'Reenviar al cliente'}
+          </button>
+        </div>
+      )}
 
       {(error || ok) && (
         <div className={`card mb-5 p-4 ${error ? 'border-red-500/30 text-red-300' : 'border-emerald-500/30 text-emerald-300'}`}>
