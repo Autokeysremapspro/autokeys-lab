@@ -188,6 +188,9 @@ export default function WorkOrderWizard() {
     if (!signatureRef.current || signatureRef.current.isEmpty()) return toast.error('Falta la firma del cliente')
     if (!selectedWork) return toast.error('Falta seleccionar trabajo')
 
+    // Abrir la pestaña durante el clic para que los bloqueadores de popups no
+    // impidan imprimir la copia de recepción cuando terminen las subidas.
+    const pdfWindow = window.open('about:blank', '_blank')
     setLoading(true)
 
     const payload = {
@@ -209,6 +212,7 @@ export default function WorkOrderWizard() {
       .single()
 
     if (error) {
+      pdfWindow?.close()
       setLoading(false)
       return toast.error(error.message)
     }
@@ -277,8 +281,10 @@ export default function WorkOrderWizard() {
       })
       if (receptionError) throw receptionError
       await fetch(`/api/recepciones/${expediente.id}/email`, { method: 'POST' })
-      window.open(`/api/recepciones/${expediente.id}/pdf`, '_blank', 'noopener,noreferrer')
+      if (pdfWindow) pdfWindow.location.href = `/api/recepciones/${expediente.id}/pdf`
+      else window.open(`/api/recepciones/${expediente.id}/pdf`, '_blank', 'noopener,noreferrer')
     } catch (receptionError: any) {
+      pdfWindow?.close()
       toast.error(`OT creada, pero la recepción necesita revisión: ${receptionError.message || 'error'}`)
     }
     setLoading(false)
