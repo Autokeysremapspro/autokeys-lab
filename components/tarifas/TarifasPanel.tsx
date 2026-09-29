@@ -24,7 +24,8 @@ const emptyForm: TarifaForm = {
   categoria: 'llaves', familia: null, marca: null, modelo: null, anios: null, motor: null,
   sistema: null, ecu: null, combustible: null, acceso: null, transponder: null, espadin: null,
   situacion: null, servicio: '', descripcion: null, pvp: 0, precio_minimo: null,
-  precio_taller: null, incluye: null, condiciones: null, plazo: null,
+  pvp_desde: null, pvp_hasta: null, precio_taller_desde: null, precio_taller: null,
+  precio_taller_hasta: null, regla_precio: null, incluye: null, condiciones: null, plazo: null,
   requiere_laboratorio: false, activo: true,
 }
 
@@ -58,6 +59,17 @@ function descriptiveFields(row: TarifaServicio) {
   return fields.slice(0, 6)
 }
 
+function customerPrices(row: TarifaServicio, customer: 'particular' | 'taller') {
+  if (customer === 'taller' && row.precio_taller !== null) {
+    return {
+      from: row.precio_taller_desde ?? row.precio_taller,
+      recommended: row.precio_taller,
+      to: row.precio_taller_hasta ?? row.precio_taller,
+    }
+  }
+  return { from: row.pvp_desde ?? row.pvp, recommended: row.pvp, to: row.pvp_hasta ?? row.pvp }
+}
+
 function buildWhatsapp(row: TarifaServicio, customer: 'particular' | 'taller') {
   const price = customer === 'taller' && row.precio_taller !== null ? row.precio_taller : row.pvp
   const subject = [row.marca, row.modelo, row.servicio].filter(Boolean).join(' · ')
@@ -67,7 +79,7 @@ function buildWhatsapp(row: TarifaServicio, customer: 'particular' | 'taller') {
 function ServiceCard({ row, customer, canEdit, onEdit }: { row: TarifaServicio; customer: 'particular' | 'taller'; canEdit: boolean; onEdit: (row: TarifaServicio) => void }) {
   const config = categoryConfig[row.categoria]
   const Icon = config.icon
-  const customerPrice = customer === 'taller' && row.precio_taller !== null ? row.precio_taller : row.pvp
+  const prices = customerPrices(row, customer)
 
   async function copyAnswer() {
     try {
@@ -111,13 +123,17 @@ function ServiceCard({ row, customer, canEdit, onEdit }: { row: TarifaServicio; 
       ) : null}
 
       <div className="mt-auto pt-4">
-        <div className="flex items-end justify-between gap-3 border-t border-white/[0.06] pt-3">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-600">{customer === 'taller' ? 'Precio taller' : 'PVP recomendado'}</p>
-            <p className="mt-0.5 text-2xl font-black tracking-tight text-white">{euro(customerPrice)}</p>
-            {customer === 'taller' && row.precio_taller === null ? <p className="text-[10px] text-amber-400">Sin tarifa especial: usar PVP</p> : <p className="text-[10px] text-zinc-600">IVA incluido · piezas aparte si se indica</p>}
+        <div className="border-t border-white/[0.06] pt-3">
+          <div className="grid grid-cols-3 gap-2 rounded-xl border border-white/[0.07] bg-black/20 p-2">
+            <div className="px-1 py-1"><p className="text-[9px] font-black uppercase tracking-wider text-zinc-600">Desde</p><p className="mt-1 text-sm font-black text-zinc-300">{euro(prices.from)}</p><p className="mt-0.5 text-[9px] text-zinc-700">Caso sencillo</p></div>
+            <div className="rounded-lg border border-[#c81f2a]/30 bg-[#c81f2a]/10 px-2 py-1"><p className="text-[9px] font-black uppercase tracking-wider text-[#ff7887]">Recomendado</p><p className="mt-1 text-lg font-black text-white">{euro(prices.recommended)}</p><p className="mt-0.5 text-[9px] text-zinc-500">Usar por defecto</p></div>
+            <div className="px-1 py-1 text-right"><p className="text-[9px] font-black uppercase tracking-wider text-zinc-600">Hasta</p><p className="mt-1 text-sm font-black text-zinc-300">{euro(prices.to)}</p><p className="mt-0.5 text-[9px] text-zinc-700">Complejo / urgente</p></div>
           </div>
-          <button type="button" onClick={copyAnswer} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold text-zinc-300 hover:bg-white/[0.08] hover:text-white"><Clipboard size={14} /> Copiar</button>
+          {row.regla_precio ? <p className="mt-2 rounded-lg bg-white/[0.025] px-2.5 py-2 text-[10px] leading-4 text-zinc-500"><span className="font-bold text-zinc-400">Qué cobrar:</span> {row.regla_precio}</p> : null}
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <p className="text-[10px] text-zinc-600">IVA incluido · piezas aparte si se indica</p>
+            <button type="button" onClick={copyAnswer} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold text-zinc-300 hover:bg-white/[0.08] hover:text-white"><Clipboard size={14} /> Copiar recomendado</button>
+          </div>
         </div>
       </div>
     </article>
@@ -177,8 +193,13 @@ function EditModal({ initial, onClose, onSaved }: { initial: TarifaServicio | nu
           <Field label="Acceso"><input value={form.acceso || ''} onChange={(e) => set('acceso', e.target.value)} className={inputClass} /></Field>
           <Field label="Plazo"><input value={form.plazo || ''} onChange={(e) => set('plazo', e.target.value)} className={inputClass} /></Field>
           <Field label="PVP recomendado *"><input required min="0" step="0.01" type="number" value={form.pvp} onChange={(e) => set('pvp', e.target.value)} className={inputClass} /></Field>
+          <Field label="PVP desde"><input min="0" step="0.01" type="number" value={form.pvp_desde ?? ''} onChange={(e) => set('pvp_desde', e.target.value)} className={inputClass} /></Field>
+          <Field label="PVP hasta"><input min="0" step="0.01" type="number" value={form.pvp_hasta ?? ''} onChange={(e) => set('pvp_hasta', e.target.value)} className={inputClass} /></Field>
           <Field label="Mínimo interno"><input min="0" step="0.01" type="number" value={form.precio_minimo ?? ''} onChange={(e) => set('precio_minimo', e.target.value)} className={inputClass} /></Field>
+          <Field label="Taller desde"><input min="0" step="0.01" type="number" value={form.precio_taller_desde ?? ''} onChange={(e) => set('precio_taller_desde', e.target.value)} className={inputClass} /></Field>
           <Field label="Precio taller"><input min="0" step="0.01" type="number" value={form.precio_taller ?? ''} onChange={(e) => set('precio_taller', e.target.value)} className={inputClass} /></Field>
+          <Field label="Taller hasta"><input min="0" step="0.01" type="number" value={form.precio_taller_hasta ?? ''} onChange={(e) => set('precio_taller_hasta', e.target.value)} className={inputClass} /></Field>
+          <div className="sm:col-span-2 lg:col-span-3"><Field label="Regla sencilla para elegir el precio"><textarea rows={2} value={form.regla_precio || ''} onChange={(e) => set('regla_precio', e.target.value)} className={inputClass} /></Field></div>
           <div className="sm:col-span-2 lg:col-span-3"><Field label="Qué incluye"><textarea rows={2} value={form.incluye || ''} onChange={(e) => set('incluye', e.target.value)} className={inputClass} /></Field></div>
           <div className="sm:col-span-2 lg:col-span-3"><Field label="Condiciones / observaciones"><textarea rows={3} value={form.condiciones || ''} onChange={(e) => set('condiciones', e.target.value)} className={inputClass} /></Field></div>
           <label className="flex items-center gap-3 rounded-xl border border-amber-400/15 bg-amber-400/[0.05] p-3 text-xs font-bold text-amber-100 sm:col-span-2"><input type="checkbox" checked={form.requiere_laboratorio} onChange={(e) => set('requiere_laboratorio', e.target.checked)} className="h-4 w-4" /> Obligar a confirmar con laboratorio</label>

@@ -20,9 +20,14 @@ export type TarifaServicio = {
   situacion: string | null
   servicio: string
   descripcion: string | null
+  pvp_desde: number | null
   pvp: number
+  pvp_hasta: number | null
   precio_minimo?: number | null
+  precio_taller_desde: number | null
   precio_taller: number | null
+  precio_taller_hasta: number | null
+  regla_precio: string | null
   incluye: string | null
   condiciones: string | null
   plazo: string | null

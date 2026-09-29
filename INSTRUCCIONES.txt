@@ -1,0 +1,17 @@
+ACTUALIZACIÓN AK TARIFAS · DESDE / RECOMENDADO / HASTA
+
+1. Descomprime el ZIP.
+2. En GitHub, abre el repositorio Autokeysremapspro/autokeys-lab.
+3. Pulsa Add file > Upload files.
+4. Arrastra las carpetas app, components, types y supabase que hay dentro del ZIP.
+5. Confirma que GitHub indica 4 archivos modificados o añadidos.
+6. Escribe como mensaje: Add price ranges to AK Tarifas
+7. Pulsa Commit changes.
+
+La base de datos ya está actualizada con los rangos de los 466 servicios.
+Después del despliegue, AK Tarifas mostrará Desde, Recomendado y Hasta para
+particulares y talleres. El coste y el mínimo interno siguen reservados para
+administración.
+
+Si GitHub pregunta si quieres reemplazar archivos existentes, acepta únicamente
+los archivos incluidos en este paquete.
