@@ -1,6 +1,5 @@
 'use client'
 
-import ChatInterno from '@/components/ChatInterno'
 import LabShell from '@/components/lab/LabShell'
 
 /* Legacy pages keep AppShell as a compatibility import, but AppShell no longer
@@ -12,7 +11,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <LabShell>
         {children}
       </LabShell>
-      <ChatInterno />
     </>
   )
 }

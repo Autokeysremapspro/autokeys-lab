@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import LabSidebar from './LabSidebar'
 import LabTopbar from './LabTopbar'
 import LabFooterBar from './LabFooterBar'
+import ChatInterno from '@/components/ChatInterno'
 
 export default function LabShell({
   title,
@@ -100,6 +101,7 @@ export default function LabShell({
           {footer && <LabFooterBar />}
         </main>
       </div>
+      <ChatInterno />
     </div>
   )
 }
