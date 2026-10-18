@@ -21,6 +21,7 @@ import {
   Lock,
   MoreHorizontal,
   X,
+  MessageCircle,
 } from 'lucide-react'
 import { LabLogoMark } from './LabBrand'
 
@@ -108,6 +109,18 @@ export default function LabSidebar({ open, onClose }: { open: boolean; onClose: 
             )
           })}
         </nav>
+
+        <button
+          type="button"
+          onClick={() => {
+            window.dispatchEvent(new Event('ak-core-open-chat'))
+            onClose()
+          }}
+          className="flex items-center gap-3 rounded-xl border border-[#c81f2a]/30 bg-[#c81f2a]/10 px-3.5 py-3 text-left text-[13.5px] font-semibold text-white transition hover:bg-[#c81f2a]/20"
+        >
+          <MessageCircle size={18} className="text-[#ff5468]" />
+          <span>Comunicación interna</span>
+        </button>
 
         <div className="space-y-3 border-t border-white/10 pt-4">
           <div className="flex items-center gap-3 rounded-xl px-1 py-1">
