@@ -36,6 +36,12 @@ export default function ChatInterno() {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const abrirChat = () => setOpen(true)
+    window.addEventListener('ak-core-open-chat', abrirChat)
+    return () => window.removeEventListener('ak-core-open-chat', abrirChat)
+  }, [])
+
+  useEffect(() => {
     getPerfilActual().then(setPerfil).catch(() => setPerfil(null))
   }, [])
 
@@ -163,9 +169,10 @@ export default function ChatInterno() {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? 'Cerrar chat interno' : 'Abrir chat interno'}
-        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#7a0f16] to-[#c81f2a] text-[#0a0d12] shadow-[0_18px_45px_rgba(200,31,42,.35)] transition hover:scale-105"
+        className="relative flex h-14 items-center gap-2.5 rounded-full bg-gradient-to-br from-[#7a0f16] to-[#c81f2a] px-5 text-white shadow-[0_18px_45px_rgba(200,31,42,.35)] transition hover:scale-[1.03]"
       >
-        {open ? <X size={24} /> : <MessageCircle size={24} />}
+        {open ? <X size={21} /> : <MessageCircle size={21} />}
+        <span className="text-sm font-bold">Comunicación</span>
         {!open && unread > 0 && (
           <span className="ak-mono absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-[#0a0d12] bg-[#5eead4] px-1 text-[10px] font-bold text-[#0a0d12]">
             {unread > 9 ? '9+' : unread}
