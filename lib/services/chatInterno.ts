@@ -61,14 +61,19 @@ export async function enviarMensaje(canal: CanalChat, mensaje: string, autor: Pe
   if (error) throw error
 }
 
-// Suscripción en tiempo real a los mensajes nuevos de un canal.
+// Suscripción en tiempo real a un canal concreto o a todos los canales.
 // Devuelve una función para cancelar la suscripción.
-export function suscribirMensajes(canal: CanalChat, onNuevo: (mensaje: MensajeChatInterno) => void) {
+export function suscribirMensajes(canal: CanalChat | null, onNuevo: (mensaje: MensajeChatInterno) => void) {
   const channel = supabase
-    .channel(`chat-interno-${canal}`)
+    .channel(`chat-interno-${canal || 'todos'}`)
     .on(
       'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'chat_interno_mensajes', filter: `canal=eq.${canal}` },
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'chat_interno_mensajes',
+        ...(canal ? { filter: `canal=eq.${canal}` } : {}),
+      },
       (payload) => onNuevo(payload.new as MensajeChatInterno)
     )
     .subscribe()
