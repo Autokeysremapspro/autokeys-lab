@@ -37,20 +37,22 @@ async function playChatAlertSound() {
     const gain = context.createGain()
     gain.connect(context.destination)
     gain.gain.setValueAtTime(0.0001, now)
-    gain.gain.exponentialRampToValueAtTime(0.16, now + 0.02)
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.55)
+    gain.gain.exponentialRampToValueAtTime(0.82, now + 0.025)
+    gain.gain.setValueAtTime(0.82, now + 0.38)
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.72)
 
-    const frequencies = [740, 988]
+    // Tono ascendente, breve y reconocible, inspirado en los avisos clásicos de mensajería.
+    const frequencies = [784, 988, 1175]
     frequencies.forEach((frequency, index) => {
       const oscillator = context.createOscillator()
       oscillator.type = 'sine'
       oscillator.frequency.value = frequency
       oscillator.connect(gain)
-      const start = now + index * 0.14
+      const start = now + index * 0.16
       oscillator.start(start)
-      oscillator.stop(start + 0.2)
+      oscillator.stop(start + 0.22)
     })
-    window.setTimeout(() => gain.disconnect(), 700)
+    window.setTimeout(() => gain.disconnect(), 850)
     return true
   } catch (error) {
     console.debug('No se pudo reproducir el sonido del chat', error)
@@ -129,8 +131,9 @@ export default function ChatInterno() {
         setMensajes((current) => current.some((item) => item.id === nuevo.id) ? current : [...current, nuevo])
       }
       if (!openRef.current || nuevo.canal !== canalRef.current) setUnread((count) => count + 1)
-      if (esMio || (openRef.current && nuevo.canal === canalRef.current)) return
+      if (esMio) return
       if (soundEnabledRef.current) void playChatAlertSound()
+      if (openRef.current && nuevo.canal === canalRef.current) return
 
       const nombreCanal = CANALES.find((item) => item.slug === nuevo.canal)?.label || 'Chat interno'
       const resumen = nuevo.mensaje.length > 120 ? nuevo.mensaje.slice(0, 117) + '…' : nuevo.mensaje
