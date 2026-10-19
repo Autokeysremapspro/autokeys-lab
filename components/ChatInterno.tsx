@@ -129,8 +129,9 @@ export default function ChatInterno() {
         setMensajes((current) => current.some((item) => item.id === nuevo.id) ? current : [...current, nuevo])
       }
       if (!openRef.current || nuevo.canal !== canalRef.current) setUnread((count) => count + 1)
-      if (esMio || (openRef.current && nuevo.canal === canalRef.current)) return
+      if (esMio) return
       if (soundEnabledRef.current) void playChatAlertSound()
+      if (openRef.current && nuevo.canal === canalRef.current) return
 
       const nombreCanal = CANALES.find((item) => item.slug === nuevo.canal)?.label || 'Chat interno'
       const resumen = nuevo.mensaje.length > 120 ? nuevo.mensaje.slice(0, 117) + '…' : nuevo.mensaje
