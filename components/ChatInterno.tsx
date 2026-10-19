@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { MessageCircle, Send, Wrench, Building2, Users, X, Bell, BellRing } from 'lucide-react'
+import { MessageCircle, Send, Wrench, Building2, Users, X, Bell, BellRing, Volume2, VolumeX } from 'lucide-react'
 import toast from 'react-hot-toast'
 import {
   getMensajes,
@@ -20,6 +20,43 @@ const CANALES: { slug: CanalChat; label: string; icon: any }[] = [
 ]
 
 const LAST_SEEN_KEY = 'ak-core-chat-last-seen'
+const CHAT_SOUND_KEY = 'ak-core-chat-sound-enabled'
+let chatAudioContext: AudioContext | null = null
+
+async function playChatAlertSound() {
+  if (typeof window === 'undefined') return false
+  try {
+    const AudioCtor = window.AudioContext || (window as any).webkitAudioContext
+    if (!AudioCtor) return false
+    if (!chatAudioContext || chatAudioContext.state === 'closed') chatAudioContext = new AudioCtor()
+    if (chatAudioContext.state === 'suspended') await chatAudioContext.resume()
+    if (chatAudioContext.state !== 'running') return false
+
+    const context = chatAudioContext
+    const now = context.currentTime
+    const gain = context.createGain()
+    gain.connect(context.destination)
+    gain.gain.setValueAtTime(0.0001, now)
+    gain.gain.exponentialRampToValueAtTime(0.16, now + 0.02)
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.55)
+
+    const frequencies = [740, 988]
+    frequencies.forEach((frequency, index) => {
+      const oscillator = context.createOscillator()
+      oscillator.type = 'sine'
+      oscillator.frequency.value = frequency
+      oscillator.connect(gain)
+      const start = now + index * 0.14
+      oscillator.start(start)
+      oscillator.stop(start + 0.2)
+    })
+    window.setTimeout(() => gain.disconnect(), 700)
+    return true
+  } catch (error) {
+    console.debug('No se pudo reproducir el sonido del chat', error)
+    return false
+  }
+}
 
 function formatHora(iso: string) {
   return new Date(iso).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
@@ -35,19 +72,26 @@ export default function ChatInterno() {
   const [sending, setSending] = useState(false)
   const [unread, setUnread] = useState(0)
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>('unsupported')
+  const [soundEnabled, setSoundEnabled] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const openRef = useRef(open)
   const canalRef = useRef(canal)
   const perfilRef = useRef(perfil)
   const permissionRef = useRef(permission)
+  const soundEnabledRef = useRef(soundEnabled)
 
   openRef.current = open
   canalRef.current = canal
   perfilRef.current = perfil
   permissionRef.current = permission
+  soundEnabledRef.current = soundEnabled
 
   useEffect(() => {
     if ('Notification' in window) setPermission(Notification.permission)
+    try {
+      const saved = window.localStorage.getItem(CHAT_SOUND_KEY)
+      if (saved === 'true') setSoundEnabled(true)
+    } catch {}
   }, [])
 
   useEffect(() => {
@@ -86,6 +130,7 @@ export default function ChatInterno() {
       }
       if (!openRef.current || nuevo.canal !== canalRef.current) setUnread((count) => count + 1)
       if (esMio || (openRef.current && nuevo.canal === canalRef.current)) return
+      if (soundEnabledRef.current) void playChatAlertSound()
 
       const nombreCanal = CANALES.find((item) => item.slug === nuevo.canal)?.label || 'Chat interno'
       const resumen = nuevo.mensaje.length > 120 ? nuevo.mensaje.slice(0, 117) + '…' : nuevo.mensaje
@@ -124,6 +169,23 @@ export default function ChatInterno() {
       try { window.localStorage.setItem(LAST_SEEN_KEY, new Date().toISOString()) } catch {}
     }
   }, [open, canal])
+
+  function alternarSonido() {
+    const next = !soundEnabledRef.current
+    soundEnabledRef.current = next
+    setSoundEnabled(next)
+    try { window.localStorage.setItem(CHAT_SOUND_KEY, String(next)) } catch {}
+
+    if (!next) {
+      toast('Sonido del chat silenciado')
+      return
+    }
+
+    void playChatAlertSound().then((played) => {
+      if (played) toast.success('Sonido del chat activado')
+      else toast.error('El navegador no permite reproducir sonido')
+    })
+  }
 
   async function activarAvisos() {
     if (!('Notification' in window)) {
@@ -174,6 +236,15 @@ export default function ChatInterno() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={alternarSonido}
+                aria-label={soundEnabled ? 'Silenciar sonido del chat' : 'Activar sonido del chat'}
+                title={soundEnabled ? 'Silenciar sonido del chat' : 'Activar sonido del chat'}
+                className={soundEnabled ? 'text-emerald-400' : 'text-zinc-500 hover:text-white'}
+              >
+                {soundEnabled ? <Volume2 size={17} /> : <VolumeX size={17} />}
+              </button>
               <button
                 type="button"
                 onClick={activarAvisos}
